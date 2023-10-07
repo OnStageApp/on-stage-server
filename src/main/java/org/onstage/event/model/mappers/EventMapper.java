@@ -1,21 +1,18 @@
 package org.onstage.event.model.mappers;
 
+import org.mapstruct.Mapper;
 import org.onstage.event.client.Event;
 import org.onstage.event.model.EventEntity;
-import org.springframework.stereotype.Component;
 
-@Component
-public class EventMapper {
-    public Event toApi(EventEntity entity) {
-        return Event.builder()
-                .id(entity.id())
-                .build();
-    }
+import java.util.List;
 
-    public EventEntity toDb(Event request) {
-        return EventEntity.builder()
-                .title(request.title())
-                .date(request.date())
-                .build();
-    }
+@Mapper(componentModel = "spring")
+public interface EventMapper {
+    Event toApi(EventEntity entity);
+
+    EventEntity toDb(Event request);
+
+    List<Event> toApiList(List<EventEntity> entities);
+
+    List<EventEntity> toDbList(List<Event> requests);
 }
