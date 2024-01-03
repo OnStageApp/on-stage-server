@@ -5,16 +5,11 @@ import org.onstage.event.client.Event;
 import org.onstage.event.model.EventEntity;
 import org.onstage.event.model.mappers.EventMapper;
 import org.onstage.event.service.EventService;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Component
+@RestController
 @RequestMapping("events")
 @RequiredArgsConstructor
 public class EventController {
