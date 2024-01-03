@@ -1,5 +1,6 @@
 package org.onstage.event.controller;
 
+import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import org.onstage.event.client.Event;
 import org.onstage.event.model.EventEntity;
@@ -31,5 +32,8 @@ public class EventController {
         return service.create(event).id();
     }
 
-
+    @PatchMapping("/{id}")
+    public Event patch(@PathVariable String id, @RequestBody JsonPatch jsonPatch){
+        return mapper.toApi(service.patch(id, jsonPatch));
+    }
 }

@@ -10,7 +10,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class EventRepository {
-    public final EventRepo repo;
+    private final EventRepo repo;
 
     public Optional<EventEntity> findById(String id) {
         return repo.findById(id);
@@ -20,7 +20,7 @@ public class EventRepository {
         return repo.findAll();
     }
 
-    public EventEntity create(EventEntity event) {
+    public EventEntity save(EventEntity event) {
         return repo.save(event);
     }
 }

@@ -1,8 +1,11 @@
 package org.onstage.event.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.onstage.event.client.Event;
 import org.onstage.event.exceptions.ResourceNotFoundException;
 import org.onstage.event.model.EventEntity;
 import org.onstage.event.repository.EventRepository;
@@ -15,6 +18,7 @@ import java.util.List;
 @Slf4j
 public class EventService {
     private final EventRepository repository;
+    private final ObjectMapper objectMapper;
 
     public EventEntity getById(String id) {
         return repository.findById(id)
@@ -26,8 +30,18 @@ public class EventService {
     }
 
     public EventEntity create(EventEntity event) {
-        EventEntity savedEvent = repository.create(event);
+        EventEntity savedEvent = repository.save(event);
         log.info("Event has been saved | {}", event);
         return savedEvent;
+    }
+
+    public EventEntity patch(String id, JsonPatch jsonPatch) {
+        return repository.save(applyPatchToEvent(getById(id), jsonPatch));
+    }
+
+    @SneakyThrows
+    private EventEntity applyPatchToEvent(EventEntity entity, JsonPatch jsonPatch) {
+        JsonNode patched = jsonPatch.apply(objectMapper.convertValue(entity, JsonNode.class));
+        return objectMapper.treeToValue(patched, EventEntity.class);
     }
 }
