@@ -7,18 +7,22 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Builder
 @Document("events")
 @FieldNameConstants
 public record EventEntity(
         String id,
-        String title,
+        String name,
         LocalDateTime date,
-        LocalDateTime rehearsalDate,
+        List<LocalDateTime> rehearsalDates,
         String location,
         List<String> planners,
-        List<String> eventItemIds,
+        List<EventItemEntity> eventItems,
         List<String> stagerIds
 ) {
+    public EventEntity {
+        Objects.requireNonNull(name);
+    }
 }
