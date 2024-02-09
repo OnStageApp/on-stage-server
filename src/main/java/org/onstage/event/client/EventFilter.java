@@ -1,4 +1,4 @@
-package org.onstage.event.controller;
+package org.onstage.event.client;
 
 import lombok.Builder;
 

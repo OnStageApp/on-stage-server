@@ -9,10 +9,10 @@
 		<relativePath/>
 	</parent>
 	<groupId>org.onstage</groupId>
-	<artifactId>event-service</artifactId>
+	<artifactId>onstage-server</artifactId>
 	<version>1.0.0</version>
-	<name>event-service</name>
-	<description>Event Service for OnStageApp</description>
+	<name>onstage-server</name>
+	<description>OnStage server app</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
