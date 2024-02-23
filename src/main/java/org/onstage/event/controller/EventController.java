@@ -3,14 +3,13 @@ package org.onstage.event.controller;
 import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import org.onstage.event.client.Event;
+import org.onstage.event.client.EventFilter;
 import org.onstage.event.client.EventOverview;
 import org.onstage.event.model.EventEntity;
 import org.onstage.event.model.mappers.EventMapper;
 import org.onstage.event.service.EventService;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -26,18 +25,15 @@ public class EventController {
     }
 
     @GetMapping
-    public List<EventOverview> getAll(
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime endDate) {
-        if (startDate != null || endDate != null) {
-            return eventMapper.toOverviewList(eventService.getAllByRange(startDate, endDate));
+    public List<EventOverview> getAll(@RequestBody EventFilter filter) {
+        if (filter.startDate() != null || filter.endDate() != null) {
+            return eventMapper.toOverviewList(eventService.getAllByRange(filter.startDate(), filter.endDate()));
         }
-        return eventMapper.toOverviewList(eventService.getAll(search));
+        return eventMapper.toOverviewList(eventService.getAll(filter.search()));
     }
 
     @PostMapping
-    public String create(@RequestBody() EventEntity event) {
+    public String create(@RequestBody EventEntity event) {
         return eventService.create(event).id();
     }
 

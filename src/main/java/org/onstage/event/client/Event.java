@@ -2,6 +2,8 @@ package org.onstage.event.client;
 
 
 import lombok.Builder;
+import lombok.NonNull;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,7 +15,6 @@ public record Event(
         LocalDateTime date,
         List<LocalDateTime> rehearsalDates,
         String location,
-        List<EventItem> eventItems,
         boolean enabled
 ) {
 }

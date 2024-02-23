@@ -8,6 +8,7 @@ public record EventItem(
         String name,
         int index,
         EventItemType eventType,
-        String songId
+        String songId,
+        String eventId
 ) {
 }

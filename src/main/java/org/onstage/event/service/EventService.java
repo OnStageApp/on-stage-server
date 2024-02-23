@@ -6,7 +6,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.onstage.event.exceptions.ResourceNotFoundException;
+import org.onstage.exceptions.ResourceNotFoundException;
 import org.onstage.event.model.EventEntity;
 import org.onstage.event.repository.EventItemRepository;
 import org.onstage.event.repository.EventRepository;
@@ -30,7 +30,6 @@ public class EventService {
 
     public EventEntity create(EventEntity event) {
         EventEntity savedEvent = repository.save(event);
-        event.eventItems().forEach(eventItemRepository::save);
         log.info("Event has been saved | {}", event);
         return savedEvent;
     }
