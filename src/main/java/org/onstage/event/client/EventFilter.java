@@ -2,10 +2,12 @@ package org.onstage.event.client;
 
 import lombok.Builder;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Builder
 public record EventFilter(
-        List<String> stagerIds
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+        String search
 ) {
 }
