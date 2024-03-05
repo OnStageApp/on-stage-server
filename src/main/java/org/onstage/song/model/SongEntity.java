@@ -5,6 +5,8 @@ import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
+import java.time.LocalDateTime;
+
 @Builder
 @Document("songs")
 @FieldNameConstants
@@ -15,8 +17,8 @@ public record SongEntity(
         String lyrics,
         String tab,
         String key,
-        String createdAt,
-        String updatedAt,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt,
         String artist
 
 ) {

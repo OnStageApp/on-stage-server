@@ -1,13 +1,15 @@
 package org.onstage.song.client;
 
+import java.time.LocalDateTime;
+
 public record Song (
         String id,
         String title,
         String lyrics,
         String tab,
         String key,
-        String createdAt,
-        String updatedAt,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt,
         String artist
 ) {
 }
