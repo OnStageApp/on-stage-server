@@ -25,7 +25,7 @@ public class EventController {
     }
 
     @GetMapping
-    public List<EventOverview> getAll(@RequestBody(required = false) EventFilter filter) {
+    public List<EventOverview> getAll(EventFilter filter) {
         if (filter.startDate() != null || filter.endDate() != null) {
             return eventMapper.toOverviewList(eventService.getAllByRange(filter.startDate(), filter.endDate()));
         }
