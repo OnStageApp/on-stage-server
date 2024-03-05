@@ -15,11 +15,9 @@ import java.util.List;
 @RestController
 @RequestMapping("songs")
 @RequiredArgsConstructor
-@Slf4j
 public class SongController {
     private final SongService songService;
     private final SongMapper songMapper;
-
 
     @GetMapping("/{id}")
     public ResponseEntity<Song> getById(@PathVariable final String id) {

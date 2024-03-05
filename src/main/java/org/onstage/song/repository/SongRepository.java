@@ -15,7 +15,6 @@ public class SongRepository {
     private final SongRepo songRepo;
     private final MongoTemplate mongoTemplate;
 
-
     public Optional<SongEntity> findById(String id) {
         return songRepo.findById(id);
     }
@@ -26,7 +25,6 @@ public class SongRepository {
 
     public SongEntity create(SongEntity song) {
         return songRepo.save(song);
-
     }
 
     public SongEntity save(SongEntity event) {
