@@ -14,26 +14,26 @@ import java.util.List;
 @RequestMapping("events")
 @RequiredArgsConstructor
 public class EventController {
-    private final EventService service;
-    private final EventMapper mapper;
+    private final EventService eventService;
+    private final EventMapper eventMapper;
 
     @GetMapping("/{id}")
     public Event getById(@PathVariable final String id) {
-        return mapper.toApi(service.getById(id));
+        return eventMapper.toApi(eventService.getById(id));
     }
 
     @GetMapping
     public List<Event> getAll() {
-        return mapper.toApiList(service.getAll());
+        return eventMapper.toApiList(eventService.getAll());
     }
 
     @PostMapping
     public String create(@RequestBody final EventEntity event) {
-        return service.create(event).id();
+        return eventService.create(event).id();
     }
 
     @PatchMapping("/{id}")
     public Event patch(@PathVariable String id, @RequestBody JsonPatch jsonPatch){
-        return mapper.toApi(service.patch(id, jsonPatch));
+        return eventMapper.toApi(eventService.patch(id, jsonPatch));
     }
 }
