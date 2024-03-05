@@ -11,7 +11,14 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 public record SongEntity(
         @MongoId
         String id,
-        String name
+        String title,
+        String lyrics,
+        String tab,
+        String key,
+        String createdAt,
+        String updatedAt,
+        String artist
+
 ) {
 
 }
