@@ -6,10 +6,10 @@ import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.onstage.exceptions.ResourceNotFoundException;
 import org.onstage.event.model.EventEntity;
 import org.onstage.event.repository.EventItemRepository;
 import org.onstage.event.repository.EventRepository;
+import org.onstage.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

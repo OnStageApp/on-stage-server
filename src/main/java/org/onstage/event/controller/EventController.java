@@ -8,6 +8,7 @@ import org.onstage.event.client.EventOverview;
 import org.onstage.event.model.EventEntity;
 import org.onstage.event.model.mappers.EventMapper;
 import org.onstage.event.service.EventService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,30 +21,30 @@ public class EventController {
     private final EventMapper eventMapper;
 
     @GetMapping("/{id}")
-    public Event getById(@PathVariable final String id) {
-        return eventMapper.toApi(eventService.getById(id));
+    public ResponseEntity<Event> getById(@PathVariable final String id) {
+        return ResponseEntity.ok(eventMapper.toApi(eventService.getById(id)));
     }
 
     @GetMapping
-    public List<EventOverview> getAll(EventFilter filter) {
+    public ResponseEntity<List<EventOverview>> getAll(EventFilter filter) {
         if (filter.startDate() != null || filter.endDate() != null) {
-            return eventMapper.toOverviewList(eventService.getAllByRange(filter.startDate(), filter.endDate()));
+            return ResponseEntity.ok(eventMapper.toOverviewList(eventService.getAllByRange(filter.startDate(), filter.endDate())));
         }
-        return eventMapper.toOverviewList(eventService.getAll(filter.search()));
+        return ResponseEntity.ok(eventMapper.toOverviewList(eventService.getAll(filter.search())));
     }
 
     @PostMapping
-    public String create(@RequestBody EventEntity event) {
-        return eventService.create(event).id();
+    public ResponseEntity<Event> create(@RequestBody EventEntity event) {
+        return ResponseEntity.ok(eventMapper.toApi(eventService.create(event)));
     }
 
     @DeleteMapping("/{id}")
-    public String delete(@PathVariable final String id) {
-        return eventService.delete(id);
+    public ResponseEntity<String> delete(@PathVariable final String id) {
+        return ResponseEntity.ok(eventService.delete(id));
     }
 
     @PatchMapping("/{id}")
-    public Event patch(@PathVariable String id, @RequestBody JsonPatch jsonPatch) {
-        return eventMapper.toApi(eventService.patch(id, jsonPatch));
+    public ResponseEntity<Event> patch(@PathVariable String id, @RequestBody JsonPatch jsonPatch) {
+        return ResponseEntity.ok(eventMapper.toApi(eventService.patch(id, jsonPatch)));
     }
 }

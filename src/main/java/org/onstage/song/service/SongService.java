@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.onstage.event.exceptions.ResourceNotFoundException;
-import org.onstage.event.model.EventEntity;
-import org.onstage.song.client.Song;
+import org.onstage.exceptions.ResourceNotFoundException;
 import org.onstage.song.model.SongEntity;
 import org.onstage.song.repository.SongRepository;
 import org.springframework.stereotype.Service;
@@ -23,7 +21,7 @@ public class SongService {
 
     public SongEntity getById(String id) {
         return songRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Event with id:%s was not found".formatted(id)));
+                .orElseThrow(() -> new ResourceNotFoundException("Song with id:%s was not found".formatted(id)));
     }
 
     public List<SongEntity> getAll() {
