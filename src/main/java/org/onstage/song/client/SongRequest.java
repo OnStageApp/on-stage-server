@@ -4,14 +4,13 @@ import org.onstage.artist.client.Artist;
 
 import java.time.LocalDateTime;
 
-public record Song(
-        String id,
+public record SongRequest (
         String title,
         String lyrics,
         String tab,
         String key,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        Artist artist
+        String artistId
 ) {
 }
