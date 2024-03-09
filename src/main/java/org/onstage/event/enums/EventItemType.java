@@ -6,11 +6,11 @@ public enum EventItemType {
 
     private final String value;
 
-    EventItemType( String value) {
+    EventItemType(String value) {
         this.value = value;
     }
 
-    public String toString(){
+    public String toString() {
         return value;
     }
 }
