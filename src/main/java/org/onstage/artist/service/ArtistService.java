@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static org.apache.logging.log4j.util.Strings.isEmpty;
-
 @Service
 @RequiredArgsConstructor
 public class ArtistService {
@@ -22,10 +20,6 @@ public class ArtistService {
     private final ObjectMapper objectMapper;
 
     public ArtistEntity getById(String id) {
-        if (isEmpty(id)) {
-            return null;
-        }
-
         return artistRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Artist with id:%s was not found".formatted(id)));
     }

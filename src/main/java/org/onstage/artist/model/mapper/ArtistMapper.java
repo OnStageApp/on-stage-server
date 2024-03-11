@@ -17,8 +17,4 @@ public interface ArtistMapper {
     ArtistEntity toDb(Artist request);
 
     List<Artist> toApiList(List<ArtistEntity> entities);
-
-    List<ArtistEntity> toDbList(List<Artist> requests);
-
-    ArtistEntity toEntity(String id);
 }

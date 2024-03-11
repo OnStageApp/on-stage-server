@@ -1,5 +1,6 @@
 package org.onstage.song.model.mapper;
 
+import org.apache.logging.log4j.util.Strings;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.onstage.artist.client.Artist;
@@ -39,7 +40,7 @@ public abstract class SongMapper {
 
     protected Artist mapArtist(String artistId) {
 
-        Optional<ArtistEntity> artist = artistId != null ? artistRepository.findById(artistId) : Optional.empty();
+        Optional<ArtistEntity> artist = Strings.isEmpty(artistId) ? Optional.empty() : artistRepository.findById(artistId);
 
         return artist.map(artistEntity -> artistMapper.toApi(artistEntity)).orElse(null);
     }
