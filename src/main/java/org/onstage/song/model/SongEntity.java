@@ -19,7 +19,7 @@ public record SongEntity(
         String key,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        String artist
+        String artistId
 
 ) {
 

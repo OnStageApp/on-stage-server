@@ -2,9 +2,8 @@ package org.onstage.song.controller;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.onstage.event.client.Event;
 import org.onstage.song.client.Song;
+import org.onstage.song.client.SongRequest;
 import org.onstage.song.model.mapper.SongMapper;
 import org.onstage.song.service.SongService;
 import org.springframework.http.ResponseEntity;
@@ -21,21 +20,21 @@ public class SongController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Song> getById(@PathVariable final String id) {
-        return ResponseEntity.ok(songMapper.toApi(songService.getById(id)));
+        return ResponseEntity.ok(songMapper.toDto(songService.getById(id)));
     }
 
     @GetMapping
     public ResponseEntity<List<Song>> getAll() {
-        return ResponseEntity.ok(songMapper.toDto(songService.getAll()));
+        return ResponseEntity.ok(songMapper.toListDto(songService.getAll()));
     }
 
     @PostMapping()
-    public ResponseEntity<Song> create(@RequestBody Song song) {
-        return ResponseEntity.ok(songMapper.toApi(songService.create(songMapper.fromDto(song))));
+    public ResponseEntity<Song> create(@RequestBody SongRequest request) {
+        return ResponseEntity.ok(songMapper.toDto(songService.create(songMapper.fromRequest(request))));
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Song> patch(@PathVariable String id, @RequestBody JsonPatch jsonPatch) {
-        return ResponseEntity.ok(songMapper.toApi(songService.patch(id, jsonPatch)));
+        return ResponseEntity.ok(songMapper.toDto(songService.patch(id, jsonPatch)));
     }
 }
