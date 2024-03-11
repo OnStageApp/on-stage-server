@@ -4,6 +4,7 @@ package org.onstage.event.model;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.experimental.FieldNameConstants;
+import org.onstage.event.enums.EventStatus;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -22,6 +23,10 @@ public record EventEntity(
         List<LocalDateTime> rehearsalDates,
         String location,
         List<String> planners,
-        List<String> stagerIds
+        List<String> stagerIds,
+        EventStatus eventStatus
 ) {
+    public EventEntity {
+        if (eventStatus == null) eventStatus = EventStatus.DRAFT;
+    }
 }

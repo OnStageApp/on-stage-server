@@ -3,6 +3,7 @@ package org.onstage.event.client;
 
 import lombok.Builder;
 import lombok.NonNull;
+import org.onstage.event.enums.EventStatus;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.LocalDateTime;
@@ -15,7 +16,8 @@ public record Event(
         LocalDateTime date,
         List<LocalDateTime> rehearsalDates,
         String location,
-        boolean enabled
+        boolean enabled,
+        EventStatus eventStatus
 ) {
 }
 
