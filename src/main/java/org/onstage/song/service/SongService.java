@@ -24,8 +24,8 @@ public class SongService {
                 .orElseThrow(() -> new ResourceNotFoundException("Song with id:%s was not found".formatted(id)));
     }
 
-    public List<SongEntity> getAll() {
-        return songRepository.getAll();
+    public List<SongEntity> getAll(final String search) {
+        return songRepository.getAll(search);
     }
 
     public SongEntity create(SongEntity song) {

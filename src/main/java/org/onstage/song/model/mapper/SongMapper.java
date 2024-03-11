@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.Optional;
 
+import static org.apache.logging.log4j.util.Strings.isEmpty;
+
 @Mapper(componentModel = "spring", uses = {ArtistMapper.class})
 public abstract class SongMapper {
 
@@ -29,18 +31,18 @@ public abstract class SongMapper {
     protected ArtistMapper artistMapper;
 
     @Mapping(target = "artist", expression = "java(mapArtist(entity.artistId()))")
-    public abstract Song toDto(SongEntity entity);
+    public abstract Song toApi(SongEntity entity);
 
-    public abstract List<Song> toListDto(List<SongEntity> songs);
+    public abstract List<Song> toListApi(List<SongEntity> songs);
 
     @Mapping(source = "artist.id", target = "artistId")
-    public abstract SongEntity fromDto(Song song);
+    public abstract SongEntity fromApi(Song song);
 
     public abstract SongEntity fromRequest(SongRequest request);
 
     protected Artist mapArtist(String artistId) {
 
-        Optional<ArtistEntity> artist = Strings.isEmpty(artistId) ? Optional.empty() : artistRepository.findById(artistId);
+        Optional<ArtistEntity> artist = isEmpty(artistId) ? Optional.empty() : artistRepository.findById(artistId);
 
         return artist.map(artistEntity -> artistMapper.toApi(artistEntity)).orElse(null);
     }

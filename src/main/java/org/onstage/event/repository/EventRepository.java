@@ -1,6 +1,7 @@
 package org.onstage.event.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.onstage.event.model.EventEntity;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -12,6 +13,7 @@ import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
+import static org.apache.logging.log4j.util.Strings.isEmpty;
 import static org.onstage.event.model.EventEntity.Fields.date;
 import static org.onstage.event.model.EventEntity.Fields.name;
 
@@ -26,7 +28,7 @@ public class EventRepository {
     }
 
     public List<EventEntity> getAll(String search) {
-        if (search != null && !search.isEmpty()) {
+        if (!isEmpty(search)) {
             Criteria criteria = Criteria.where(name).regex(search, "i");
             Query query = new Query(criteria);
             return mongoTemplate.find(query, EventEntity.class);
