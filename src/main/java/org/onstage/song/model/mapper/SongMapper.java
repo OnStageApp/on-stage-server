@@ -1,6 +1,5 @@
 package org.onstage.song.model.mapper;
 
-import org.apache.logging.log4j.util.Strings;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.onstage.artist.client.Artist;

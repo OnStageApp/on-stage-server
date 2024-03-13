@@ -8,7 +8,7 @@ public record Song(
         String id,
         String title,
         String lyrics,
-        int tempo,
+        Integer tempo,
         String key,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,

@@ -15,7 +15,7 @@ public record SongEntity(
         String id,
         String title,
         String lyrics,
-        String tab,
+        Integer tempo,
         String key,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,

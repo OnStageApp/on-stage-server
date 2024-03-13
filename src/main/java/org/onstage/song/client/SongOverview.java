@@ -9,6 +9,6 @@ public record SongOverview(
         String title,
         Artist artist,
         String key,
-        int tempo
+        Integer tempo
 ) {
 }
