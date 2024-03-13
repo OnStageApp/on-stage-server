@@ -1,6 +1,5 @@
 package org.onstage.song.model.mapper;
 
-import org.apache.logging.log4j.util.Strings;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.onstage.artist.client.Artist;
@@ -9,6 +8,7 @@ import org.onstage.artist.model.mapper.ArtistMapper;
 import org.onstage.artist.repository.ArtistRepository;
 import org.onstage.artist.service.ArtistService;
 import org.onstage.song.client.Song;
+import org.onstage.song.client.SongOverview;
 import org.onstage.song.client.SongRequest;
 import org.onstage.song.model.SongEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +29,9 @@ public abstract class SongMapper {
 
     @Autowired
     protected ArtistMapper artistMapper;
+
+    public abstract List<SongOverview> toOverviewList(List<SongEntity> entities);
+
 
     @Mapping(target = "artist", expression = "java(mapArtist(entity.artistId()))")
     public abstract Song toApi(SongEntity entity);

@@ -4,6 +4,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import org.onstage.song.client.Song;
 import org.onstage.song.client.SongFilter;
+import org.onstage.song.client.SongOverview;
 import org.onstage.song.model.mapper.SongMapper;
 import org.onstage.song.service.SongService;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +25,8 @@ public class SongController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Song>> getAll(SongFilter songFilter) {
-
-        return ResponseEntity.ok(songMapper.toListApi(songService.getAll(songFilter.search())));
+    public ResponseEntity<List<SongOverview>> getAll(SongFilter songFilter) {
+        return ResponseEntity.ok(songMapper.toOverviewList(songService.getAll(songFilter.search())));
     }
 
     @PostMapping()
