@@ -19,8 +19,8 @@ public class BadRequestException extends BaseException {
         return new BadRequestException(3, "INVALID_REQUEST", "The request could not be parsed as a valid JSON");
     }
 
-    public static BadRequestException loginError() {
-        return new BadRequestException(3, "LOGIN_ERROR", "The login was not successful. Check the logs for more details");
+    public static BadRequestException loginError(String message) {
+        return new BadRequestException(3, "LOGIN_ERROR", message);
     }
 
     public static BadRequestException firebaseTokenMissing() {
