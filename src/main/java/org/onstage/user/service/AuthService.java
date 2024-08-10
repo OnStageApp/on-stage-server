@@ -1,10 +1,11 @@
 package org.onstage.user.service;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.onstage.common.config.JwtTokenProvider;
+import org.onstage.exceptions.BadRequestException;
 import org.onstage.user.client.LoginRequest;
 import org.onstage.user.model.UserEntity;
 import org.onstage.user.repository.UserRepository;
@@ -16,9 +17,13 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
-    @SneakyThrows
-    public String login(LoginRequest request) {
+    public String login(LoginRequest request) throws FirebaseAuthException {
         FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(request.firebaseToken());
+
+        if (decodedToken == null) {
+            throw BadRequestException.firebaseTokenMissing();
+        }
+
         String uid = decodedToken.getUid();
 
         UserEntity user = userRepository.findById(uid)

@@ -1,6 +1,8 @@
 package org.onstage.user.controller;
 
+import com.google.firebase.auth.FirebaseAuthException;
 import lombok.RequiredArgsConstructor;
+import org.onstage.exceptions.BadRequestException;
 import org.onstage.user.client.LoginRequest;
 import org.onstage.user.service.AuthService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +18,12 @@ public class AuthController {
 
     @PostMapping("login")
     public String authenticateUser(@RequestBody LoginRequest request) {
-        return authService.login(request);
+        try {
+            return authService.login(request);
+        } catch (FirebaseAuthException e) {
+            throw BadRequestException.loginError();
+        } catch (BadRequestException badRequestException) {
+            throw badRequestException;
+        }
     }
 }
