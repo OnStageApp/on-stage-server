@@ -1,4 +1,4 @@
-# Start with a base image containing Java runtime
+# Start with a base image containing Java runtime for the build stage
 FROM ibm-semeru-runtimes:open-21.0.1_12-jdk-jammy as build
 
 # Add Maintainer Info
@@ -23,7 +23,7 @@ COPY src src
 # Package the application
 RUN ./mvnw package -DskipTests
 
-# Run the application
-FROM openjdk:17-jdk-slim
+# Use the same Java version for the runtime stage
+FROM ibm-semeru-runtimes:open-21.0.1_12-jre-jammy
 COPY --from=build /app/target/*.jar app.jar
 ENTRYPOINT ["java","-jar","/app.jar"]
