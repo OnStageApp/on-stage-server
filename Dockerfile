@@ -1,5 +1,5 @@
 # Start with a base image containing Java runtime
-FROM ibm-semeru-runtimes:open-21.0.1_12-jre-jammy as build
+FROM ibm-semeru-runtimes:open-21.0.1_12-jdk-jammy as build
 
 # Add Maintainer Info
 LABEL maintainer="your_email@example.com"
