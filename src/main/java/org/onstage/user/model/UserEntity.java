@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public record UserEntity(
         String id,
         String name,
+        String email,
         UserRole role
 ) {
 }

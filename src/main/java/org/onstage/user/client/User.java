@@ -7,6 +7,7 @@ import org.onstage.user.model.UserRole;
 public record User(
         String id,
         String name,
+        String email,
         UserRole role
 ) {
 }
