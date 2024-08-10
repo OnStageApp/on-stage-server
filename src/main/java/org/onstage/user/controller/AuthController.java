@@ -21,9 +21,7 @@ public class AuthController {
         try {
             return authService.login(request);
         } catch (FirebaseAuthException e) {
-            throw BadRequestException.loginError();
-        } catch (BadRequestException badRequestException) {
-            throw badRequestException;
+            throw BadRequestException.loginError(e.getMessage());
         }
     }
 }
