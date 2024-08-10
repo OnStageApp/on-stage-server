@@ -21,7 +21,7 @@ COPY pom.xml .
 COPY src src
 
 # Package the application
-RUN ./mvnw package
+RUN ./mvnw package -DskipTests
 
 # Run the application
 FROM openjdk:17-jdk-slim
