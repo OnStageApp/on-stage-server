@@ -3,7 +3,7 @@ package org.onstage.user.controller;
 import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import org.onstage.user.client.User;
-import org.onstage.user.model.mappers.UserMapper;
+import org.onstage.user.model.mapper.UserMapper;
 import org.onstage.user.service.UserService;
 import org.springframework.web.bind.annotation.*;
 

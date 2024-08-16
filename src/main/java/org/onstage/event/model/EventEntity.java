@@ -20,7 +20,6 @@ public record EventEntity(
         @NonNull
         String name,
         LocalDateTime date,
-        List<LocalDateTime> rehearsalDates,
         String location,
         List<String> planners,
         List<String> stagerIds,

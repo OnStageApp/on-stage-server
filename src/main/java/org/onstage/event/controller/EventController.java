@@ -6,7 +6,7 @@ import org.onstage.event.client.Event;
 import org.onstage.event.client.EventFilter;
 import org.onstage.event.client.EventOverview;
 import org.onstage.event.model.EventEntity;
-import org.onstage.event.model.mappers.EventMapper;
+import org.onstage.event.model.mapper.EventMapper;
 import org.onstage.event.service.EventService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

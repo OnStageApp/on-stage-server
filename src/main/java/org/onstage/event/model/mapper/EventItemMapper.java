@@ -1,4 +1,4 @@
-package org.onstage.event.model.mappers;
+package org.onstage.event.model.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

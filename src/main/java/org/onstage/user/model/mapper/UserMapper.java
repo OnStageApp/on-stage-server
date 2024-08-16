@@ -1,4 +1,4 @@
-package org.onstage.user.model.mappers;
+package org.onstage.user.model.mapper;
 
 import org.mapstruct.Mapper;
 import org.onstage.user.client.User;
