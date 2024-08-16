@@ -2,6 +2,7 @@ package org.onstage.song.controller;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
+import org.onstage.song.client.CreateSongRequest;
 import org.onstage.song.client.Song;
 import org.onstage.song.client.SongFilter;
 import org.onstage.song.client.SongOverview;
@@ -29,9 +30,9 @@ public class SongController {
         return ResponseEntity.ok(songMapper.toOverviewList(songService.getAll(songFilter.search())));
     }
 
-    @PostMapping()
-    public ResponseEntity<Song> create(@RequestBody Song song) {
-        return ResponseEntity.ok(songMapper.toDto(songService.create(songMapper.toEntity(song))));
+    @PostMapping
+    public ResponseEntity<Song> create(@RequestBody CreateSongRequest song) {
+        return ResponseEntity.ok(songMapper.toDto(songService.create(songMapper.fromCreateRequest(song))));
     }
 
     @PatchMapping("/{id}")
