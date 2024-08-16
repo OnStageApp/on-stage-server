@@ -19,21 +19,21 @@ public class ArtistController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Artist> getById(@PathVariable final String id) {
-        return ResponseEntity.ok(artistMapper.toApi(artistService.getById(id)));
+        return ResponseEntity.ok(artistMapper.toDto(artistService.getById(id)));
     }
 
     @GetMapping
     public ResponseEntity<List<Artist>> getAll() {
-        return ResponseEntity.ok(artistMapper.toApiList(artistService.getAll()));
+        return ResponseEntity.ok(artistMapper.toDtoList(artistService.getAll()));
     }
 
     @PostMapping()
     public ResponseEntity<Artist> create(@RequestBody Artist artist) {
-        return ResponseEntity.ok(artistMapper.toApi(artistService.create(artistMapper.toDb(artist))));
+        return ResponseEntity.ok(artistMapper.toDto(artistService.create(artistMapper.toEntity(artist))));
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Artist> patch(@PathVariable String id, @RequestBody JsonPatch jsonPatch) {
-        return ResponseEntity.ok(artistMapper.toApi(artistService.patch(id, jsonPatch)));
+        return ResponseEntity.ok(artistMapper.toDto(artistService.patch(id, jsonPatch)));
     }
 }

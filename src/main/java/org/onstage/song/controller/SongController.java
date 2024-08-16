@@ -21,7 +21,7 @@ public class SongController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Song> getById(@PathVariable final String id) {
-        return ResponseEntity.ok(songMapper.toApi(songService.getById(id)));
+        return ResponseEntity.ok(songMapper.toDto(songService.getById(id)));
     }
 
     @GetMapping
@@ -31,11 +31,11 @@ public class SongController {
 
     @PostMapping()
     public ResponseEntity<Song> create(@RequestBody Song song) {
-        return ResponseEntity.ok(songMapper.toApi(songService.create(songMapper.fromApi(song))));
+        return ResponseEntity.ok(songMapper.toDto(songService.create(songMapper.toEntity(song))));
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Song> patch(@PathVariable String id, @RequestBody JsonPatch jsonPatch) {
-        return ResponseEntity.ok(songMapper.toApi(songService.patch(id, jsonPatch)));
+        return ResponseEntity.ok(songMapper.toDto(songService.patch(id, jsonPatch)));
     }
 }

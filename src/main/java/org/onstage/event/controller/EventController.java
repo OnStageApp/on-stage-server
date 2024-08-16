@@ -22,7 +22,7 @@ public class EventController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Event> getById(@PathVariable final String id) {
-        return ResponseEntity.ok(eventMapper.toApi(eventService.getById(id)));
+        return ResponseEntity.ok(eventMapper.toDto(eventService.getById(id)));
     }
 
     @GetMapping
@@ -35,7 +35,7 @@ public class EventController {
 
     @PostMapping
     public ResponseEntity<Event> create(@RequestBody EventEntity event) {
-        return ResponseEntity.ok(eventMapper.toApi(eventService.create(event)));
+        return ResponseEntity.ok(eventMapper.toDto(eventService.create(event)));
     }
 
     @DeleteMapping("/{id}")
@@ -45,6 +45,6 @@ public class EventController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<Event> patch(@PathVariable String id, @RequestBody JsonPatch jsonPatch) {
-        return ResponseEntity.ok(eventMapper.toApi(eventService.patch(id, jsonPatch)));
+        return ResponseEntity.ok(eventMapper.toDto(eventService.patch(id, jsonPatch)));
     }
 }

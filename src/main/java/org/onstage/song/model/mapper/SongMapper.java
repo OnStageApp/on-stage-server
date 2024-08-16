@@ -34,12 +34,12 @@ public abstract class SongMapper {
 
 
     @Mapping(target = "artist", expression = "java(mapArtist(entity.artistId()))")
-    public abstract Song toApi(SongEntity entity);
+    public abstract Song toDto(SongEntity entity);
 
-    public abstract List<Song> toListApi(List<SongEntity> songs);
+    public abstract List<Song> toDtoList(List<SongEntity> songs);
 
     @Mapping(source = "artist.id", target = "artistId")
-    public abstract SongEntity fromApi(Song song);
+    public abstract SongEntity toEntity(Song song);
 
     public abstract SongEntity fromRequest(SongRequest request);
 
@@ -47,7 +47,7 @@ public abstract class SongMapper {
 
         Optional<ArtistEntity> artist = isEmpty(artistId) ? Optional.empty() : artistRepository.findById(artistId);
 
-        return artist.map(artistEntity -> artistMapper.toApi(artistEntity)).orElse(null);
+        return artist.map(artistEntity -> artistMapper.toDto(artistEntity)).orElse(null);
     }
 
 }

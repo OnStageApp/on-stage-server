@@ -9,13 +9,13 @@ import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {EventItemMapper.class})
 public interface EventMapper {
-    Event toApi(EventEntity entity);
+    Event toDto(EventEntity entity);
 
-    EventEntity toDb(Event request);
+    EventEntity toEntity(Event request);
 
-    List<Event> toApiList(List<EventEntity> entities);
+    List<Event> toDtoList(List<EventEntity> entities);
 
-    List<EventEntity> toDbList(List<Event> requests);
+    List<EventEntity> toEntityList(List<Event> requests);
 
     List<EventOverview> toOverviewList(List<EventEntity> entities);
 

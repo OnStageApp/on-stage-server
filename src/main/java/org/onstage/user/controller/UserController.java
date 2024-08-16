@@ -18,21 +18,21 @@ public class UserController {
 
     @GetMapping
     public List<User> getAll() {
-        return mapper.toApiList(service.getAll());
+        return mapper.toDtoList(service.getAll());
     }
 
     @GetMapping("/{id}")
     public User getById(@PathVariable final String id) {
-        return mapper.toApi(service.getById(id));
+        return mapper.toDto(service.getById(id));
     }
 
     @PostMapping
     public User create(@RequestBody User user) {
-        return mapper.toApi(service.create(user));
+        return mapper.toDto(service.create(user));
     }
 
     @PatchMapping("/{id}")
     public User patch(@PathVariable String id, @RequestBody JsonPatch jsonPatch) {
-        return mapper.toApi(service.patch(id, jsonPatch));
+        return mapper.toDto(service.patch(id, jsonPatch));
     }
 }
