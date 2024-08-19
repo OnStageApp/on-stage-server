@@ -5,8 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.onstage.artist.model.ArtistEntity;
+import org.onstage.artist.service.ArtistService;
 import org.onstage.exceptions.ResourceNotFoundException;
+import org.onstage.song.client.Song;
+import org.onstage.song.client.SongOverview;
 import org.onstage.song.model.SongEntity;
+import org.onstage.song.model.mapper.SongMapper;
 import org.onstage.song.repository.SongRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,23 +23,37 @@ public class SongService {
 
     private final SongRepository songRepository;
     private final ObjectMapper objectMapper;
+    private final SongMapper songMapper;
+    private final ArtistService artistService;
 
-    public SongEntity getById(String id) {
-        return songRepository.findById(id)
+    public Song getById(String id) {
+        SongEntity song = songRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Song with id:%s was not found".formatted(id)));
+        ArtistEntity artist = artistService.getById(song.artistId());
+        return songMapper.toDto(song, artist);
     }
 
-    public List<SongEntity> getAll(final String search) {
-        return songRepository.getAll(search);
+    public List<SongOverview> getAll(final String search) {
+        return songRepository.getAll(search).stream()
+                .map(songEntity -> {
+                    ArtistEntity artist = artistService.getById(songEntity.artistId());
+                    return songMapper.toOverview(songEntity, artist);
+                })
+                .toList();
     }
 
-    public SongEntity create(SongEntity song) {
-        return songRepository.create(song);
+    public Song create(SongEntity song) {
+        ArtistEntity artist = artistService.getById(song.artistId());
+        return songMapper.toDto(songRepository.create(song), artist);
     }
 
 
-    public SongEntity patch(String id, JsonPatch jsonPatch) {
-        return songRepository.save(applyPatchToSong(getById(id), jsonPatch));
+    public Song patch(String id, JsonPatch jsonPatch) {
+        SongEntity song = songRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Song with id:%s was not found".formatted(id)));
+        song = songRepository.save(applyPatchToSong(song, jsonPatch));
+        ArtistEntity artist = artistService.getById(song.artistId());
+        return songMapper.toDto(song, artist);
     }
 
     @SneakyThrows

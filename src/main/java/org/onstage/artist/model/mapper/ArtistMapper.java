@@ -26,10 +26,4 @@ public class ArtistMapper {
                 .map(this::toDto)
                 .toList();
     }
-
-    public List<ArtistEntity> toEntityList(List<Artist> requests) {
-        return requests.stream()
-                .map(this::toEntity)
-                .toList();
-    }
 }
