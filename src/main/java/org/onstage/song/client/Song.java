@@ -1,6 +1,7 @@
 package org.onstage.song.client;
 
 import lombok.Builder;
+import org.onstage.artist.client.Artist;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +14,6 @@ public record Song(
         String key,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        String artistId
+        Artist artist
 ) {
 }
