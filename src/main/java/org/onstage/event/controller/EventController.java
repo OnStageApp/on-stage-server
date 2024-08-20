@@ -31,9 +31,9 @@ public class EventController {
     @GetMapping
     public ResponseEntity<List<EventOverview>> getAll(EventFilter filter) {
         if (filter.startDate() != null || filter.endDate() != null) {
-            return ResponseEntity.ok(eventMapper.toOverviewList(eventService.getAllByRange(filter.startDate(), filter.endDate())));
+            return ResponseEntity.ok(eventService.getAllByRange(filter.startDate(), filter.endDate()));
         }
-        return ResponseEntity.ok(eventMapper.toOverviewList(eventService.getAll(filter.search())));
+        return ResponseEntity.ok(eventService.getAll(filter.search()));
     }
 
     @PostMapping

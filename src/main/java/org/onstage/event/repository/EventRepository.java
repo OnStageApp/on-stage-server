@@ -1,7 +1,7 @@
 package org.onstage.event.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.event.client.IEvent;
+import org.onstage.event.client.EventOverview;
 import org.onstage.event.model.EventEntity;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -29,24 +29,24 @@ public class EventRepository {
         return repo.findById(id);
     }
 
-    public List<IEvent> getAll(String search) {
+    public List<EventOverview> getAll(String search) {
         Criteria criteria = isEmpty(search) ? new Criteria() : Criteria.where(name).regex(search, "i");
         Aggregation aggregation = newAggregation(eventProjectionPipeline(criteria));
-        return mongoTemplate.aggregate(aggregation, EventEntity.class, IEvent.class).getMappedResults();
+        return mongoTemplate.aggregate(aggregation, EventEntity.class, EventOverview.class).getMappedResults();
     }
 
-    public IEvent findEventProjectionById(String eventId) {
+    public EventOverview findEventProjectionById(String eventId) {
         Aggregation aggregation = newAggregation(eventProjectionPipeline(Criteria.where("_id").is(eventId)));
-        return mongoTemplate.aggregate(aggregation, EventEntity.class, IEvent.class).getUniqueMappedResult();
+        return mongoTemplate.aggregate(aggregation, EventEntity.class, EventOverview.class).getUniqueMappedResult();
     }
 
-    public List<IEvent> getAllByRange(LocalDateTime startDate, LocalDateTime endDate) {
+    public List<EventOverview> getAllByRange(LocalDateTime startDate, LocalDateTime endDate) {
         startDate = (startDate != null) ? startDate : LocalDateTime.of(2022, Month.DECEMBER, 12, 11, 59);
         endDate = (endDate != null) ? endDate : LocalDateTime.now().plusYears(5);
 
         Criteria criteria = Criteria.where(date).gte(startDate).lte(endDate);
         Aggregation aggregation = newAggregation(eventProjectionPipeline(criteria));
-        return mongoTemplate.aggregate(aggregation, EventEntity.class, IEvent.class).getMappedResults();
+        return mongoTemplate.aggregate(aggregation, EventEntity.class, EventOverview.class).getMappedResults();
     }
 
     public EventEntity save(EventEntity event) {

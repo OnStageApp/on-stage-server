@@ -6,7 +6,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.onstage.event.client.IEvent;
+import org.onstage.event.client.EventOverview;
 import org.onstage.event.model.EventEntity;
 import org.onstage.event.repository.EventRepository;
 import org.onstage.exceptions.ResourceNotFoundException;
@@ -44,11 +44,11 @@ public class EventService {
         return repository.delete(id);
     }
 
-    public List<IEvent> getAll(final String search) {
+    public List<EventOverview> getAll(final String search) {
         return repository.getAll(search);
     }
 
-    public List<IEvent> getAllByRange(LocalDateTime startDate, LocalDateTime endDate) {
+    public List<EventOverview> getAllByRange(LocalDateTime startDate, LocalDateTime endDate) {
         log.info("Events by range: " + startDate + " - " + endDate);
         return repository.getAllByRange(startDate, endDate);
     }

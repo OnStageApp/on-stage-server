@@ -2,13 +2,8 @@ package org.onstage.event.model.mapper;
 
 import org.onstage.event.client.CreateEventRequest;
 import org.onstage.event.client.Event;
-import org.onstage.event.client.EventOverview;
-import org.onstage.event.client.IEvent;
 import org.onstage.event.model.EventEntity;
-import org.onstage.stager.client.IStagerOverview;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class EventMapper {
@@ -38,21 +33,6 @@ public class EventMapper {
                 .date(request.dateTime())
                 .location(request.location())
                 .eventStatus(request.eventStatus())
-                .build();
-    }
-
-    public List<EventOverview> toOverviewList(List<IEvent> projection) {
-        return projection.stream()
-                .map(this::toOverview)
-                .toList();
-    }
-
-    public EventOverview toOverview(IEvent projection) {
-        return EventOverview.builder()
-                .id(projection.getId())
-                .name(projection.getName())
-                .date(projection.getDate())
-                .stagersPhotos(projection.getStagers().stream().map(IStagerOverview::getPhoto).toList())
                 .build();
     }
 }
