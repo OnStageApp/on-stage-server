@@ -34,9 +34,4 @@ public class RehearsalMapper {
                 .toList();
     }
 
-    public List<RehearsalEntity> toEntityList(List<Rehearsal> requests) {
-        return requests.stream()
-                .map(this::toEntity)
-                .toList();
-    }
 }

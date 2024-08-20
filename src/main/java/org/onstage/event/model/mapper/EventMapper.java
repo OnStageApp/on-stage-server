@@ -1,8 +1,11 @@
 package org.onstage.event.model.mapper;
 
+import org.onstage.event.client.CreateEventRequest;
 import org.onstage.event.client.Event;
 import org.onstage.event.client.EventOverview;
+import org.onstage.event.client.IEvent;
 import org.onstage.event.model.EventEntity;
+import org.onstage.stager.client.IStagerOverview;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -29,29 +32,27 @@ public class EventMapper {
                 .build();
     }
 
-    public List<Event> toDtoList(List<EventEntity> entities) {
-        return entities.stream()
-                .map(this::toDto)
-                .toList();
+    public EventEntity fromCreateRequest(CreateEventRequest request) {
+        return EventEntity.builder()
+                .name(request.name())
+                .date(request.dateTime())
+                .location(request.location())
+                .eventStatus(request.eventStatus())
+                .build();
     }
 
-    public List<EventEntity> toEntityList(List<Event> requests) {
-        return requests.stream()
-                .map(this::toEntity)
-                .toList();
-    }
-
-    public List<EventOverview> toOverviewList(List<EventEntity> entities) {
-        return entities.stream()
+    public List<EventOverview> toOverviewList(List<IEvent> projection) {
+        return projection.stream()
                 .map(this::toOverview)
                 .toList();
     }
 
-    public EventOverview toOverview(EventEntity entity) {
+    public EventOverview toOverview(IEvent projection) {
         return EventOverview.builder()
-                .id(entity.id())
-                .name(entity.name())
-                .date(entity.date())
+                .id(projection.getId())
+                .name(projection.getName())
+                .date(projection.getDate())
+                .stagersPhotos(projection.getStagers().stream().map(IStagerOverview::getPhoto).toList())
                 .build();
     }
 }

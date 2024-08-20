@@ -6,10 +6,13 @@ import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.onstage.event.client.IEvent;
 import org.onstage.event.model.EventEntity;
-import org.onstage.event.repository.EventItemRepository;
 import org.onstage.event.repository.EventRepository;
 import org.onstage.exceptions.ResourceNotFoundException;
+import org.onstage.rehearsal.client.CreateRehearsalRequest;
+import org.onstage.rehearsal.service.RehearsalService;
+import org.onstage.stager.service.StagerService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,17 +23,20 @@ import java.util.List;
 @Slf4j
 public class EventService {
     private final EventRepository repository;
-    private final EventItemRepository eventItemRepository;
     private final ObjectMapper objectMapper;
+    private final StagerService stagerService;
+    private final RehearsalService rehearsalService;
 
     public EventEntity getById(String id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Event with id:%s was not found".formatted(id)));
     }
 
-    public EventEntity create(EventEntity event) {
+    public EventEntity create(EventEntity event, List<String> userIds, List<CreateRehearsalRequest> rehearsals) {
         EventEntity savedEvent = repository.save(event);
-        log.info("Event has been saved | {}", event);
+        stagerService.createStagersForEvent(savedEvent.id(), userIds);
+        rehearsalService.createRehearsalsForEvent(savedEvent.id(), rehearsals);
+        log.info("Event {} has been saved", savedEvent.id());
         return savedEvent;
     }
 
@@ -38,11 +44,11 @@ public class EventService {
         return repository.delete(id);
     }
 
-    public List<EventEntity> getAll(final String search) {
+    public List<IEvent> getAll(final String search) {
         return repository.getAll(search);
     }
 
-    public List<EventEntity> getAllByRange(LocalDateTime startDate, LocalDateTime endDate) {
+    public List<IEvent> getAllByRange(LocalDateTime startDate, LocalDateTime endDate) {
         log.info("Events by range: " + startDate + " - " + endDate);
         return repository.getAllByRange(startDate, endDate);
     }

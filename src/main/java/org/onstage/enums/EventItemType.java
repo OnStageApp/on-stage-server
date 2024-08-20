@@ -1,4 +1,4 @@
-package org.onstage.event.enums;
+package org.onstage.enums;
 
 public enum EventItemType {
     SONG("song"),
