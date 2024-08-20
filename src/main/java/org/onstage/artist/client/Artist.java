@@ -5,6 +5,7 @@ import lombok.Builder;
 @Builder(toBuilder = true)
 public record Artist(
         String id,
-        String name
+        String name,
+        String imageUrl
 ) {
 }
