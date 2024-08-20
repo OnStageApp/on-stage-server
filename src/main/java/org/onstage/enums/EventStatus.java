@@ -1,4 +1,4 @@
-package org.onstage.event.enums;
+package org.onstage.enums;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

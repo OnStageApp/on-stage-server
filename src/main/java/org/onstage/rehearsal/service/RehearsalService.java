@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.exceptions.ResourceNotFoundException;
+import org.onstage.rehearsal.client.CreateRehearsalRequest;
 import org.onstage.rehearsal.model.RehearsalEntity;
 import org.onstage.rehearsal.repository.RehearsalRepository;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,7 @@ public class RehearsalService {
 
     public RehearsalEntity create(RehearsalEntity rehearsal) {
         RehearsalEntity savedRehearsal = rehearsalRepository.save(rehearsal);
-        log.info("Rehearsal has been saved | {}", rehearsal);
+        log.info("Rehearsal {} has been saved", rehearsal.id());
         return savedRehearsal;
     }
 
@@ -47,5 +48,14 @@ public class RehearsalService {
     private RehearsalEntity applyPatchToEvent(RehearsalEntity entity, JsonPatch jsonPatch) {
         JsonNode patched = jsonPatch.apply(objectMapper.convertValue(entity, JsonNode.class));
         return objectMapper.treeToValue(patched, RehearsalEntity.class);
+    }
+
+    public void createRehearsalsForEvent(String eventId, List<CreateRehearsalRequest> rehearsals) {
+        rehearsals.forEach(rehearsal -> create(RehearsalEntity.builder()
+                .name(rehearsal.name())
+                .dateTime(rehearsal.dateTime())
+                .location(rehearsal.location())
+                .eventId(eventId)
+                .build()));
     }
 }
