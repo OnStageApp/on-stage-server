@@ -5,7 +5,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder(toBuilder = true)
-public record CreateRehearsalRequest (
+public record CreateRehearsalForEventRequest(
         String name,
         String location,
         LocalDateTime dateTime

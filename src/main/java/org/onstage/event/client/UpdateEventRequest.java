@@ -1,19 +1,15 @@
 package org.onstage.event.client;
 
-
 import lombok.Builder;
 import org.onstage.enums.EventStatus;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Builder(toBuilder = true)
-public record Event(
-        String id,
+public record UpdateEventRequest(
         String name,
-        LocalDateTime date,
+        LocalDateTime dateTime,
         String location,
         EventStatus eventStatus
 ) {
 }
-

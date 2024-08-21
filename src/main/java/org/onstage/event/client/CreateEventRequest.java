@@ -2,7 +2,7 @@ package org.onstage.event.client;
 
 import lombok.Builder;
 import org.onstage.enums.EventStatus;
-import org.onstage.rehearsal.client.CreateRehearsalRequest;
+import org.onstage.rehearsal.client.CreateRehearsalForEventRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,6 +14,6 @@ public record CreateEventRequest(
         String location,
         EventStatus eventStatus,
         List<String> userIds,
-        List<CreateRehearsalRequest> rehearsals
+        List<CreateRehearsalForEventRequest> rehearsals
 ) {
 }

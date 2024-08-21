@@ -12,8 +12,6 @@ public record Song(
         String lyrics,
         Integer tempo,
         String key,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt,
         Artist artist
 ) {
 }

@@ -1,6 +1,5 @@
 package org.onstage.artist.controller;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import org.onstage.artist.client.Artist;
 import org.onstage.artist.model.mapper.ArtistMapper;
@@ -29,11 +28,11 @@ public class ArtistController {
 
     @PostMapping()
     public ResponseEntity<Artist> create(@RequestBody Artist artist) {
-        return ResponseEntity.ok(artistMapper.toDto(artistService.create(artistMapper.toEntity(artist))));
+        return ResponseEntity.ok(artistMapper.toDto(artistService.save(artistMapper.toEntity(artist))));
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Artist> patch(@PathVariable String id, @RequestBody JsonPatch jsonPatch) {
-        return ResponseEntity.ok(artistMapper.toDto(artistService.patch(id, jsonPatch)));
+    @PutMapping("/{id}")
+    public ResponseEntity<Artist> update(@PathVariable String id, @RequestBody Artist request) {
+        return ResponseEntity.ok(artistMapper.toDto(artistService.update(id, request)));
     }
 }

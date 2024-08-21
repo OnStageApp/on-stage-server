@@ -1,13 +1,10 @@
 package org.onstage.rehearsal.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.exceptions.ResourceNotFoundException;
-import org.onstage.rehearsal.client.CreateRehearsalRequest;
+import org.onstage.rehearsal.client.CreateRehearsalForEventRequest;
+import org.onstage.rehearsal.client.Rehearsal;
 import org.onstage.rehearsal.model.RehearsalEntity;
 import org.onstage.rehearsal.repository.RehearsalRepository;
 import org.springframework.stereotype.Service;
@@ -19,7 +16,6 @@ import java.util.List;
 @Slf4j
 public class RehearsalService {
     private final RehearsalRepository rehearsalRepository;
-    private final ObjectMapper objectMapper;
 
     public RehearsalEntity getById(String id) {
         return rehearsalRepository.findById(id)
@@ -30,7 +26,7 @@ public class RehearsalService {
         return rehearsalRepository.getAllByEventId(eventId);
     }
 
-    public RehearsalEntity create(RehearsalEntity rehearsal) {
+    public RehearsalEntity save(RehearsalEntity rehearsal) {
         RehearsalEntity savedRehearsal = rehearsalRepository.save(rehearsal);
         log.info("Rehearsal {} has been saved", rehearsal.id());
         return savedRehearsal;
@@ -40,18 +36,25 @@ public class RehearsalService {
         return rehearsalRepository.delete(id);
     }
 
-    public RehearsalEntity patch(String id, JsonPatch jsonPatch) {
-        return rehearsalRepository.save(applyPatchToEvent(getById(id), jsonPatch));
+    public RehearsalEntity update(String id, Rehearsal request) {
+        RehearsalEntity existingRehearsal = getById(id);
+        RehearsalEntity updatedRehearsal = updateRehearsalFromDTO(existingRehearsal, request);
+        return rehearsalRepository.save(updatedRehearsal);
     }
 
-    @SneakyThrows
-    private RehearsalEntity applyPatchToEvent(RehearsalEntity entity, JsonPatch jsonPatch) {
-        JsonNode patched = jsonPatch.apply(objectMapper.convertValue(entity, JsonNode.class));
-        return objectMapper.treeToValue(patched, RehearsalEntity.class);
+    private RehearsalEntity updateRehearsalFromDTO(RehearsalEntity existingRehearsal, Rehearsal request) {
+        return RehearsalEntity.builder()
+                .id(existingRehearsal.id())
+                .name(request.name() == null ? existingRehearsal.name() : request.name())
+                .dateTime(request.dateTime() == null ? existingRehearsal.dateTime() : request.dateTime())
+                .location(request.location() == null ? existingRehearsal.location() : request.location())
+                .eventId(existingRehearsal.eventId())
+                .build();
     }
 
-    public void createRehearsalsForEvent(String eventId, List<CreateRehearsalRequest> rehearsals) {
-        rehearsals.forEach(rehearsal -> create(RehearsalEntity.builder()
+
+    public void createRehearsalsForEvent(String eventId, List<CreateRehearsalForEventRequest> rehearsals) {
+        rehearsals.forEach(rehearsal -> save(RehearsalEntity.builder()
                 .name(rehearsal.name())
                 .dateTime(rehearsal.dateTime())
                 .location(rehearsal.location())

@@ -3,7 +3,7 @@ package org.onstage.song.client;
 import lombok.Builder;
 
 @Builder(toBuilder = true)
-public record CreateSongRequest(
+public record CreateOrUpdateSongRequest(
         String title,
         String lyrics,
         Integer tempo,

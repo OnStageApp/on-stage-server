@@ -1,16 +1,13 @@
 package org.onstage.event.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.event.client.EventOverview;
+import org.onstage.event.client.UpdateEventRequest;
 import org.onstage.event.model.EventEntity;
 import org.onstage.event.repository.EventRepository;
 import org.onstage.exceptions.ResourceNotFoundException;
-import org.onstage.rehearsal.client.CreateRehearsalRequest;
+import org.onstage.rehearsal.client.CreateRehearsalForEventRequest;
 import org.onstage.rehearsal.service.RehearsalService;
 import org.onstage.stager.service.StagerService;
 import org.springframework.stereotype.Service;
@@ -22,18 +19,17 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class EventService {
-    private final EventRepository repository;
-    private final ObjectMapper objectMapper;
+    private final EventRepository eventRepository;
     private final StagerService stagerService;
     private final RehearsalService rehearsalService;
 
     public EventEntity getById(String id) {
-        return repository.findById(id)
+        return eventRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Event with id:%s was not found".formatted(id)));
     }
 
-    public EventEntity create(EventEntity event, List<String> userIds, List<CreateRehearsalRequest> rehearsals) {
-        EventEntity savedEvent = repository.save(event);
+    public EventEntity create(EventEntity event, List<String> userIds, List<CreateRehearsalForEventRequest> rehearsals) {
+        EventEntity savedEvent = this.eventRepository.save(event);
         stagerService.createStagersForEvent(savedEvent.id(), userIds);
         rehearsalService.createRehearsalsForEvent(savedEvent.id(), rehearsals);
         log.info("Event {} has been saved", savedEvent.id());
@@ -41,25 +37,31 @@ public class EventService {
     }
 
     public String delete(String id) {
-        return repository.delete(id);
+        return eventRepository.delete(id);
     }
 
     public List<EventOverview> getAll(final String search) {
-        return repository.getAll(search);
+        return eventRepository.getAll(search);
     }
 
     public List<EventOverview> getAllByRange(LocalDateTime startDate, LocalDateTime endDate) {
         log.info("Events by range: " + startDate + " - " + endDate);
-        return repository.getAllByRange(startDate, endDate);
+        return eventRepository.getAllByRange(startDate, endDate);
     }
 
-    public EventEntity patch(String id, JsonPatch jsonPatch) {
-        return repository.save(applyPatchToEvent(getById(id), jsonPatch));
+    public EventEntity update(String id, UpdateEventRequest request) {
+        EventEntity existingEvent = getById(id);
+        EventEntity updatedEvent = updateEventFromDTO(existingEvent, request);
+        return eventRepository.save(updatedEvent);
     }
 
-    @SneakyThrows
-    private EventEntity applyPatchToEvent(EventEntity entity, JsonPatch jsonPatch) {
-        JsonNode patched = jsonPatch.apply(objectMapper.convertValue(entity, JsonNode.class));
-        return objectMapper.treeToValue(patched, EventEntity.class);
+    private EventEntity updateEventFromDTO(EventEntity existingEvent, UpdateEventRequest request) {
+        return EventEntity.builder()
+                .id(existingEvent.id())
+                .name(request.name() == null ? existingEvent.name() : request.name())
+                .dateTime(request.dateTime() == null ? existingEvent.dateTime() : request.dateTime())
+                .location(request.location() == null ? existingEvent.location() : request.location())
+                .eventStatus(request.eventStatus() == null ? existingEvent.eventStatus() : request.eventStatus())
+                .build();
     }
 }

@@ -1,10 +1,6 @@
 package org.onstage.user.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.onstage.common.exceptions.ResourceNotFound;
 import org.onstage.user.client.User;
 import org.onstage.user.model.UserEntity;
@@ -17,7 +13,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final ObjectMapper objectMapper;
 
     public List<UserEntity> getAll() {
         return userRepository.findAll();
@@ -28,17 +23,22 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFound("No user with id:%s was found".formatted(id)));
     }
 
-    public UserEntity create(User user) {
-        return userRepository.create(user);
+    public UserEntity save(User user) {
+        return userRepository.save(user);
     }
 
-    public UserEntity patch(String id, JsonPatch jsonPatch) {
-        return userRepository.save(applyPatchToUser(getById(id), jsonPatch));
+    public UserEntity update(String id, User request) {
+        UserEntity existingUser = getById(id);
+        UserEntity updatedUser = updateUserFromDTO(existingUser, request);
+        return userRepository.save(updatedUser);
     }
 
-    @SneakyThrows
-    private UserEntity applyPatchToUser(UserEntity entity, JsonPatch jsonPatch) {
-        JsonNode patched = jsonPatch.apply(objectMapper.convertValue(entity, JsonNode.class));
-        return objectMapper.treeToValue(patched, UserEntity.class);
+    private UserEntity updateUserFromDTO(UserEntity existingUser, User request) {
+        return UserEntity.builder()
+                .id(existingUser.id())
+                .email(request.email() == null ? existingUser.email() : request.email())
+                .name(request.name() == null ? existingUser.name() : request.name())
+                .role(request.role() == null ? existingUser.role() : request.role())
+                .build();
     }
 }

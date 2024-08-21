@@ -1,8 +1,7 @@
 package org.onstage.song.controller;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
-import org.onstage.song.client.CreateSongRequest;
+import org.onstage.song.client.CreateOrUpdateSongRequest;
 import org.onstage.song.client.Song;
 import org.onstage.song.client.SongFilter;
 import org.onstage.song.client.SongOverview;
@@ -31,12 +30,12 @@ public class SongController {
     }
 
     @PostMapping
-    public ResponseEntity<Song> create(@RequestBody CreateSongRequest song) {
-        return ResponseEntity.ok(songService.create(songMapper.fromCreateRequest(song)));
+    public ResponseEntity<Song> create(@RequestBody CreateOrUpdateSongRequest song) {
+        return ResponseEntity.ok(songService.save(songMapper.fromCreateRequest(song)));
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Song> patch(@PathVariable String id, @RequestBody JsonPatch jsonPatch) {
-        return ResponseEntity.ok(songService.patch(id, jsonPatch));
+    @PutMapping("/{id}")
+    public ResponseEntity<Song> update(@PathVariable String id, @RequestBody CreateOrUpdateSongRequest request) {
+        return ResponseEntity.ok(songService.update(id, request));
     }
 }
