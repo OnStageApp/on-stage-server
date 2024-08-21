@@ -1,10 +1,8 @@
 package org.onstage.artist.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.onstage.artist.client.Artist;
 import org.onstage.artist.model.ArtistEntity;
 import org.onstage.artist.repository.ArtistRepository;
 import org.onstage.exceptions.ResourceNotFoundException;
@@ -14,10 +12,10 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ArtistService {
 
     private final ArtistRepository artistRepository;
-    private final ObjectMapper objectMapper;
 
     public ArtistEntity getById(String id) {
         return artistRepository.findById(id)
@@ -28,18 +26,22 @@ public class ArtistService {
         return artistRepository.getAll();
     }
 
-    public ArtistEntity create(ArtistEntity artist) {
-        return artistRepository.create(artist);
+    public ArtistEntity save(ArtistEntity artist) {
+        ArtistEntity savedArtist = artistRepository.save(artist);
+        log.info("Artist {} has been saved", savedArtist.id());
+        return savedArtist;
     }
 
-
-    public ArtistEntity patch(String id, JsonPatch jsonPatch) {
-        return artistRepository.save(applyPatchToArtist(getById(id), jsonPatch));
+    public ArtistEntity update(String id, Artist request) {
+        ArtistEntity existingArtist = getById(id);
+        ArtistEntity updatedArtist = updateArtistFromDTO(existingArtist, request);
+        return save(updatedArtist);
     }
 
-    @SneakyThrows
-    private ArtistEntity applyPatchToArtist(ArtistEntity entity, JsonPatch jsonPatch) {
-        JsonNode patched = jsonPatch.apply(objectMapper.convertValue(entity, JsonNode.class));
-        return objectMapper.treeToValue(patched, ArtistEntity.class);
+    private ArtistEntity updateArtistFromDTO(ArtistEntity existingArtist, Artist request) {
+        return ArtistEntity.builder()
+                .id(existingArtist.id())
+                .name(request.name())
+                .build();
     }
 }

@@ -1,15 +1,10 @@
 package org.onstage.event.controller;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
-import org.onstage.event.client.CreateEventRequest;
-import org.onstage.event.client.Event;
-import org.onstage.event.client.EventFilter;
-import org.onstage.event.client.EventOverview;
+import org.onstage.event.client.*;
 import org.onstage.event.model.EventEntity;
 import org.onstage.event.model.mapper.EventMapper;
 import org.onstage.event.service.EventService;
-import org.onstage.stager.service.StagerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +16,6 @@ import java.util.List;
 public class EventController {
     private final EventService eventService;
     private final EventMapper eventMapper;
-    private final StagerService stagerService;
 
     @GetMapping("/{id}")
     public ResponseEntity<Event> getById(@PathVariable final String id) {
@@ -47,8 +41,8 @@ public class EventController {
         return ResponseEntity.ok(eventService.delete(id));
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Event> patch(@PathVariable String id, @RequestBody JsonPatch jsonPatch) {
-        return ResponseEntity.ok(eventMapper.toDto(eventService.patch(id, jsonPatch)));
+    @PutMapping("/{id}")
+    public ResponseEntity<Event> update(@PathVariable String id, @RequestBody UpdateEventRequest eventUpdateDTO) {
+        return ResponseEntity.ok(eventMapper.toDto(eventService.update(id, eventUpdateDTO)));
     }
 }

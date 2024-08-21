@@ -23,7 +23,7 @@ public class UserRepository {
         return userRepo.findById(id);
     }
 
-    public UserEntity create(User user) {
+    public UserEntity save(User user) {
         return userRepo.save(UserEntity.builder()
                 .id(randomUUID().toString())
                 .name(user.name())

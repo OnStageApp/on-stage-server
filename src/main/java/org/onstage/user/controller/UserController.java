@@ -1,10 +1,10 @@
 package org.onstage.user.controller;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import org.onstage.user.client.User;
 import org.onstage.user.model.mapper.UserMapper;
 import org.onstage.user.service.UserService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,11 +28,11 @@ public class UserController {
 
     @PostMapping
     public User create(@RequestBody User user) {
-        return mapper.toDto(service.create(user));
+        return mapper.toDto(service.save(user));
     }
 
-    @PatchMapping("/{id}")
-    public User patch(@PathVariable String id, @RequestBody JsonPatch jsonPatch) {
-        return mapper.toDto(service.patch(id, jsonPatch));
+    @PutMapping("/{id}")
+    public ResponseEntity<User> update(@PathVariable String id, @RequestBody User request) {
+        return ResponseEntity.ok(mapper.toDto(service.update(id, request)));
     }
 }

@@ -1,6 +1,5 @@
 package org.onstage.rehearsal.controller;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import org.onstage.rehearsal.client.Rehearsal;
 import org.onstage.rehearsal.model.mapper.RehearsalMapper;
@@ -22,7 +21,6 @@ public class RehearsalController {
         return ResponseEntity.ok(rehearsalMapper.toDtoList(rehearsalService.getAll(eventId)));
     }
 
-
     @GetMapping("/{id}")
     public ResponseEntity<Rehearsal> getById(@PathVariable final String id) {
         return ResponseEntity.ok(rehearsalMapper.toDto(rehearsalService.getById(id)));
@@ -30,18 +28,17 @@ public class RehearsalController {
 
     @PostMapping
     public ResponseEntity<Rehearsal> create(@RequestBody final Rehearsal request) {
-        return ResponseEntity.ok(rehearsalMapper.toDto(rehearsalService.create(rehearsalMapper.toEntity(request))));
+        return ResponseEntity.ok(rehearsalMapper.toDto(rehearsalService.save(rehearsalMapper.toEntity(request))));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable final String id) {
-
         return ResponseEntity.ok(rehearsalService.delete(id));
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Rehearsal> update(@PathVariable final String id, @RequestBody JsonPatch jsonPatch) {
-        return ResponseEntity.ok(rehearsalMapper.toDto(rehearsalService.patch(id, jsonPatch)));
+    @PutMapping("/{id}")
+    public ResponseEntity<Rehearsal> update(@PathVariable String id, @RequestBody Rehearsal request) {
+        return ResponseEntity.ok(rehearsalMapper.toDto(rehearsalService.update(id, request)));
     }
 
 }

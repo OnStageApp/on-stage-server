@@ -9,7 +9,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Builder
 @Document("events")
@@ -19,9 +18,8 @@ public record EventEntity(
         String id,
         @NonNull
         String name,
-        LocalDateTime date,
+        LocalDateTime dateTime,
         String location,
-        List<String> planners,
         EventStatus eventStatus
 ) {
     public EventEntity {

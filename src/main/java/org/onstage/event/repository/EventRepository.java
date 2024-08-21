@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.apache.logging.log4j.util.Strings.isEmpty;
-import static org.onstage.event.model.EventEntity.Fields.date;
+import static org.onstage.event.model.EventEntity.Fields.dateTime;
 import static org.onstage.event.model.EventEntity.Fields.name;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
@@ -44,7 +44,7 @@ public class EventRepository {
         startDate = (startDate != null) ? startDate : LocalDateTime.of(2022, Month.DECEMBER, 12, 11, 59);
         endDate = (endDate != null) ? endDate : LocalDateTime.now().plusYears(5);
 
-        Criteria criteria = Criteria.where(date).gte(startDate).lte(endDate);
+        Criteria criteria = Criteria.where(dateTime).gte(startDate).lte(endDate);
         Aggregation aggregation = newAggregation(eventProjectionPipeline(criteria));
         return mongoTemplate.aggregate(aggregation, EventEntity.class, EventOverview.class).getMappedResults();
     }
@@ -65,7 +65,7 @@ public class EventRepository {
                 project()
                         .and("_id").as("id")
                         .and("name").as("name")
-                        .and("date").as("date")
+                        .and("dateTime").as("dateTime")
                         .and("location").as("location")
                         .and("planners").as("planners")
                         .and("eventStatus").as("eventStatus")
