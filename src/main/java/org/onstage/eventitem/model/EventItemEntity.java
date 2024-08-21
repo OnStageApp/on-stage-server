@@ -1,4 +1,4 @@
-package org.onstage.event.model;
+package org.onstage.eventitem.model;
 
 import lombok.Builder;
 import org.onstage.enums.EventItemType;
@@ -11,7 +11,7 @@ public record EventItemEntity(
         @MongoId
         String id,
         String name,
-        int index,
+        Integer index,
         EventItemType eventType,
         String songId,
         String eventId

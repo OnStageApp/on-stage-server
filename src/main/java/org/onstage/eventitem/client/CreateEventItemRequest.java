@@ -1,11 +1,10 @@
-package org.onstage.event.client;
+package org.onstage.eventitem.client;
 
 import lombok.Builder;
 import org.onstage.enums.EventItemType;
 
 @Builder(toBuilder = true)
-public record EventItem(
-        String id,
+public record CreateEventItemRequest(
         String name,
         int index,
         EventItemType eventType,
