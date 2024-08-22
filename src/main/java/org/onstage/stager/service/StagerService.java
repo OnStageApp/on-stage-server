@@ -28,6 +28,10 @@ public class StagerService {
                 .orElseThrow(() -> new ResourceNotFoundException("Stager with id:%s was not found".formatted(id)));
     }
 
+    public List<StagerEntity> getAll(String eventId) {
+        return stagerRepository.getAllByEventId(eventId);
+    }
+
     public void createStagersForEvent(String eventId, List<String> userIds) {
         userIds.forEach(userId -> createStager(eventId, userId));
     }
