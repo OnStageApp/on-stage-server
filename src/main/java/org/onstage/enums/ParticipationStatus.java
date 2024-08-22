@@ -3,7 +3,8 @@ package org.onstage.enums;
 public enum ParticipationStatus {
     CONFIRMED("confirmed"),
     DECLINED("declined"),
-    PENDING("pending");
+    PENDING("pending"),
+    UNINVITED("uninvited");
 
     private final String value;
 
