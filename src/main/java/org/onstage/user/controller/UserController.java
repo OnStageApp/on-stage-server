@@ -21,6 +21,11 @@ public class UserController {
         return mapper.toDtoList(service.getAll());
     }
 
+    @GetMapping("/uninvited")
+    public List<User> getAllUninvitedUsers(@RequestParam final String eventId) {
+        return mapper.toDtoList(service.getAllUninvitedUsers(eventId));
+    }
+
     @GetMapping("/{id}")
     public User getById(@PathVariable final String id) {
         return mapper.toDto(service.getById(id));
