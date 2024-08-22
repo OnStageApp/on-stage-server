@@ -1,6 +1,6 @@
-package org.onstage.event.repository;
+package org.onstage.eventitem.repository;
 
-import org.onstage.event.model.EventItemEntity;
+import org.onstage.eventitem.model.EventItemEntity;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
