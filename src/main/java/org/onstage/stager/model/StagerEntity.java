@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
-@Builder
+@Builder(toBuilder = true)
 @Document("stagers")
 @FieldNameConstants
 @CompoundIndex(name = "eventId_userId_unique", def = "{'eventId': 1, 'userId': 1}", unique = true)

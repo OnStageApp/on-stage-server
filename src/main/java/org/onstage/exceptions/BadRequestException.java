@@ -20,10 +20,18 @@ public class BadRequestException extends BaseException {
     }
 
     public static BadRequestException loginError(String message) {
-        return new BadRequestException(3, "LOGIN_ERROR", message);
+        return new BadRequestException(4, "LOGIN_ERROR", message);
     }
 
     public static BadRequestException firebaseTokenMissing() {
-        return new BadRequestException(3, "LOGIN_MISSING_TOKEN", "No token was found");
+        return new BadRequestException(5, "LOGIN_MISSING_TOKEN", "No token was found");
+    }
+
+    public static BadRequestException stagerAlreadyCreated() {
+        return new BadRequestException(6, "STAGER_ALREADY_CREATED", "Stager already created for this event and user");
+    }
+
+    public static BadRequestException stagerNotFound() {
+        return new BadRequestException(7, "STAGER_NOT_FOUND", "Stager not found");
     }
 }
