@@ -46,4 +46,11 @@ public class StagerRepository {
     public StagerEntity save(StagerEntity rehearsal) {
         return stagerRepo.save(rehearsal);
     }
+
+    public StagerEntity getByEventAndUser(String eventId, String userId) {
+        Criteria criteria = Criteria.where(StagerEntity.Fields.eventId).is(eventId)
+                .and(StagerEntity.Fields.userId).is(userId);
+        Query query = new Query(criteria);
+        return mongoTemplate.findOne(query, StagerEntity.class);
+    }
 }

@@ -1,11 +1,8 @@
 package org.onstage.stager.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.onstage.exceptions.BadRequestException;
 import org.onstage.exceptions.ResourceNotFoundException;
 import org.onstage.stager.client.Stager;
 import org.onstage.stager.model.StagerEntity;
@@ -16,12 +13,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class StagerService {
     private final StagerRepository stagerRepository;
-    private final ObjectMapper objectMapper;
     private final UserService userService;
 
     public StagerEntity getById(String id) {
@@ -29,12 +27,16 @@ public class StagerService {
                 .orElseThrow(() -> new ResourceNotFoundException("Stager with id:%s was not found".formatted(id)));
     }
 
+    public StagerEntity getByEventAndUser(String eventId, String userId) {
+        return stagerRepository.getByEventAndUser(eventId, userId);
+    }
+
     public List<StagerEntity> getAll(String eventId) {
         return stagerRepository.getAllByEventId(eventId);
     }
 
-    public void createStagersForEvent(String eventId, List<String> userIds) {
-        userIds.forEach(userId -> create(eventId, userId));
+    public List<StagerEntity> createStagersForEvent(String eventId, List<String> userIds) {
+        return userIds.stream().map(userId -> create(eventId, userId)).collect(toList());
     }
 
     public StagerEntity create(String eventId, String userId) {
@@ -42,6 +44,8 @@ public class StagerService {
         if (user == null) {
             throw new ResourceNotFoundException("User with id:%s was not found".formatted(userId));
         }
+        checkStagerAlreadyExists(eventId, userId);
+
         log.info("Creating stager for event {} and user {}", eventId, userId);
         return stagerRepository.createStager(eventId, user);
 
@@ -53,13 +57,18 @@ public class StagerService {
         return stagerId;
     }
 
-    public StagerEntity patch(String id, JsonPatch jsonPatch) {
-        return stagerRepository.save(applyPatchToEvent(getById(id), jsonPatch));
+    private void checkStagerAlreadyExists(String eventId, String userId) {
+        StagerEntity stager = getByEventAndUser(eventId, userId);
+        if (stager != null) {
+            throw BadRequestException.stagerAlreadyCreated();
+        }
     }
 
-    @SneakyThrows
-    private StagerEntity applyPatchToEvent(StagerEntity entity, JsonPatch jsonPatch) {
-        JsonNode patched = jsonPatch.apply(objectMapper.convertValue(entity, JsonNode.class));
-        return objectMapper.treeToValue(patched, StagerEntity.class);
+    public StagerEntity update(StagerEntity existingStager, Stager request) {
+        StagerEntity updatedStager = existingStager.toBuilder()
+                .participationStatus(request.participationStatus() != null ? request.participationStatus() : existingStager.participationStatus())
+                .build();
+
+        return stagerRepository.save(updatedStager);
     }
 }

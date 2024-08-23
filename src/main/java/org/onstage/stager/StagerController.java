@@ -1,8 +1,10 @@
 package org.onstage.stager;
 
 import lombok.RequiredArgsConstructor;
+import org.onstage.exceptions.BadRequestException;
 import org.onstage.stager.client.CreateStagerRequest;
 import org.onstage.stager.client.Stager;
+import org.onstage.stager.model.StagerEntity;
 import org.onstage.stager.model.mapper.StagerMapper;
 import org.onstage.stager.service.StagerService;
 import org.springframework.http.ResponseEntity;
@@ -22,14 +24,22 @@ public class StagerController {
         return ResponseEntity.ok(stagerMapper.toDtoList(stagerService.getAll(eventId)));
     }
 
-    //TODO: Do not let create a new stager if it already exists
     @PostMapping
-    public ResponseEntity<Stager> create(@RequestBody CreateStagerRequest createStagerRequest) {
-        return ResponseEntity.ok(stagerMapper.toDto(stagerService.create(createStagerRequest.eventId(), createStagerRequest.userId())));
+    public ResponseEntity<List<Stager>> create(@RequestBody CreateStagerRequest createStagerRequest) {
+        return ResponseEntity.ok(stagerMapper.toDtoList(stagerService.createStagersForEvent(createStagerRequest.eventId(), createStagerRequest.userIds())));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> remove(@PathVariable final String id) {
         return ResponseEntity.ok(stagerService.remove(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Stager> update(@PathVariable String id, @RequestBody Stager request) {
+        StagerEntity existingStager = stagerService.getById(id);
+        if (existingStager == null) {
+            throw BadRequestException.stagerNotFound();
+        }
+        return ResponseEntity.ok(stagerMapper.toDto(stagerService.update(existingStager, request)));
     }
 }
