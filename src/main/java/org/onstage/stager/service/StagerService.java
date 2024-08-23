@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.exceptions.ResourceNotFoundException;
+import org.onstage.stager.client.Stager;
 import org.onstage.stager.model.StagerEntity;
 import org.onstage.stager.repository.StagerRepository;
 import org.onstage.user.model.UserEntity;
@@ -33,21 +34,23 @@ public class StagerService {
     }
 
     public void createStagersForEvent(String eventId, List<String> userIds) {
-        userIds.forEach(userId -> createStager(eventId, userId));
+        userIds.forEach(userId -> create(eventId, userId));
     }
 
-    public void createStager(String eventId, String userId) {
+    public StagerEntity create(String eventId, String userId) {
         UserEntity user = userService.getById(userId);
         if (user == null) {
             throw new ResourceNotFoundException("User with id:%s was not found".formatted(userId));
         }
         log.info("Creating stager for event {} and user {}", eventId, userId);
-        stagerRepository.createStager(eventId, user);
+        return stagerRepository.createStager(eventId, user);
+
     }
 
-    public void removeStager(String stagerId) {
+    public String remove(String stagerId) {
         log.info("Removing stager with id {}", stagerId);
         stagerRepository.removeStager(stagerId);
+        return stagerId;
     }
 
     public StagerEntity patch(String id, JsonPatch jsonPatch) {

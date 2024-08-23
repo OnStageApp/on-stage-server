@@ -30,8 +30,8 @@ public class StagerRepository {
         return mongoTemplate.find(query, StagerEntity.class);
     }
 
-    public void createStager(String eventId, UserEntity user) {
-        stagerRepo.save(StagerEntity.builder()
+    public StagerEntity createStager(String eventId, UserEntity user) {
+        return stagerRepo.save(StagerEntity.builder()
                 .eventId(eventId)
                 .userId(user.id())
                 .name(user.name())
