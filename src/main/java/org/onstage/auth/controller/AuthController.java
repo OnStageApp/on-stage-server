@@ -1,10 +1,10 @@
-package org.onstage.user.controller;
+package org.onstage.auth.controller;
 
 import com.google.firebase.auth.FirebaseAuthException;
 import lombok.RequiredArgsConstructor;
+import org.onstage.auth.model.LoginRequest;
+import org.onstage.auth.service.AuthService;
 import org.onstage.exceptions.BadRequestException;
-import org.onstage.user.client.LoginRequest;
-import org.onstage.user.service.AuthService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

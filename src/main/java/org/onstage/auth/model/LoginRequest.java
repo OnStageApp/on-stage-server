@@ -1,4 +1,4 @@
-package org.onstage.user.client;
+package org.onstage.auth.model;
 
 import lombok.Builder;
 

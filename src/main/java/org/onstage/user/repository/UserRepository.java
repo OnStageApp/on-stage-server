@@ -27,6 +27,10 @@ public class UserRepository {
         return userRepo.findById(id);
     }
 
+    public Optional<UserEntity> findByEmail(String email) {
+        return userRepo.findByEmail(email);
+    }
+
     public UserEntity save(User user) {
         return userRepo.save(UserEntity.builder()
                 .id(randomUUID().toString())

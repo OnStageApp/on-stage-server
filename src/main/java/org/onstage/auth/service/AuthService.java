@@ -1,12 +1,12 @@
-package org.onstage.user.service;
+package org.onstage.auth.service;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import lombok.RequiredArgsConstructor;
+import org.onstage.auth.model.LoginRequest;
 import org.onstage.common.config.JwtTokenProvider;
 import org.onstage.exceptions.BadRequestException;
-import org.onstage.user.client.LoginRequest;
 import org.onstage.user.model.UserEntity;
 import org.onstage.user.repository.UserRepository;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,7 @@
 package org.onstage.common.config;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.onstage.user.model.UserEntity;
@@ -22,7 +23,7 @@ public class JwtTokenProvider {
 
     public String generateToken(UserEntity userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.name());
+        return createToken(claims, userDetails.email());
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
@@ -35,9 +36,13 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public Boolean validateToken(String token, UserEntity userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.name()) && !isTokenExpired(token));
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 
     public String extractUsername(String token) {
@@ -59,5 +64,9 @@ public class JwtTokenProvider {
 
     private Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
+    }
+
+    public String getEmailFromJwt(String token) {
+        return extractClaim(token, Claims::getSubject);
     }
 }
