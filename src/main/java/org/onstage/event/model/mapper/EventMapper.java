@@ -11,7 +11,7 @@ public class EventMapper {
         return EventDTO.builder()
                 .id(entity.id())
                 .name(entity.name())
-                .date(entity.dateTime())
+                .dateTime(entity.dateTime())
                 .location(entity.location())
                 .eventStatus(entity.eventStatus())
                 .build();

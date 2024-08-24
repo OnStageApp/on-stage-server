@@ -9,7 +9,7 @@ import java.util.List;
 public record EventOverview(
         String id,
         String name,
-        LocalDateTime date,
+        LocalDateTime dateTime,
         List<String> stagersPhotos
 ) {
 }
