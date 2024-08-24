@@ -2,7 +2,7 @@ package org.onstage.event.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.event.client.*;
-import org.onstage.event.model.EventEntity;
+import org.onstage.event.model.Event;
 import org.onstage.event.model.mapper.EventMapper;
 import org.onstage.event.service.EventService;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ public class EventController {
     private final EventMapper eventMapper;
 
     @GetMapping("/{id}")
-    public ResponseEntity<Event> getById(@PathVariable final String id) {
+    public ResponseEntity<EventDTO> getById(@PathVariable final String id) {
         return ResponseEntity.ok(eventMapper.toDto(eventService.getById(id)));
     }
 
@@ -31,8 +31,8 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity<Event> create(@RequestBody CreateEventRequest event) {
-        EventEntity savedEvent = eventService.create(eventMapper.fromCreateRequest(event), event.userIds(), event.rehearsals());
+    public ResponseEntity<EventDTO> create(@RequestBody CreateEventRequest event) {
+        Event savedEvent = eventService.create(eventMapper.fromCreateRequest(event), event.userIds(), event.rehearsals());
         return ResponseEntity.ok(eventMapper.toDto(savedEvent));
     }
 
@@ -42,7 +42,7 @@ public class EventController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Event> update(@PathVariable String id, @RequestBody UpdateEventRequest eventUpdateDTO) {
+    public ResponseEntity<EventDTO> update(@PathVariable String id, @RequestBody UpdateEventRequest eventUpdateDTO) {
         return ResponseEntity.ok(eventMapper.toDto(eventService.update(id, eventUpdateDTO)));
     }
 }

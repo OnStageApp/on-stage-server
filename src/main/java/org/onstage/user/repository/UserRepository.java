@@ -1,8 +1,8 @@
 package org.onstage.user.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.user.client.User;
-import org.onstage.user.model.UserEntity;
+import org.onstage.user.client.UserDTO;
+import org.onstage.user.model.User;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -15,31 +15,31 @@ import static java.util.UUID.randomUUID;
 public class UserRepository {
     private final UserRepo userRepo;
 
-    public List<UserEntity> findAll() {
+    public List<User> findAll() {
         return userRepo.findAll();
     }
 
-    public List<UserEntity> getAllUninvitedUsers(String eventId) {
+    public List<User> getAllUninvitedUsers(String eventId) {
         return userRepo.findAll();
     }
 
-    public Optional<UserEntity> findById(String id) {
+    public Optional<User> findById(String id) {
         return userRepo.findById(id);
     }
 
-    public Optional<UserEntity> findByEmail(String email) {
+    public Optional<User> findByEmail(String email) {
         return userRepo.findByEmail(email);
     }
 
-    public UserEntity save(User user) {
-        return userRepo.save(UserEntity.builder()
+    public User save(UserDTO user) {
+        return userRepo.save(User.builder()
                 .id(randomUUID().toString())
                 .name(user.name())
                 .role(user.role())
                 .build());
     }
 
-    public UserEntity save(UserEntity user) {
+    public User save(User user) {
         return userRepo.save(user);
     }
 }

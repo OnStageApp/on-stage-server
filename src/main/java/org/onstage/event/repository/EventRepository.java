@@ -2,7 +2,7 @@ package org.onstage.event.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.event.client.EventOverview;
-import org.onstage.event.model.EventEntity;
+import org.onstage.event.model.Event;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.apache.logging.log4j.util.Strings.isEmpty;
-import static org.onstage.event.model.EventEntity.Fields.dateTime;
-import static org.onstage.event.model.EventEntity.Fields.name;
+import static org.onstage.event.model.Event.Fields.dateTime;
+import static org.onstage.event.model.Event.Fields.name;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @Component
@@ -25,19 +25,19 @@ public class EventRepository {
     private final EventRepo repo;
     private final MongoTemplate mongoTemplate;
 
-    public Optional<EventEntity> findById(String id) {
+    public Optional<Event> findById(String id) {
         return repo.findById(id);
     }
 
     public List<EventOverview> getAll(String search) {
         Criteria criteria = isEmpty(search) ? new Criteria() : Criteria.where(name).regex(search, "i");
         Aggregation aggregation = newAggregation(eventProjectionPipeline(criteria));
-        return mongoTemplate.aggregate(aggregation, EventEntity.class, EventOverview.class).getMappedResults();
+        return mongoTemplate.aggregate(aggregation, Event.class, EventOverview.class).getMappedResults();
     }
 
     public EventOverview findEventProjectionById(String eventId) {
         Aggregation aggregation = newAggregation(eventProjectionPipeline(Criteria.where("_id").is(eventId)));
-        return mongoTemplate.aggregate(aggregation, EventEntity.class, EventOverview.class).getUniqueMappedResult();
+        return mongoTemplate.aggregate(aggregation, Event.class, EventOverview.class).getUniqueMappedResult();
     }
 
     public List<EventOverview> getAllByRange(LocalDateTime startDate, LocalDateTime endDate) {
@@ -46,10 +46,10 @@ public class EventRepository {
 
         Criteria criteria = Criteria.where(dateTime).gte(startDate).lte(endDate);
         Aggregation aggregation = newAggregation(eventProjectionPipeline(criteria));
-        return mongoTemplate.aggregate(aggregation, EventEntity.class, EventOverview.class).getMappedResults();
+        return mongoTemplate.aggregate(aggregation, Event.class, EventOverview.class).getMappedResults();
     }
 
-    public EventEntity save(EventEntity event) {
+    public Event save(Event event) {
         return repo.save(event);
     }
 

@@ -1,7 +1,7 @@
 package org.onstage.user.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.user.client.User;
+import org.onstage.user.client.UserDTO;
 import org.onstage.user.model.mapper.UserMapper;
 import org.onstage.user.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -17,27 +17,27 @@ public class UserController {
     private final UserService service;
 
     @GetMapping
-    public List<User> getAll() {
+    public List<UserDTO> getAll() {
         return mapper.toDtoList(service.getAll());
     }
 
     @GetMapping("/uninvited")
-    public List<User> getAllUninvitedUsers(@RequestParam final String eventId) {
+    public List<UserDTO> getAllUninvitedUsers(@RequestParam final String eventId) {
         return mapper.toDtoList(service.getAllUninvitedUsers(eventId));
     }
 
     @GetMapping("/{id}")
-    public User getById(@PathVariable final String id) {
+    public UserDTO getById(@PathVariable final String id) {
         return mapper.toDto(service.getById(id));
     }
 
     @PostMapping
-    public User create(@RequestBody User user) {
+    public UserDTO create(@RequestBody UserDTO user) {
         return mapper.toDto(service.save(user));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> update(@PathVariable String id, @RequestBody User request) {
+    public ResponseEntity<UserDTO> update(@PathVariable String id, @RequestBody UserDTO request) {
         return ResponseEntity.ok(mapper.toDto(service.update(id, request)));
     }
 }

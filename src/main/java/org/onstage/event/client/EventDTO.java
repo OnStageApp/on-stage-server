@@ -5,10 +5,9 @@ import lombok.Builder;
 import org.onstage.enums.EventStatus;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Builder(toBuilder = true)
-public record Event(
+public record EventDTO(
         String id,
         String name,
         LocalDateTime date,

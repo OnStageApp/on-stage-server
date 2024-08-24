@@ -1,7 +1,7 @@
 package org.onstage.auth.config;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.user.model.UserEntity;
+import org.onstage.user.model.User;
 import org.onstage.user.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,7 +18,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity user = userRepository.findByEmail(username)
+        User user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with uid: " + username));
 
         return new org.springframework.security.core.userdetails.User(

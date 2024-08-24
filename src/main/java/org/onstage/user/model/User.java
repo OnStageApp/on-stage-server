@@ -1,9 +1,12 @@
-package org.onstage.user.client;
+package org.onstage.user.model;
 
 import lombok.Builder;
-import org.onstage.user.model.UserRole;
+import lombok.With;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@With
 @Builder
+@Document("users")
 public record User(
         String id,
         String name,
