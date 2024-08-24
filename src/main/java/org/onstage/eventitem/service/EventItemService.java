@@ -3,10 +3,10 @@ package org.onstage.eventitem.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.eventitem.client.EventItemDTO;
+import org.onstage.eventitem.mapper.EventItemMapper;
 import org.onstage.eventitem.model.EventItem;
 import org.onstage.eventitem.repository.EventItemRepository;
 import org.onstage.exceptions.ResourceNotFoundException;
-import org.onstage.song.client.SongDTO;
 import org.onstage.song.client.SongOverview;
 import org.onstage.song.service.SongService;
 import org.springframework.stereotype.Service;
@@ -22,34 +22,33 @@ public class EventItemService {
 
     private final EventItemRepository eventItemRepository;
     private final SongService songService;
-
-    public EventItemDTO getById(String id) {
-        return eventItemRepository.findProjectionById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("EventItem with id:%s was not found".formatted(id)));
-    }
+    private final EventItemMapper eventItemMapper;
 
     public List<EventItemDTO> getAll(String eventId) {
-        List<EventItemDTO> eventItems = eventItemRepository.getAll(eventId);
+        List<EventItem> eventItems = eventItemRepository.getAll(eventId);
+        List<EventItemDTO> eventItemDTOS = eventItems.stream().map(eventItem -> {
+            EventItemDTO eventItemDTO = eventItemMapper.toDto(eventItem);
+            if (eventItem.eventType() == SONG) {
+                SongOverview song = songService.findOverviewById(eventItem.songId());
+                eventItemDTO = eventItemDTO.toBuilder().song(song).build();
+            }
+            return eventItemDTO;
+        }).toList();
         log.info("Retrieved {} event items for event id: {}", eventItems.size(), eventId);
-        return eventItems;
+        return eventItemDTOS;
     }
 
     public EventItemDTO save(EventItem eventItem) {
         EventItem savedEventItem = eventItemRepository.save(eventItem);
         log.info("EventItem {} has been saved", savedEventItem.id());
-        SongDTO song = songService.getById(savedEventItem.songId());
+        SongOverview song = songService.findOverviewById(savedEventItem.songId());
         return EventItemDTO.builder()
                 .id(savedEventItem.id())
                 .name(savedEventItem.name())
                 .index(savedEventItem.index())
                 .eventType(savedEventItem.eventType())
                 .eventId(savedEventItem.eventId())
-                .song(savedEventItem.eventType() == SONG ? (SongOverview.builder()
-                        .id(song.id())
-                        .key(song.key())
-                        .tempo(song.tempo())
-                        .artist(song.artist())
-                        .title(song.title()).build()) : null)
+                .song(song)
                 .build();
     }
 
