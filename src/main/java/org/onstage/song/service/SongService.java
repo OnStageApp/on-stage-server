@@ -25,6 +25,11 @@ public class SongService {
                 .orElseThrow(() -> new ResourceNotFoundException("Song with id:%s was not found".formatted(id)));
     }
 
+    public SongOverview findOverviewById(String id) {
+        return songRepository.findOverviewById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Song with id:%s was not found".formatted(id)));
+    }
+
     public Song findById(String id) {
         return songRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Song with id:%s was not found".formatted(id)));

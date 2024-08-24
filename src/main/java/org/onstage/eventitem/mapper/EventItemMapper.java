@@ -13,7 +13,6 @@ public class EventItemMapper {
                 .name(entity.name())
                 .index(entity.index())
                 .eventType(entity.eventType())
-//                .songId(entity.songId())
                 .eventId(entity.eventId())
                 .build();
     }

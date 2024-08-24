@@ -34,6 +34,12 @@ public class SongRepository {
         return Optional.ofNullable(mongoTemplate.aggregate(aggregation, Song.class, SongDTO.class).getUniqueMappedResult());
     }
 
+    public Optional<SongOverview> findOverviewById(String id) {
+        Aggregation aggregation = newAggregation(songOverviewProjectionPipeline(Criteria.where("_id").is(id), null));
+        return Optional.ofNullable(mongoTemplate.aggregate(aggregation, Song.class, SongOverview.class)
+                .getUniqueMappedResult());
+    }
+
     public List<SongOverview> getAll(String search) {
         Criteria searchCriteria = null;
         if (search != null && !search.isEmpty()) {
