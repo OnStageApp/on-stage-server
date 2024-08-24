@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public record EventDTO(
         String id,
         String name,
-        LocalDateTime date,
+        LocalDateTime dateTime,
         String location,
         EventStatus eventStatus
 ) {
