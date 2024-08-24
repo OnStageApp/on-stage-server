@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @Builder
 @Document("artists")
 @FieldNameConstants
-public record ArtistEntity(
+public record Artist(
         @MongoId
         String id,
         String name,

@@ -4,7 +4,7 @@ import lombok.Builder;
 import org.onstage.enums.ParticipationStatus;
 
 @Builder(toBuilder = true)
-public record Stager(
+public record StagerDTO(
         String id,
         String eventId,
         String userId,

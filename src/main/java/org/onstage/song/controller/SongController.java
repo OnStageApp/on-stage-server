@@ -2,7 +2,7 @@ package org.onstage.song.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.song.client.CreateOrUpdateSongRequest;
-import org.onstage.song.client.Song;
+import org.onstage.song.client.SongDTO;
 import org.onstage.song.client.SongFilter;
 import org.onstage.song.client.SongOverview;
 import org.onstage.song.model.mapper.SongMapper;
@@ -20,7 +20,7 @@ public class SongController {
     private final SongMapper songMapper;
 
     @GetMapping("/{id}")
-    public ResponseEntity<Song> getById(@PathVariable final String id) {
+    public ResponseEntity<SongDTO> getById(@PathVariable final String id) {
         return ResponseEntity.ok(songService.getById(id));
     }
 
@@ -30,12 +30,12 @@ public class SongController {
     }
 
     @PostMapping
-    public ResponseEntity<Song> create(@RequestBody CreateOrUpdateSongRequest song) {
+    public ResponseEntity<SongDTO> create(@RequestBody CreateOrUpdateSongRequest song) {
         return ResponseEntity.ok(songService.save(songMapper.fromCreateRequest(song)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Song> update(@PathVariable String id, @RequestBody CreateOrUpdateSongRequest request) {
+    public ResponseEntity<SongDTO> update(@PathVariable String id, @RequestBody CreateOrUpdateSongRequest request) {
         return ResponseEntity.ok(songService.update(id, request));
     }
 }

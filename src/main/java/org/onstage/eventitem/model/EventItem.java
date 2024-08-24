@@ -1,16 +1,19 @@
-package org.onstage.eventitem.client;
+package org.onstage.eventitem.model;
 
 import lombok.Builder;
 import org.onstage.enums.EventItemType;
-import org.onstage.song.client.SongOverview;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
+@Document("event-items")
 @Builder(toBuilder = true)
 public record EventItem(
+        @MongoId
         String id,
         String name,
         Integer index,
         EventItemType eventType,
-        SongOverview song,
+        String songId,
         String eventId
 ) {
 }

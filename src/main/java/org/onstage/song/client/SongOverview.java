@@ -1,13 +1,13 @@
 package org.onstage.song.client;
 
 import lombok.Builder;
-import org.onstage.artist.client.Artist;
+import org.onstage.artist.client.ArtistDTO;
 
 @Builder(toBuilder = true)
 public record SongOverview(
         String id,
         String title,
-        Artist artist,
+        ArtistDTO artist,
         String key,
         Integer tempo
 ) {

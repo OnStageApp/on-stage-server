@@ -2,7 +2,7 @@ package org.onstage.song.model.mapper;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.song.client.CreateOrUpdateSongRequest;
-import org.onstage.song.model.SongEntity;
+import org.onstage.song.model.Song;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class SongMapper {
 
-    public SongEntity fromCreateRequest(CreateOrUpdateSongRequest song) {
-        return SongEntity.builder()
+    public Song fromCreateRequest(CreateOrUpdateSongRequest song) {
+        return Song.builder()
                 .title(song.title())
                 .lyrics(song.lyrics())
                 .tempo(song.tempo())

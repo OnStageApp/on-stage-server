@@ -1,9 +1,8 @@
 package org.onstage.stager.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.stager.client.Stager;
-import org.onstage.stager.model.StagerEntity;
-import org.onstage.user.model.UserEntity;
+import org.onstage.stager.model.Stager;
+import org.onstage.user.model.User;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -20,18 +19,18 @@ public class StagerRepository {
     private final StagerRepo stagerRepo;
     private final MongoTemplate mongoTemplate;
 
-    public Optional<StagerEntity> findById(String id) {
+    public Optional<Stager> findById(String id) {
         return stagerRepo.findById(id);
     }
 
-    public List<StagerEntity> getAllByEventId(String eventId) {
-        Criteria criteria = Criteria.where(StagerEntity.Fields.eventId).is(eventId);
+    public List<Stager> getAllByEventId(String eventId) {
+        Criteria criteria = Criteria.where(Stager.Fields.eventId).is(eventId);
         Query query = new Query(criteria);
-        return mongoTemplate.find(query, StagerEntity.class);
+        return mongoTemplate.find(query, Stager.class);
     }
 
-    public StagerEntity createStager(String eventId, UserEntity user) {
-        return stagerRepo.save(StagerEntity.builder()
+    public Stager createStager(String eventId, User user) {
+        return stagerRepo.save(Stager.builder()
                 .eventId(eventId)
                 .userId(user.id())
                 .name(user.name())
@@ -43,14 +42,14 @@ public class StagerRepository {
         stagerRepo.deleteById(stagerId);
     }
 
-    public StagerEntity save(StagerEntity rehearsal) {
+    public Stager save(Stager rehearsal) {
         return stagerRepo.save(rehearsal);
     }
 
-    public StagerEntity getByEventAndUser(String eventId, String userId) {
-        Criteria criteria = Criteria.where(StagerEntity.Fields.eventId).is(eventId)
-                .and(StagerEntity.Fields.userId).is(userId);
+    public Stager getByEventAndUser(String eventId, String userId) {
+        Criteria criteria = Criteria.where(Stager.Fields.eventId).is(eventId)
+                .and(Stager.Fields.userId).is(userId);
         Query query = new Query(criteria);
-        return mongoTemplate.findOne(query, StagerEntity.class);
+        return mongoTemplate.findOne(query, Stager.class);
     }
 }

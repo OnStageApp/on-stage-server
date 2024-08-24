@@ -1,9 +1,9 @@
 package org.onstage.song.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.song.client.Song;
+import org.onstage.song.client.SongDTO;
 import org.onstage.song.client.SongOverview;
-import org.onstage.song.model.SongEntity;
+import org.onstage.song.model.Song;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.onstage.song.model.SongEntity.Fields.lyrics;
-import static org.onstage.song.model.SongEntity.Fields.title;
+import static org.onstage.song.model.Song.Fields.lyrics;
+import static org.onstage.song.model.Song.Fields.title;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @Component
@@ -25,12 +25,13 @@ public class SongRepository {
     private final SongRepo songRepo;
     private final MongoTemplate mongoTemplate;
 
-    public Optional<SongEntity> findById(String id) {
+    public Optional<Song> findById(String id) {
         return songRepo.findById(id);
     }
-    public Optional<Song> findProjectionById(String id) {
+
+    public Optional<SongDTO> findProjectionById(String id) {
         Aggregation aggregation = newAggregation(songProjectionPipeline(Criteria.where("_id").is(id), null));
-        return Optional.ofNullable(mongoTemplate.aggregate(aggregation, SongEntity.class, Song.class).getUniqueMappedResult());
+        return Optional.ofNullable(mongoTemplate.aggregate(aggregation, Song.class, SongDTO.class).getUniqueMappedResult());
     }
 
     public List<SongOverview> getAll(String search) {
@@ -43,10 +44,10 @@ public class SongRepository {
         }
         Sort sort = Sort.by(Sort.Order.asc("title"), Sort.Order.asc("artist.name"));
         Aggregation aggregation = newAggregation(songOverviewProjectionPipeline(searchCriteria, sort));
-        return mongoTemplate.aggregate(aggregation, SongEntity.class, SongOverview.class).getMappedResults();
+        return mongoTemplate.aggregate(aggregation, Song.class, SongOverview.class).getMappedResults();
     }
 
-    public SongEntity save(SongEntity song) {
+    public Song save(Song song) {
         return songRepo.save(song);
     }
 

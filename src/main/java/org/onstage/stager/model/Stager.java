@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @Document("stagers")
 @FieldNameConstants
 @CompoundIndex(name = "eventId_userId_unique", def = "{'eventId': 1, 'userId': 1}", unique = true)
-public record StagerEntity(
+public record Stager(
         @MongoId
         String id,
         String eventId,

@@ -1,14 +1,14 @@
 package org.onstage.event.model.mapper;
 
 import org.onstage.event.client.CreateEventRequest;
-import org.onstage.event.client.Event;
-import org.onstage.event.model.EventEntity;
+import org.onstage.event.client.EventDTO;
+import org.onstage.event.model.Event;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EventMapper {
-    public Event toDto(EventEntity entity) {
-        return Event.builder()
+    public EventDTO toDto(Event entity) {
+        return EventDTO.builder()
                 .id(entity.id())
                 .name(entity.name())
                 .date(entity.dateTime())
@@ -17,8 +17,8 @@ public class EventMapper {
                 .build();
     }
 
-    public EventEntity fromCreateRequest(CreateEventRequest request) {
-        return EventEntity.builder()
+    public Event fromCreateRequest(CreateEventRequest request) {
+        return Event.builder()
                 .name(request.name())
                 .dateTime(request.dateTime())
                 .location(request.location())

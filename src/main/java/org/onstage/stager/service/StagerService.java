@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.exceptions.ResourceNotFoundException;
-import org.onstage.stager.client.Stager;
-import org.onstage.stager.model.StagerEntity;
+import org.onstage.stager.client.StagerDTO;
+import org.onstage.stager.model.Stager;
 import org.onstage.stager.repository.StagerRepository;
-import org.onstage.user.model.UserEntity;
+import org.onstage.user.model.User;
 import org.onstage.user.service.UserService;
 import org.springframework.stereotype.Service;
 
@@ -22,25 +22,25 @@ public class StagerService {
     private final StagerRepository stagerRepository;
     private final UserService userService;
 
-    public StagerEntity getById(String id) {
+    public Stager getById(String id) {
         return stagerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Stager with id:%s was not found".formatted(id)));
     }
 
-    public StagerEntity getByEventAndUser(String eventId, String userId) {
+    public Stager getByEventAndUser(String eventId, String userId) {
         return stagerRepository.getByEventAndUser(eventId, userId);
     }
 
-    public List<StagerEntity> getAll(String eventId) {
+    public List<Stager> getAll(String eventId) {
         return stagerRepository.getAllByEventId(eventId);
     }
 
-    public List<StagerEntity> createStagersForEvent(String eventId, List<String> userIds) {
+    public List<Stager> createStagersForEvent(String eventId, List<String> userIds) {
         return userIds.stream().map(userId -> create(eventId, userId)).collect(toList());
     }
 
-    public StagerEntity create(String eventId, String userId) {
-        UserEntity user = userService.getById(userId);
+    public Stager create(String eventId, String userId) {
+        User user = userService.getById(userId);
         if (user == null) {
             throw new ResourceNotFoundException("User with id:%s was not found".formatted(userId));
         }
@@ -58,14 +58,14 @@ public class StagerService {
     }
 
     private void checkStagerAlreadyExists(String eventId, String userId) {
-        StagerEntity stager = getByEventAndUser(eventId, userId);
+        Stager stager = getByEventAndUser(eventId, userId);
         if (stager != null) {
             throw BadRequestException.stagerAlreadyCreated();
         }
     }
 
-    public StagerEntity update(StagerEntity existingStager, Stager request) {
-        StagerEntity updatedStager = existingStager.toBuilder()
+    public Stager update(Stager existingStager, StagerDTO request) {
+        Stager updatedStager = existingStager.toBuilder()
                 .participationStatus(request.participationStatus() != null ? request.participationStatus() : existingStager.participationStatus())
                 .build();
 

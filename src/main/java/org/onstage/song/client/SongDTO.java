@@ -1,17 +1,15 @@
 package org.onstage.song.client;
 
 import lombok.Builder;
-import org.onstage.artist.client.Artist;
-
-import java.time.LocalDateTime;
+import org.onstage.artist.client.ArtistDTO;
 
 @Builder(toBuilder = true)
-public record Song(
+public record SongDTO(
         String id,
         String title,
         String lyrics,
         Integer tempo,
         String key,
-        Artist artist
+        ArtistDTO artist
 ) {
 }

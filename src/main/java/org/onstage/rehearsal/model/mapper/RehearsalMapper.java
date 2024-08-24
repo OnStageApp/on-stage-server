@@ -1,15 +1,15 @@
 package org.onstage.rehearsal.model.mapper;
 
-import org.onstage.rehearsal.client.Rehearsal;
-import org.onstage.rehearsal.model.RehearsalEntity;
+import org.onstage.rehearsal.client.RehearsalDTO;
+import org.onstage.rehearsal.model.Rehearsal;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 public class RehearsalMapper {
-    public Rehearsal toDto(RehearsalEntity entity) {
-        return Rehearsal.builder()
+    public RehearsalDTO toDto(Rehearsal entity) {
+        return RehearsalDTO.builder()
                 .id(entity.id())
                 .name(entity.name())
                 .dateTime(entity.dateTime())
@@ -18,8 +18,8 @@ public class RehearsalMapper {
                 .build();
     }
 
-    public RehearsalEntity toEntity(Rehearsal request) {
-        return RehearsalEntity.builder()
+    public Rehearsal toEntity(RehearsalDTO request) {
+        return Rehearsal.builder()
                 .id(request.id())
                 .name(request.name())
                 .dateTime(request.dateTime())
@@ -28,7 +28,7 @@ public class RehearsalMapper {
                 .build();
     }
 
-    public List<Rehearsal> toDtoList(List<RehearsalEntity> entities) {
+    public List<RehearsalDTO> toDtoList(List<Rehearsal> entities) {
         return entities.stream()
                 .map(this::toDto)
                 .toList();

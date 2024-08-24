@@ -2,11 +2,10 @@ package org.onstage.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.common.exceptions.ResourceNotFound;
-import org.onstage.stager.model.StagerEntity;
-import org.onstage.stager.repository.StagerRepo;
+import org.onstage.stager.model.Stager;
 import org.onstage.stager.repository.StagerRepository;
-import org.onstage.user.client.User;
-import org.onstage.user.model.UserEntity;
+import org.onstage.user.client.UserDTO;
+import org.onstage.user.model.User;
 import org.onstage.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,13 +17,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final StagerRepository stagerRepository;
 
-    public List<UserEntity> getAll() {
+    public List<User> getAll() {
         return userRepository.findAll();
     }
 
-    public List<UserEntity> getAllUninvitedUsers(String eventId) {
-        final List<StagerEntity> stagerEntities = stagerRepository.getAllByEventId(eventId);
-        final List<UserEntity> userEntities = userRepository.findAll();
+    public List<User> getAllUninvitedUsers(String eventId) {
+        final List<Stager> stagerEntities = stagerRepository.getAllByEventId(eventId);
+        final List<User> userEntities = userRepository.findAll();
 
         return userEntities.stream()
                 .filter(userEntity -> stagerEntities.stream()
@@ -32,23 +31,23 @@ public class UserService {
                 .toList();
     }
 
-    public UserEntity getById(String id) {
+    public User getById(String id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFound("No user with id:%s was found".formatted(id)));
     }
 
-    public UserEntity save(User user) {
+    public User save(UserDTO user) {
         return userRepository.save(user);
     }
 
-    public UserEntity update(String id, User request) {
-        UserEntity existingUser = getById(id);
-        UserEntity updatedUser = updateUserFromDTO(existingUser, request);
+    public User update(String id, UserDTO request) {
+        User existingUser = getById(id);
+        User updatedUser = updateUserFromDTO(existingUser, request);
         return userRepository.save(updatedUser);
     }
 
-    private UserEntity updateUserFromDTO(UserEntity existingUser, User request) {
-        return UserEntity.builder()
+    private User updateUserFromDTO(User existingUser, UserDTO request) {
+        return User.builder()
                 .id(existingUser.id())
                 .email(request.email() == null ? existingUser.email() : request.email())
                 .name(request.name() == null ? existingUser.name() : request.name())
