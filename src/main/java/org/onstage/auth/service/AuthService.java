@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.onstage.auth.model.LoginRequest;
 import org.onstage.common.config.JwtTokenProvider;
 import org.onstage.exceptions.BadRequestException;
-import org.onstage.user.model.UserEntity;
+import org.onstage.user.model.User;
 import org.onstage.user.repository.UserRepository;
 import org.springframework.stereotype.Component;
 
@@ -26,14 +26,14 @@ public class AuthService {
 
         String uid = decodedToken.getUid();
 
-        UserEntity user = userRepository.findById(uid)
+        User user = userRepository.findById(uid)
                 .orElseGet(() -> createNewUser(uid, decodedToken));
 
         return jwtTokenProvider.generateToken(user);
     }
 
-    private UserEntity createNewUser(String uid, FirebaseToken decodedToken) {
-        return userRepository.save(UserEntity.builder()
+    private User createNewUser(String uid, FirebaseToken decodedToken) {
+        return userRepository.save(User.builder()
                 .id(uid)
                 .name(decodedToken.getName())
                 .email(decodedToken.getEmail())

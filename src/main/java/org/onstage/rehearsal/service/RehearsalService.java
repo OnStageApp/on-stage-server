@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.exceptions.ResourceNotFoundException;
 import org.onstage.rehearsal.client.CreateRehearsalForEventRequest;
-import org.onstage.rehearsal.client.Rehearsal;
-import org.onstage.rehearsal.model.RehearsalEntity;
+import org.onstage.rehearsal.client.RehearsalDTO;
+import org.onstage.rehearsal.model.Rehearsal;
 import org.onstage.rehearsal.repository.RehearsalRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,17 +17,17 @@ import java.util.List;
 public class RehearsalService {
     private final RehearsalRepository rehearsalRepository;
 
-    public RehearsalEntity getById(String id) {
+    public Rehearsal getById(String id) {
         return rehearsalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Rehearsal with id:%s was not found".formatted(id)));
     }
 
-    public List<RehearsalEntity> getAll(String eventId) {
+    public List<Rehearsal> getAll(String eventId) {
         return rehearsalRepository.getAllByEventId(eventId);
     }
 
-    public RehearsalEntity save(RehearsalEntity rehearsal) {
-        RehearsalEntity savedRehearsal = rehearsalRepository.save(rehearsal);
+    public Rehearsal save(Rehearsal rehearsal) {
+        Rehearsal savedRehearsal = rehearsalRepository.save(rehearsal);
         log.info("Rehearsal {} has been saved", rehearsal.id());
         return savedRehearsal;
     }
@@ -36,14 +36,14 @@ public class RehearsalService {
         return rehearsalRepository.delete(id);
     }
 
-    public RehearsalEntity update(String id, Rehearsal request) {
-        RehearsalEntity existingRehearsal = getById(id);
-        RehearsalEntity updatedRehearsal = updateRehearsalFromDTO(existingRehearsal, request);
+    public Rehearsal update(String id, RehearsalDTO request) {
+        Rehearsal existingRehearsal = getById(id);
+        Rehearsal updatedRehearsal = updateRehearsalFromDTO(existingRehearsal, request);
         return rehearsalRepository.save(updatedRehearsal);
     }
 
-    private RehearsalEntity updateRehearsalFromDTO(RehearsalEntity existingRehearsal, Rehearsal request) {
-        return RehearsalEntity.builder()
+    private Rehearsal updateRehearsalFromDTO(Rehearsal existingRehearsal, RehearsalDTO request) {
+        return Rehearsal.builder()
                 .id(existingRehearsal.id())
                 .name(request.name() == null ? existingRehearsal.name() : request.name())
                 .dateTime(request.dateTime() == null ? existingRehearsal.dateTime() : request.dateTime())
@@ -54,7 +54,7 @@ public class RehearsalService {
 
 
     public void createRehearsalsForEvent(String eventId, List<CreateRehearsalForEventRequest> rehearsals) {
-        rehearsals.forEach(rehearsal -> save(RehearsalEntity.builder()
+        rehearsals.forEach(rehearsal -> save(Rehearsal.builder()
                 .name(rehearsal.name())
                 .dateTime(rehearsal.dateTime())
                 .location(rehearsal.location())

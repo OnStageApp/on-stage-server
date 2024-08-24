@@ -1,7 +1,7 @@
 package org.onstage.rehearsal.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.rehearsal.model.RehearsalEntity;
+import org.onstage.rehearsal.model.Rehearsal;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -17,17 +17,17 @@ public class RehearsalRepository {
     private final RehearsalRepo repo;
     private final MongoTemplate mongoTemplate;
 
-    public Optional<RehearsalEntity> findById(String id) {
+    public Optional<Rehearsal> findById(String id) {
         return repo.findById(id);
     }
 
-    public List<RehearsalEntity> getAllByEventId(String eventId) {
-        Criteria criteria = Criteria.where(RehearsalEntity.Fields.eventId).is(eventId);
+    public List<Rehearsal> getAllByEventId(String eventId) {
+        Criteria criteria = Criteria.where(Rehearsal.Fields.eventId).is(eventId);
         Query query = new Query(criteria);
-        return mongoTemplate.find(query, RehearsalEntity.class);
+        return mongoTemplate.find(query, Rehearsal.class);
     }
 
-    public RehearsalEntity save(RehearsalEntity rehearsal) {
+    public Rehearsal save(Rehearsal rehearsal) {
         return repo.save(rehearsal);
     }
 

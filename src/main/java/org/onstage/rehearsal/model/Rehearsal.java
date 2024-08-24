@@ -1,28 +1,22 @@
-package org.onstage.event.model;
-
+package org.onstage.rehearsal.model;
 
 import lombok.Builder;
-import lombok.NonNull;
 import lombok.experimental.FieldNameConstants;
-import org.onstage.enums.EventStatus;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.LocalDateTime;
 
 @Builder
-@Document("events")
+@Document("rehearsals")
 @FieldNameConstants
-public record EventEntity(
+public record Rehearsal(
         @MongoId
         String id,
-        @NonNull
         String name,
-        LocalDateTime dateTime,
         String location,
-        EventStatus eventStatus
+        LocalDateTime dateTime,
+        String eventId
 ) {
-    public EventEntity {
-        if (eventStatus == null) eventStatus = EventStatus.DRAFT;
-    }
+
 }

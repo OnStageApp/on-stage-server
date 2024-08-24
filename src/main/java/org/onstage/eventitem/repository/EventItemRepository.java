@@ -1,8 +1,8 @@
 package org.onstage.eventitem.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.eventitem.client.EventItem;
-import org.onstage.eventitem.model.EventItemEntity;
+import org.onstage.eventitem.client.EventItemDTO;
+import org.onstage.eventitem.model.EventItem;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
@@ -21,24 +21,24 @@ public class EventItemRepository {
     private final EventItemRepo eventItemRepo;
     private final MongoTemplate mongoTemplate;
 
-    public Optional<EventItemEntity> getById(String id) {
+    public Optional<EventItem> getById(String id) {
         return eventItemRepo.findById(id);
     }
 
-    public Optional<EventItem> findProjectionById(String id) {
+    public Optional<EventItemDTO> findProjectionById(String id) {
         Aggregation aggregation = newAggregation(eventItemAggregationPipeline(Criteria.where("_id").is(id)));
-        EventItem result = mongoTemplate.aggregate(aggregation, "event-items", EventItem.class)
+        EventItemDTO result = mongoTemplate.aggregate(aggregation, "event-items", EventItemDTO.class)
                 .getUniqueMappedResult();
         return Optional.ofNullable(result);
     }
 
-    public List<EventItem> getAll(String eventId) {
+    public List<EventItemDTO> getAll(String eventId) {
         Aggregation aggregation = newAggregation(eventItemAggregationPipeline(Criteria.where("eventId").is(eventId)));
-        return mongoTemplate.aggregate(aggregation, "event-items", EventItem.class)
+        return mongoTemplate.aggregate(aggregation, "event-items", EventItemDTO.class)
                 .getMappedResults();
     }
 
-    public EventItemEntity save(EventItemEntity eventItem) {
+    public EventItem save(EventItem eventItem) {
         return eventItemRepo.save(eventItem);
     }
 

@@ -1,29 +1,29 @@
 package org.onstage.artist.model.mapper;
 
-import org.onstage.artist.client.Artist;
-import org.onstage.artist.model.ArtistEntity;
+import org.onstage.artist.client.ArtistDTO;
+import org.onstage.artist.model.Artist;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 public class ArtistMapper {
-    public Artist toDto(ArtistEntity entity) {
-        return Artist.builder()
+    public ArtistDTO toDto(Artist entity) {
+        return ArtistDTO.builder()
                 .id(entity.id())
                 .name(entity.name())
                 .imageUrl(null)
                 .build();
     }
 
-    public ArtistEntity toEntity(Artist request) {
-        return ArtistEntity.builder()
+    public Artist toEntity(ArtistDTO request) {
+        return Artist.builder()
                 .name(request.name())
                 .imageUrl(null)
                 .build();
     }
 
-    public List<Artist> toDtoList(List<ArtistEntity> entities) {
+    public List<ArtistDTO> toDtoList(List<Artist> entities) {
         return entities.stream()
                 .map(this::toDto)
                 .toList();

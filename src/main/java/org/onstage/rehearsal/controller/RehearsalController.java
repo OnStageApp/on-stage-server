@@ -1,7 +1,7 @@
 package org.onstage.rehearsal.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.rehearsal.client.Rehearsal;
+import org.onstage.rehearsal.client.RehearsalDTO;
 import org.onstage.rehearsal.model.mapper.RehearsalMapper;
 import org.onstage.rehearsal.service.RehearsalService;
 import org.springframework.http.ResponseEntity;
@@ -17,17 +17,17 @@ public class RehearsalController {
     private final RehearsalMapper rehearsalMapper;
 
     @GetMapping
-    public ResponseEntity<List<Rehearsal>> getAll(@RequestParam(name = "eventId") String eventId) {
+    public ResponseEntity<List<RehearsalDTO>> getAll(@RequestParam(name = "eventId") String eventId) {
         return ResponseEntity.ok(rehearsalMapper.toDtoList(rehearsalService.getAll(eventId)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Rehearsal> getById(@PathVariable final String id) {
+    public ResponseEntity<RehearsalDTO> getById(@PathVariable final String id) {
         return ResponseEntity.ok(rehearsalMapper.toDto(rehearsalService.getById(id)));
     }
 
     @PostMapping
-    public ResponseEntity<Rehearsal> create(@RequestBody final Rehearsal request) {
+    public ResponseEntity<RehearsalDTO> create(@RequestBody final RehearsalDTO request) {
         return ResponseEntity.ok(rehearsalMapper.toDto(rehearsalService.save(rehearsalMapper.toEntity(request))));
     }
 
@@ -37,7 +37,7 @@ public class RehearsalController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Rehearsal> update(@PathVariable String id, @RequestBody Rehearsal request) {
+    public ResponseEntity<RehearsalDTO> update(@PathVariable String id, @RequestBody RehearsalDTO request) {
         return ResponseEntity.ok(rehearsalMapper.toDto(rehearsalService.update(id, request)));
     }
 

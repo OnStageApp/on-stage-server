@@ -1,14 +1,14 @@
 package org.onstage.eventitem.mapper;
 
 import org.onstage.eventitem.client.CreateEventItemRequest;
-import org.onstage.eventitem.client.EventItem;
-import org.onstage.eventitem.model.EventItemEntity;
+import org.onstage.eventitem.client.EventItemDTO;
+import org.onstage.eventitem.model.EventItem;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EventItemMapper {
-    public EventItem toDto(EventItemEntity entity) {
-        return EventItem.builder()
+    public EventItemDTO toDto(EventItem entity) {
+        return EventItemDTO.builder()
                 .id(entity.id())
                 .name(entity.name())
                 .index(entity.index())
@@ -18,8 +18,8 @@ public class EventItemMapper {
                 .build();
     }
 
-    public EventItemEntity fromCreateRequest(CreateEventItemRequest eventItem) {
-        return EventItemEntity.builder()
+    public EventItem fromCreateRequest(CreateEventItemRequest eventItem) {
+        return EventItem.builder()
                 .name(eventItem.name())
                 .index(eventItem.index())
                 .eventType(eventItem.eventType())

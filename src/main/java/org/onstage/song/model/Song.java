@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Builder
 @Document("songs")
 @FieldNameConstants
-public record SongEntity(
+public record Song(
         @MongoId
         String id,
         String title,
