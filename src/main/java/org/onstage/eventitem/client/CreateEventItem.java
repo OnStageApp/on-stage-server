@@ -4,11 +4,10 @@ import lombok.Builder;
 import org.onstage.enums.EventItemType;
 
 @Builder(toBuilder = true)
-public record CreateEventItemRequest(
+public record CreateEventItem(
         String name,
         int index,
         EventItemType eventType,
         String songId,
-        String eventId
-) {
+        String eventId) {
 }

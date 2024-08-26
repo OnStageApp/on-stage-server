@@ -1,7 +1,7 @@
 package org.onstage.eventitem.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.eventitem.client.CreateEventItemRequest;
+import org.onstage.eventitem.client.AddEventItemsRequest;
 import org.onstage.eventitem.client.EventItemDTO;
 import org.onstage.eventitem.mapper.EventItemMapper;
 import org.onstage.eventitem.service.EventItemService;
@@ -22,9 +22,11 @@ public class EventItemController {
         return ResponseEntity.ok(eventItemService.getAll(eventId));
     }
 
-    @PostMapping()
-    public ResponseEntity<EventItemDTO> create(@RequestBody CreateEventItemRequest eventItem) {
-        return ResponseEntity.ok(eventItemService.save(eventItemMapper.fromCreateRequest(eventItem)));
+    @PostMapping
+    public ResponseEntity<List<EventItemDTO>> create(@RequestBody AddEventItemsRequest request) {
+        List<EventItemDTO> eventItems = request.eventItems().stream().map(
+                eventItemDTO -> eventItemService.save(eventItemMapper.fromCreateRequest(eventItemDTO))).toList();
+        return ResponseEntity.ok(eventItems);
     }
 
     @PutMapping("/{id}")
