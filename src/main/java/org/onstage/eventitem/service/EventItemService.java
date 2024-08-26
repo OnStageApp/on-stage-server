@@ -69,4 +69,12 @@ public class EventItemService {
                 .eventId(existingEventItem.eventId())
                 .build();
     }
+
+    public List<EventItemDTO> updateEventItemList(List<EventItem> eventItems, String eventId) {
+        if (eventItems.isEmpty()) {
+            return List.of();
+        }
+        eventItemRepository.deleteAllByEventId(eventId);
+        return eventItems.stream().map(this::save).toList();
+    }
 }

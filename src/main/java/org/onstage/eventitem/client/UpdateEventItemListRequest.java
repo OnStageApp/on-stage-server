@@ -5,7 +5,8 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder(toBuilder = true)
-public record AddEventItemsRequest(
-        List<CreateEventItem> eventItems
+public record UpdateEventItemListRequest(
+        List<CreateEventItem> eventItems,
+        String eventId
 ) {
 }

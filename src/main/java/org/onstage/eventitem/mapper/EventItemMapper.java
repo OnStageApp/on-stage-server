@@ -5,6 +5,8 @@ import org.onstage.eventitem.client.EventItemDTO;
 import org.onstage.eventitem.model.EventItem;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class EventItemMapper {
     public EventItemDTO toDto(EventItem entity) {
@@ -26,5 +28,11 @@ public class EventItemMapper {
                 .songId(eventItem.songId())
                 .eventId(eventItem.eventId())
                 .build();
+    }
+
+    public List<EventItem> fromCreateRequestList(List<CreateEventItem> eventItems) {
+        return eventItems.stream()
+                .map(this::fromCreateRequest)
+                .toList();
     }
 }
