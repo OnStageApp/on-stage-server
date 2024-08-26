@@ -1,6 +1,6 @@
 package org.onstage.eventitem.mapper;
 
-import org.onstage.eventitem.client.CreateEventItemRequest;
+import org.onstage.eventitem.client.CreateEventItem;
 import org.onstage.eventitem.client.EventItemDTO;
 import org.onstage.eventitem.model.EventItem;
 import org.springframework.stereotype.Component;
@@ -17,7 +17,8 @@ public class EventItemMapper {
                 .build();
     }
 
-    public EventItem fromCreateRequest(CreateEventItemRequest eventItem) {
+
+    public EventItem fromCreateRequest(CreateEventItem eventItem) {
         return EventItem.builder()
                 .name(eventItem.name())
                 .index(eventItem.index())
