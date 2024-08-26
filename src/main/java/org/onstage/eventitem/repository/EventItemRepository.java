@@ -30,4 +30,9 @@ public class EventItemRepository {
         return eventItemRepo.save(eventItem);
     }
 
+    public void deleteAllByEventId(String eventId) {
+        Criteria criteria = Criteria.where("eventId").is(eventId);
+        Query query = new Query(criteria);
+        mongoTemplate.remove(query, EventItem.class, "event-items");
+    }
 }

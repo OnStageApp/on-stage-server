@@ -1,8 +1,8 @@
 package org.onstage.eventitem.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.eventitem.client.AddEventItemsRequest;
 import org.onstage.eventitem.client.EventItemDTO;
+import org.onstage.eventitem.client.UpdateEventItemListRequest;
 import org.onstage.eventitem.mapper.EventItemMapper;
 import org.onstage.eventitem.service.EventItemService;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +23,8 @@ public class EventItemController {
     }
 
     @PostMapping
-    public ResponseEntity<List<EventItemDTO>> create(@RequestBody AddEventItemsRequest request) {
-        List<EventItemDTO> eventItems = request.eventItems().stream().map(
-                eventItemDTO -> eventItemService.save(eventItemMapper.fromCreateRequest(eventItemDTO))).toList();
+    public ResponseEntity<List<EventItemDTO>> create(@RequestBody UpdateEventItemListRequest request) {
+        List<EventItemDTO> eventItems = eventItemService.updateEventItemList(eventItemMapper.fromCreateRequestList(request.eventItems()), request.eventId());
         return ResponseEntity.ok(eventItems);
     }
 
