@@ -5,5 +5,5 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder(toBuilder = true)
-public record GetAllEventsResponse(List<EventOverview> events, boolean hasMore) {
+public record PaginatedEventResponse(List<EventOverview> events, boolean hasMore) {
 }
