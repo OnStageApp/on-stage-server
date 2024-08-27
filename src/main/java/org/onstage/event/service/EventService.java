@@ -3,7 +3,7 @@ package org.onstage.event.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.enums.EventSearchType;
-import org.onstage.event.client.EventOverview;
+import org.onstage.event.client.PaginatedEventResponse;
 import org.onstage.event.client.UpdateEventRequest;
 import org.onstage.event.model.Event;
 import org.onstage.event.repository.EventRepository;
@@ -11,8 +11,10 @@ import org.onstage.exceptions.ResourceNotFoundException;
 import org.onstage.rehearsal.client.CreateRehearsalForEventRequest;
 import org.onstage.rehearsal.service.RehearsalService;
 import org.onstage.stager.service.StagerService;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -56,14 +58,16 @@ public class EventService {
                 .build();
     }
 
-    public List<EventOverview> getAllByFilter(EventSearchType eventSearchType, String searchValue) {
+    public PaginatedEventResponse getAllByFilter(EventSearchType eventSearchType, String searchValue, int offset, int limit) {
+        Criteria criteria = new Criteria();
+
         if (searchValue != null) {
-            return eventRepository.getAllBySearch(searchValue);
-        } else if (eventSearchType.equals(EventSearchType.UPCOMING)) {
-            return eventRepository.getAllUpcoming();
-        } else if (eventSearchType.equals(EventSearchType.PAST)) {
-            return eventRepository.getAllPast();
+            criteria = Criteria.where("name").regex(searchValue, "i");
+        } else if (EventSearchType.UPCOMING.equals(eventSearchType)) {
+            criteria = Criteria.where("dateTime").gte(LocalDateTime.now());
+        } else if (EventSearchType.PAST.equals(eventSearchType)) {
+            criteria = Criteria.where("dateTime").lte(LocalDateTime.now());
         }
-        return eventRepository.getAll();
+        return eventRepository.getPaginatedEvents(criteria, offset, limit);
     }
 }

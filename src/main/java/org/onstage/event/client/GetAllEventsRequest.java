@@ -6,6 +6,8 @@ import org.onstage.enums.EventSearchType;
 @Builder
 public record GetAllEventsRequest(
         EventSearchType eventSearchType,
-        String searchValue
+        String searchValue,
+        int offset,
+        int limit
 ) {
 }

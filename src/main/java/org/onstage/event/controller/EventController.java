@@ -8,8 +8,6 @@ import org.onstage.event.service.EventService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("events")
 @RequiredArgsConstructor
@@ -24,7 +22,13 @@ public class EventController {
 
     @GetMapping
     public ResponseEntity<GetAllEventsResponse> getAll(@RequestBody GetAllEventsRequest filter) {
-        return ResponseEntity.ok(GetAllEventsResponse.builder().events(eventService.getAllByFilter(filter.eventSearchType(), filter.searchValue())).build());
+        PaginatedEventResponse paginatedResponse = eventService.getAllByFilter(
+                filter.eventSearchType(), filter.searchValue(), filter.offset(), filter.limit());
+
+        return ResponseEntity.ok(GetAllEventsResponse.builder()
+                .events(paginatedResponse.events())
+                .hasMore(paginatedResponse.hasMore())
+                .build());
     }
 
     @PostMapping
