@@ -10,7 +10,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,22 +28,30 @@ public class EventRepository {
         return repo.findById(id);
     }
 
-    public List<EventOverview> getAll(String search) {
-        Criteria criteria = isEmpty(search) ? new Criteria() : Criteria.where(name).regex(search, "i");
-        Aggregation aggregation = newAggregation(eventProjectionPipeline(criteria));
-        return mongoTemplate.aggregate(aggregation, Event.class, EventOverview.class).getMappedResults();
-    }
-
     public EventOverview findEventProjectionById(String eventId) {
         Aggregation aggregation = newAggregation(eventProjectionPipeline(Criteria.where("_id").is(eventId)));
         return mongoTemplate.aggregate(aggregation, Event.class, EventOverview.class).getUniqueMappedResult();
     }
 
-    public List<EventOverview> getAllByRange(LocalDateTime startDate, LocalDateTime endDate) {
-        startDate = (startDate != null) ? startDate : LocalDateTime.of(2022, Month.DECEMBER, 12, 11, 59);
-        endDate = (endDate != null) ? endDate : LocalDateTime.now().plusYears(5);
+    public List<EventOverview> getAllBySearch(String searchValue) {
+        Criteria criteria = isEmpty(searchValue) ? new Criteria() : Criteria.where(name).regex(searchValue, "i");
+        Aggregation aggregation = newAggregation(eventProjectionPipeline(criteria));
+        return mongoTemplate.aggregate(aggregation, Event.class, EventOverview.class).getMappedResults();
+    }
 
-        Criteria criteria = Criteria.where(dateTime).gte(startDate).lte(endDate);
+    public List<EventOverview> getAll() {
+        Aggregation aggregation = newAggregation(eventProjectionPipeline(new Criteria()));
+        return mongoTemplate.aggregate(aggregation, Event.class, EventOverview.class).getMappedResults();
+    }
+
+    public List<EventOverview> getAllUpcoming() {
+        Criteria criteria = Criteria.where(dateTime).gte(LocalDateTime.now());
+        Aggregation aggregation = newAggregation(eventProjectionPipeline(criteria));
+        return mongoTemplate.aggregate(aggregation, Event.class, EventOverview.class).getMappedResults();
+    }
+
+    public List<EventOverview> getAllPast() {
+        Criteria criteria = Criteria.where(dateTime).lte(LocalDateTime.now());
         Aggregation aggregation = newAggregation(eventProjectionPipeline(criteria));
         return mongoTemplate.aggregate(aggregation, Event.class, EventOverview.class).getMappedResults();
     }
@@ -61,15 +68,11 @@ public class EventRepository {
     private List<AggregationOperation> eventProjectionPipeline(Criteria criteria) {
         return List.of(
                 match(criteria),
-                lookup("stagers", "stagerIds", "_id", "stagers"),
+                lookup("stagers", "_id", "eventId", "stagers"),
                 project()
                         .and("_id").as("id")
                         .and("name").as("name")
                         .and("dateTime").as("dateTime")
-                        .and("location").as("location")
-                        .and("planners").as("planners")
-                        .and("eventStatus").as("eventStatus")
-                        .and("stagers").as("stagers")
-        );
+                        .and("stagers.profilePicture").as("stagersPhotos"));
     }
 }

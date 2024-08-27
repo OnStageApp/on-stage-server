@@ -2,6 +2,7 @@ package org.onstage.event.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.onstage.enums.EventSearchType;
 import org.onstage.event.client.EventOverview;
 import org.onstage.event.client.UpdateEventRequest;
 import org.onstage.event.model.Event;
@@ -12,7 +13,6 @@ import org.onstage.rehearsal.service.RehearsalService;
 import org.onstage.stager.service.StagerService;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -40,15 +40,6 @@ public class EventService {
         return eventRepository.delete(id);
     }
 
-    public List<EventOverview> getAll(final String search) {
-        return eventRepository.getAll(search);
-    }
-
-    public List<EventOverview> getAllByRange(LocalDateTime startDate, LocalDateTime endDate) {
-        log.info("Events by range: " + startDate + " - " + endDate);
-        return eventRepository.getAllByRange(startDate, endDate);
-    }
-
     public Event update(String id, UpdateEventRequest request) {
         Event existingEvent = getById(id);
         Event updatedEvent = updateEventFromDTO(existingEvent, request);
@@ -63,5 +54,16 @@ public class EventService {
                 .location(request.location() == null ? existingEvent.location() : request.location())
                 .eventStatus(request.eventStatus() == null ? existingEvent.eventStatus() : request.eventStatus())
                 .build();
+    }
+
+    public List<EventOverview> getAllByFilter(EventSearchType eventSearchType, String searchValue) {
+        if (searchValue != null) {
+            return eventRepository.getAllBySearch(searchValue);
+        } else if (eventSearchType.equals(EventSearchType.UPCOMING)) {
+            return eventRepository.getAllUpcoming();
+        } else if (eventSearchType.equals(EventSearchType.PAST)) {
+            return eventRepository.getAllPast();
+        }
+        return eventRepository.getAll();
     }
 }
