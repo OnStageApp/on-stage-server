@@ -5,6 +5,7 @@ import lombok.Builder;
 import org.onstage.enums.EventStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder(toBuilder = true)
 public record EventDTO(
@@ -12,7 +13,8 @@ public record EventDTO(
         String name,
         LocalDateTime dateTime,
         String location,
-        EventStatus eventStatus
+        EventStatus eventStatus,
+        List<String> stagersPhotos
 ) {
 }
 

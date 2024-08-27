@@ -20,6 +20,11 @@ public class EventController {
         return ResponseEntity.ok(eventMapper.toDto(eventService.getById(id)));
     }
 
+    @GetMapping("/upcoming")
+    public ResponseEntity<EventDTO> getUpcomingEvent() {
+        return ResponseEntity.ok(eventService.getUpcomingPublishedEvent());
+    }
+
     @GetMapping
     public ResponseEntity<GetAllEventsResponse> getAll(@RequestBody GetAllEventsRequest filter) {
         PaginatedEventResponse paginatedResponse = eventService.getAllByFilter(
