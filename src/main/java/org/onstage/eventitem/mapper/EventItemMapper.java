@@ -22,14 +22,12 @@ public class EventItemMapper {
 
 
     public EventItem fromCreateRequest(CreateEventItem eventItem, String eventId) {
-        EventItemType eventType = (eventItem.songId() != null) ? EventItemType.SONG : EventItemType.OTHER;
-
         return EventItem.builder()
                 .name(eventItem.name())
                 .index(eventItem.index())
-                .eventType(eventType)
+                .eventType(eventItem.songId() != null ? EventItemType.SONG : EventItemType.OTHER)
                 .songId(eventItem.songId())
-                .eventId(eventId)  // Use the provided eventId
+                .eventId(eventId)
                 .build();
     }
 

@@ -12,7 +12,6 @@ import org.onstage.song.service.SongService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 import static org.onstage.enums.EventItemType.SONG;
 
@@ -42,7 +41,10 @@ public class EventItemService {
     public EventItemDTO save(EventItem eventItem) {
         EventItem savedEventItem = eventItemRepository.save(eventItem);
         log.info("EventItem {} has been saved", savedEventItem.id());
-        SongOverview song = songService.findOverviewById(savedEventItem.songId());
+        SongOverview song = null;
+        if (eventItem.songId() != null) {
+            song = songService.findOverviewById(savedEventItem.songId());
+        }
         return EventItemDTO.builder()
                 .id(savedEventItem.id())
                 .name(savedEventItem.name())
@@ -71,38 +73,11 @@ public class EventItemService {
                 .build();
     }
 
-    //TODO: Check for songID null
-    //TODO: I receive song with null
-    //TODO: list not deleting
-//    public List<EventItemDTO> updateEventItemList(List<EventItem> eventItems, String eventId) {
-//        if (eventItems.isEmpty()) {
-//            return List.of();
-//        }
-//        eventItemRepository.deleteAllByEventId(eventId);
-//        return eventItems.stream().map(this::save).toList();
-//    }
-
     public List<EventItemDTO> updateEventItemList(List<EventItem> eventItems, String eventId) {
         if (eventItems.isEmpty()) {
             return List.of();
         }
         eventItemRepository.deleteAllByEventId(eventId);
-        return eventItems.stream()
-                .map(this::saveWithValidation)
-                .filter(Objects::nonNull)
-                .toList();
-    }
-
-    private EventItemDTO saveWithValidation(EventItem eventItem) {
-        if (eventItem.songId() != null) {
-            try {
-                songService.findOverviewById(eventItem.songId());
-            } catch (ResourceNotFoundException e) {
-                log.error("Song with id {} not found. Skipping this EventItem.", eventItem.songId());
-                return null;
-            }
-        }
-        EventItem savedItem = eventItemRepository.save(eventItem);
-        return eventItemMapper.toDto(savedItem);
+        return eventItems.stream().map(this::save).toList();
     }
 }
