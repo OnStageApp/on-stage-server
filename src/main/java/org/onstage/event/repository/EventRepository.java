@@ -1,15 +1,19 @@
 package org.onstage.event.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.onstage.enums.EventStatus;
+import org.onstage.event.client.EventDTO;
 import org.onstage.event.client.EventOverview;
 import org.onstage.event.client.PaginatedEventResponse;
 import org.onstage.event.model.Event;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +34,27 @@ public class EventRepository {
 //        Aggregation aggregation = newAggregation(eventProjectionPipeline(Criteria.where("_id").is(eventId)));
 //        return mongoTemplate.aggregate(aggregation, Event.class, EventOverview.class).getUniqueMappedResult();
 //    }
+
+    public EventDTO getUpcomingPublishedEvent() {
+        Criteria criteria = Criteria.where("dateTime").gte(LocalDateTime.now())
+                .and("eventStatus").is(EventStatus.PUBLISHED);
+
+        Aggregation aggregation = newAggregation(
+                match(criteria),
+                sort(Sort.Direction.ASC, "dateTime"),
+                limit(1),
+                lookup("stagers", "_id", "eventId", "stagers"),
+                project()
+                        .and("_id").as("id")
+                        .and("name").as("name")
+                        .and("dateTime").as("dateTime")
+                        .and("location").as("location")
+                        .and("eventStatus").as("eventStatus")
+                        .and("stagers.profilePicture").as("stagersPhotos")
+        );
+
+        return mongoTemplate.aggregate(aggregation, Event.class, EventDTO.class).getUniqueMappedResult();
+    }
 
     public PaginatedEventResponse getPaginatedEvents(Criteria criteria, int offset, int limit) {
         Aggregation aggregation = newAggregation(eventProjectionPipeline(criteria, offset, limit))

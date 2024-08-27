@@ -3,6 +3,7 @@ package org.onstage.event.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.enums.EventSearchType;
+import org.onstage.event.client.EventDTO;
 import org.onstage.event.client.PaginatedEventResponse;
 import org.onstage.event.client.UpdateEventRequest;
 import org.onstage.event.model.Event;
@@ -69,5 +70,10 @@ public class EventService {
             criteria = Criteria.where("dateTime").lte(LocalDateTime.now());
         }
         return eventRepository.getPaginatedEvents(criteria, offset, limit);
+    }
+
+    public EventDTO getUpcomingPublishedEvent() {
+        EventDTO eventDTO = eventRepository.getUpcomingPublishedEvent();
+        return eventDTO;
     }
 }
