@@ -24,7 +24,7 @@ public class EventItemController {
 
     @PostMapping
     public ResponseEntity<List<EventItemDTO>> create(@RequestBody UpdateEventItemListRequest request) {
-        List<EventItemDTO> eventItems = eventItemService.updateEventItemList(eventItemMapper.fromCreateRequestList(request.eventItems()), request.eventId());
+        List<EventItemDTO> eventItems = eventItemService.updateEventItemList(eventItemMapper.fromCreateRequestList(request.eventItems(), request.eventId()), request.eventId());
         return ResponseEntity.ok(eventItems);
     }
 

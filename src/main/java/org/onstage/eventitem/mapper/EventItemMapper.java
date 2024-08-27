@@ -1,5 +1,6 @@
 package org.onstage.eventitem.mapper;
 
+import org.onstage.enums.EventItemType;
 import org.onstage.eventitem.client.CreateEventItem;
 import org.onstage.eventitem.client.EventItemDTO;
 import org.onstage.eventitem.model.EventItem;
@@ -20,19 +21,21 @@ public class EventItemMapper {
     }
 
 
-    public EventItem fromCreateRequest(CreateEventItem eventItem) {
+    public EventItem fromCreateRequest(CreateEventItem eventItem, String eventId) {
+        EventItemType eventType = (eventItem.songId() != null) ? EventItemType.SONG : EventItemType.OTHER;
+
         return EventItem.builder()
                 .name(eventItem.name())
                 .index(eventItem.index())
-                .eventType(eventItem.eventType())
+                .eventType(eventType)
                 .songId(eventItem.songId())
-                .eventId(eventItem.eventId())
+                .eventId(eventId)  // Use the provided eventId
                 .build();
     }
 
-    public List<EventItem> fromCreateRequestList(List<CreateEventItem> eventItems) {
+    public List<EventItem> fromCreateRequestList(List<CreateEventItem> eventItems, String eventId) {
         return eventItems.stream()
-                .map(this::fromCreateRequest)
+                .map(item -> fromCreateRequest(item, eventId))
                 .toList();
     }
 }
