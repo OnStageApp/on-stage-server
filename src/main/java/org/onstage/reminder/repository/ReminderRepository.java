@@ -56,4 +56,10 @@ public class ReminderRepository {
 
         return mongoTemplate.aggregate(aggregation, Reminder.class, Reminder.class).getMappedResults();
     }
+
+    public void deleteAllByEventId(String eventId) {
+        Criteria criteria = Criteria.where("eventId").is(eventId);
+        Query query = new Query(criteria);
+        mongoTemplate.remove(query, Reminder.class, "reminders");
+    }
 }
