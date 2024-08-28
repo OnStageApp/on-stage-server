@@ -20,19 +20,19 @@ public enum KeysEnum {
     BB(10, "Bb major"),
     B(11, "B major"),
     CB(12, "Cb major"),
-    C_MIN(0, "C minor"),
-    DB_MIN(1, "Db minor"),
-    D_MIN(2, "D minor"),
-    EB_MIN(3, "Eb minor"),
-    E_MIN(4, "E minor"),
-    F_MIN(5, "F minor"),
-    GB_MIN(6, "Gb minor"),
-    G_MIN(7, "G minor"),
-    AB_MIN(8, "Ab minor"),
-    A_MIN(9, "A minor"),
-    BB_MIN(10, "Bb minor"),
-    B_MIN(11, "B minor"),
-    CB_MIN(12, "Cb minor");
+    C_MIN(13, "C minor"),
+    DB_MIN(14, "Db minor"),
+    D_MIN(15, "D minor"),
+    EB_MIN(16, "Eb minor"),
+    E_MIN(17, "E minor"),
+    F_MIN(18, "F minor"),
+    GB_MIN(19, "Gb minor"),
+    G_MIN(20, "G minor"),
+    AB_MIN(21, "Ab minor"),
+    A_MIN(22, "A minor"),
+    BB_MIN(23, "Bb minor"),
+    B_MIN(24, "B minor"),
+    CB_MIN(25, "Cb minor");
 
     private final static Map<Integer, KeysEnum> map = Arrays.stream(KeysEnum.values())
             .collect(Collectors.toMap(obj -> obj.index, obj -> obj));
