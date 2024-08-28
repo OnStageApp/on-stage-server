@@ -5,6 +5,7 @@ import org.onstage.common.service.FirebaseService;
 import org.onstage.event.model.Event;
 import org.onstage.event.service.EventService;
 import org.onstage.reminder.client.ReminderDTO;
+import org.onstage.reminder.client.ReminderListRequest;
 import org.onstage.reminder.model.Reminder;
 import org.onstage.reminder.model.mapper.ReminderMapper;
 import org.onstage.reminder.service.ReminderService;
@@ -28,9 +29,8 @@ public class ReminderController {
     }
 
     @PostMapping
-    public ResponseEntity<ReminderDTO> create(@RequestBody final ReminderDTO request) {
-        Event event = eventService.getById(request.eventId());
-        return ResponseEntity.ok(reminderMapper.toDto(reminderService.save(reminderMapper.toEntity(request), event)));
+    public ResponseEntity<List<Reminder>> create(@RequestBody final ReminderListRequest request) {
+        return ResponseEntity.ok((reminderService.createReminders(request.daysBefore(), request.eventId())));
     }
 
     @DeleteMapping("/{id}")
