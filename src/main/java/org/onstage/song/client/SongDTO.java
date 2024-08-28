@@ -2,6 +2,7 @@ package org.onstage.song.client;
 
 import lombok.Builder;
 import org.onstage.artist.client.ArtistDTO;
+import org.onstage.enums.KeysEnum;
 
 @Builder(toBuilder = true)
 public record SongDTO(
@@ -9,7 +10,7 @@ public record SongDTO(
         String title,
         String lyrics,
         Integer tempo,
-        String key,
+        KeysEnum key,
         ArtistDTO artist
 ) {
 }

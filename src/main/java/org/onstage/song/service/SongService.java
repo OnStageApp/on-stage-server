@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.onstage.exceptions.ResourceNotFoundException;
 import org.onstage.song.client.CreateOrUpdateSongRequest;
 import org.onstage.song.client.SongDTO;
+import org.onstage.song.client.SongFilter;
 import org.onstage.song.client.SongOverview;
 import org.onstage.song.model.Song;
 import org.onstage.song.repository.SongRepository;
@@ -36,8 +37,8 @@ public class SongService {
     }
 
 
-    public List<SongOverview> getAll(final String search) {
-        return songRepository.getAll(search);
+    public List<SongOverview> getAll(SongFilter songFilter) {
+        return songRepository.getAll(songFilter);
     }
 
     public SongDTO save(Song song) {
