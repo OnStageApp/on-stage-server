@@ -45,6 +45,8 @@ public class ReminderService {
         if (daysBefore.isEmpty()) {
             return List.of();
         }
+        reminderRepository.deleteAllByEventId(eventId);
+
         var event = eventRepository.findById(eventId).orElseThrow();
         return daysBefore.stream().map(dayBefore ->
                 save(Reminder.builder().eventId(eventId).daysBefore(dayBefore).build(), event)
