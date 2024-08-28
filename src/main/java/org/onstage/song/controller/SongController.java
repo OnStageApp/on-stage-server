@@ -25,8 +25,8 @@ public class SongController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SongOverview>> getAll(SongFilter songFilter) {
-        return ResponseEntity.ok(songService.getAll(songFilter.search()));
+    public ResponseEntity<List<SongOverview>> getAll(@RequestBody SongFilter songFilter) {
+        return ResponseEntity.ok(songService.getAll(songFilter));
     }
 
     @PostMapping
