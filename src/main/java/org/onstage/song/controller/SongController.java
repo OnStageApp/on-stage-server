@@ -6,7 +6,6 @@ import org.onstage.song.client.SongDTO;
 import org.onstage.song.client.SongFilter;
 import org.onstage.song.client.SongOverview;
 import org.onstage.song.model.mapper.SongMapper;
-import org.onstage.song.favoritesong.client.GetFavoriteSongsResponse;
 import org.onstage.song.service.SongService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,8 +46,8 @@ public class SongController {
     }
 
     @GetMapping("/favorites/{userId}")
-    public ResponseEntity<GetFavoriteSongsResponse> getFavoriteSongs(@PathVariable String userId) {
-        return ResponseEntity.ok(GetFavoriteSongsResponse.builder().favoriteSongs(songService.getFavoriteSongs(userId)).build());
+    public ResponseEntity<List<SongOverview>> getFavoriteSongs(@PathVariable String userId) {
+        return ResponseEntity.ok(songService.getFavoriteSongs(userId));
     }
 
     @DeleteMapping("/favorites/{songId}/{userId}")
