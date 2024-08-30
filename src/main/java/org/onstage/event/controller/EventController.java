@@ -8,6 +8,8 @@ import org.onstage.event.service.EventService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("events")
 @RequiredArgsConstructor
@@ -50,5 +52,10 @@ public class EventController {
     @PutMapping("/{id}")
     public ResponseEntity<EventDTO> update(@PathVariable String id, @RequestBody UpdateEventRequest eventUpdateDTO) {
         return ResponseEntity.ok(eventMapper.toDto(eventService.update(id, eventUpdateDTO)));
+    }
+
+    @PostMapping("/duplicate/{id}")
+    public ResponseEntity<EventDTO> duplicate(@PathVariable final String id, @RequestParam LocalDateTime dateTime) {
+        return ResponseEntity.ok(eventMapper.toDto(eventService.duplicate(id, dateTime)));
     }
 }

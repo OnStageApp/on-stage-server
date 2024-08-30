@@ -11,12 +11,17 @@ import org.onstage.event.repository.EventRepository;
 import org.onstage.exceptions.ResourceNotFoundException;
 import org.onstage.rehearsal.client.CreateRehearsalForEventRequest;
 import org.onstage.rehearsal.service.RehearsalService;
+import org.onstage.reminder.model.Reminder;
+import org.onstage.reminder.service.ReminderService;
+import org.onstage.stager.model.Stager;
 import org.onstage.stager.service.StagerService;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static org.onstage.enums.EventStatus.DRAFT;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +30,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final StagerService stagerService;
     private final RehearsalService rehearsalService;
+    private final ReminderService reminderService;
 
     public Event getById(String id) {
         return eventRepository.findById(id)
@@ -40,6 +46,9 @@ public class EventService {
     }
 
     public String delete(String id) {
+        stagerService.deleteAllByEventId(id);
+        rehearsalService.deleteAllByEventId(id);
+        reminderService.deleteAllByEventId(id);
         return eventRepository.delete(id);
     }
 
@@ -73,7 +82,28 @@ public class EventService {
     }
 
     public EventDTO getUpcomingPublishedEvent() {
-        EventDTO eventDTO = eventRepository.getUpcomingPublishedEvent();
-        return eventDTO;
+        return eventRepository.getUpcomingPublishedEvent();
+    }
+
+    public Event duplicate(String id, LocalDateTime dateTime) {
+        Event event = getById(id);
+
+        Event duplicatedEvent = Event.builder()
+                .name(event.name())
+                .location(event.location())
+                .eventStatus(DRAFT)
+                .dateTime(dateTime)
+                .build();
+        duplicatedEvent = eventRepository.save(duplicatedEvent);
+
+        //duplicating stagers
+        List<Stager> stagers = stagerService.getAllByEventId(id);
+        stagerService.createStagersForEvent(duplicatedEvent.id(), stagers.stream().map(Stager::userId).toList());
+
+        //duplicating reminders
+        List<Reminder> reminders = reminderService.getAllByEventId(id);
+        reminderService.createReminders(reminders.stream().map(Reminder::daysBefore).toList(), duplicatedEvent.id());
+
+        return duplicatedEvent;
     }
 }

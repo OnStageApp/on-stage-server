@@ -61,4 +61,8 @@ public class RehearsalService {
                 .eventId(eventId)
                 .build()));
     }
+
+    public void deleteAllByEventId(String eventId) {
+        rehearsalRepository.deleteAllByEventId(eventId);
+    }
 }

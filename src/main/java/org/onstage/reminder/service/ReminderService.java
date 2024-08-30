@@ -21,7 +21,7 @@ public class ReminderService {
 
     private static final String REMINDER_TEXT_TEMPLATE = "%d days left until  %s";
 
-    public List<Reminder> getAll(String eventId) {
+    public List<Reminder> getAllByEventId(String eventId) {
         return reminderRepository.getAllByEventId(eventId);
     }
 
@@ -55,5 +55,9 @@ public class ReminderService {
 
     public String delete(String id) {
         return reminderRepository.delete(id);
+    }
+
+    public void deleteAllByEventId(String eventId) {
+        reminderRepository.deleteAllByEventId(eventId);
     }
 }
