@@ -6,6 +6,7 @@ import org.onstage.song.client.SongDTO;
 import org.onstage.song.client.SongFilter;
 import org.onstage.song.client.SongOverview;
 import org.onstage.song.model.mapper.SongMapper;
+import org.onstage.song.favoritesong.client.GetFavoriteSongsResponse;
 import org.onstage.song.service.SongService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,5 +38,22 @@ public class SongController {
     @PutMapping("/{id}")
     public ResponseEntity<SongDTO> update(@PathVariable String id, @RequestBody CreateOrUpdateSongRequest request) {
         return ResponseEntity.ok(songService.update(id, request));
+    }
+
+    @PostMapping("/favorites/{songId}/{userId}")
+    public ResponseEntity<Void> addFavoriteSong(@PathVariable String songId, @PathVariable String userId) {
+        songService.addSavedSong(songId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/favorites/{userId}")
+    public ResponseEntity<GetFavoriteSongsResponse> getFavoriteSongs(@PathVariable String userId) {
+        return ResponseEntity.ok(GetFavoriteSongsResponse.builder().favoriteSongs(songService.getFavoriteSongs(userId)).build());
+    }
+
+    @DeleteMapping("/favorites/{songId}/{userId}")
+    public ResponseEntity<Void> removeFavoriteSong(@PathVariable String songId, @PathVariable String userId) {
+        songService.removeFavoriteSong(songId, userId);
+        return ResponseEntity.ok().build();
     }
 }

@@ -93,7 +93,7 @@ public class SongRepository {
         return operations;
     }
 
-    private List<AggregationOperation> songOverviewProjectionPipeline(Criteria criteria, String artistId, Sort sort) {
+    public List<AggregationOperation> songOverviewProjectionPipeline(Criteria criteria, String artistId, Sort sort) {
         List<AggregationOperation> operations = new ArrayList<>();
 
         if (criteria != null) {
