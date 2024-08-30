@@ -31,7 +31,7 @@ public class StagerService {
         return stagerRepository.getByEventAndUser(eventId, userId);
     }
 
-    public List<Stager> getAll(String eventId) {
+    public List<Stager> getAllByEventId(String eventId) {
         return stagerRepository.getAllByEventId(eventId);
     }
 
@@ -70,5 +70,9 @@ public class StagerService {
                 .build();
 
         return stagerRepository.save(updatedStager);
+    }
+
+    public void deleteAllByEventId(String eventId) {
+        stagerRepository.deleteAllByEventId(eventId);
     }
 }

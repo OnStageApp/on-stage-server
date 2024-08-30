@@ -35,4 +35,10 @@ public class RehearsalRepository {
         repo.deleteById(id);
         return id;
     }
+
+    public void deleteAllByEventId(String eventId) {
+        Criteria criteria = Criteria.where(Rehearsal.Fields.eventId).is(eventId);
+        Query query = new Query(criteria);
+        mongoTemplate.remove(query, Rehearsal.class);
+    }
 }

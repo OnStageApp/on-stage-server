@@ -52,4 +52,10 @@ public class StagerRepository {
         Query query = new Query(criteria);
         return mongoTemplate.findOne(query, Stager.class);
     }
+
+    public void deleteAllByEventId(String eventId) {
+        Criteria criteria = Criteria.where(Stager.Fields.eventId).is(eventId);
+        Query query = new Query(criteria);
+        mongoTemplate.remove(query, Stager.class);
+    }
 }

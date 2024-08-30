@@ -38,4 +38,8 @@ public class BadRequestException extends BaseException {
     public static BadRequestException songNotFound() {
         return new BadRequestException(7, "SONG_NOT_FOUND", "Song not found");
     }
+
+    public static BadRequestException eventNotFound() {
+        return new BadRequestException(7, "EVENT_NOT_FOUND", "Event not found");
+    }
 }

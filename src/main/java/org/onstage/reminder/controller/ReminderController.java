@@ -2,7 +2,6 @@ package org.onstage.reminder.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.common.service.FirebaseService;
-import org.onstage.event.model.Event;
 import org.onstage.event.service.EventService;
 import org.onstage.reminder.client.ReminderDTO;
 import org.onstage.reminder.client.ReminderListRequest;
@@ -25,7 +24,7 @@ public class ReminderController {
 
     @GetMapping
     public ResponseEntity<List<ReminderDTO>> getAll(@RequestParam(name = "eventId") String eventId) {
-        return ResponseEntity.ok(reminderMapper.toDtoList(reminderService.getAll(eventId)));
+        return ResponseEntity.ok(reminderMapper.toDtoList(reminderService.getAllByEventId(eventId)));
     }
 
     @PostMapping

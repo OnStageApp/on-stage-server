@@ -21,7 +21,7 @@ public class StagerController {
 
     @GetMapping
     public ResponseEntity<List<StagerDTO>> getAll(@RequestParam(name = "eventId") String eventId) {
-        return ResponseEntity.ok(stagerMapper.toDtoList(stagerService.getAll(eventId)));
+        return ResponseEntity.ok(stagerMapper.toDtoList(stagerService.getAllByEventId(eventId)));
     }
 
     @PostMapping
