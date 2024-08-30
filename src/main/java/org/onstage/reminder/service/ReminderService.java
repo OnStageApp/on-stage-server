@@ -37,7 +37,7 @@ public class ReminderService {
                 .build();
 
         Reminder savedReminder = reminderRepository.save(reminder);
-        log.info("Reminder {} has been saved", reminder.id());
+        log.info("Reminder {} has been saved", savedReminder.id());
         return savedReminder;
     }
 
