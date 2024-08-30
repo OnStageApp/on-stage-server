@@ -7,12 +7,18 @@ import org.onstage.song.client.CreateOrUpdateSongRequest;
 import org.onstage.song.client.SongDTO;
 import org.onstage.song.client.SongFilter;
 import org.onstage.song.client.SongOverview;
+import org.onstage.song.favoritesong.model.FavoriteSong;
+import org.onstage.song.favoritesong.repository.FavoriteSongRepository;
 import org.onstage.song.model.Song;
 import org.onstage.song.repository.SongRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import static org.onstage.exceptions.BadRequestException.songNotFound;
 
 @Service
 @Slf4j
@@ -20,6 +26,7 @@ import java.util.List;
 public class SongService {
 
     private final SongRepository songRepository;
+    private final FavoriteSongRepository favoriteSongRepository;
 
     public SongDTO getById(String id) {
         return songRepository.findProjectionById(id)
@@ -64,5 +71,28 @@ public class SongService {
                 .createdAt(existingSong.createdAt())
                 .updatedAt(LocalDateTime.now())
                 .build();
+    }
+
+    public void addSavedSong(String songId, String userId) {
+        Optional<Song> song = songRepository.findById(songId);
+        if (song.isEmpty()) {
+            throw songNotFound();
+        }
+        FavoriteSong favoriteSong = favoriteSongRepository.findBySongIdAndUserId(songId, userId);
+        if (favoriteSong != null) {
+            return;
+        }
+        favoriteSongRepository.save(FavoriteSong.builder().songId(songId).userId(userId).build());
+    }
+
+    public List<SongOverview> getFavoriteSongs(String userId) {
+        List<String> favoriteSongIds = favoriteSongRepository.getAllByUserId(userId);
+        List<SongOverview> favoriteSongs = new ArrayList<>();
+        favoriteSongIds.forEach(favoriteSongId -> favoriteSongs.add(findOverviewById(favoriteSongId)));
+        return favoriteSongs;
+    }
+
+    public void removeFavoriteSong(String songId, String userId) {
+        favoriteSongRepository.removeFavoriteSong(songId, userId);
     }
 }

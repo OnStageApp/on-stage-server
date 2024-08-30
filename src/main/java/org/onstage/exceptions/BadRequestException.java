@@ -34,4 +34,8 @@ public class BadRequestException extends BaseException {
     public static BadRequestException stagerNotFound() {
         return new BadRequestException(7, "STAGER_NOT_FOUND", "Stager not found");
     }
+
+    public static BadRequestException songNotFound() {
+        return new BadRequestException(7, "SONG_NOT_FOUND", "Song not found");
+    }
 }
