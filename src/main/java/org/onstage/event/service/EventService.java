@@ -62,7 +62,7 @@ public class EventService {
         return Event.builder()
                 .id(existingEvent.id())
                 .name(request.name() == null ? existingEvent.name() : request.name())
-                .dateTime(request.dateTime() == null ? existingEvent.dateTime() : request.dateTime())
+                .dateTime((existingEvent.eventStatus().equals(DRAFT) && request.dateTime() != null) ? request.dateTime() : existingEvent.dateTime())
                 .location(request.location() == null ? existingEvent.location() : request.location())
                 .eventStatus(request.eventStatus() == null ? existingEvent.eventStatus() : request.eventStatus())
                 .build();
@@ -85,11 +85,11 @@ public class EventService {
         return eventRepository.getUpcomingPublishedEvent();
     }
 
-    public Event duplicate(String id, LocalDateTime dateTime) {
+    public Event duplicate(String id, LocalDateTime dateTime, String name) {
         Event event = getById(id);
 
         Event duplicatedEvent = Event.builder()
-                .name(event.name())
+                .name(name)
                 .location(event.location())
                 .eventStatus(DRAFT)
                 .dateTime(dateTime)

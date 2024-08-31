@@ -55,7 +55,7 @@ public class EventController {
     }
 
     @PostMapping("/duplicate/{id}")
-    public ResponseEntity<EventDTO> duplicate(@PathVariable final String id, @RequestParam LocalDateTime dateTime) {
-        return ResponseEntity.ok(eventMapper.toDto(eventService.duplicate(id, dateTime)));
+    public ResponseEntity<EventDTO> duplicate(@PathVariable final String id, @RequestBody DuplicateEventRequest request) {
+        return ResponseEntity.ok(eventMapper.toDto(eventService.duplicate(id, request.dateTime(), request.name())));
     }
 }
