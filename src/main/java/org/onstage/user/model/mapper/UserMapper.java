@@ -9,11 +9,20 @@ import java.util.List;
 @Component()
 public class UserMapper {
     public UserDTO toDto(User entity) {
-        return UserDTO.builder().id(entity.id()).name(entity.name()).email(entity.email()).build();
+        return UserDTO.builder()
+                .id(entity.id())
+                .name(entity.name())
+                .email(entity.email())
+                .profilePicture(entity.profilePicture())
+                .build();
     }
 
     public User toEntity(UserDTO request) {
-        return User.builder().name(request.name()).email(request.email()).build();
+        return User.builder()
+                .name(request.name())
+                .email(request.email())
+                .profilePicture(request.profilePicture())
+                .build();
     }
 
     public List<UserDTO> toDtoList(List<User> entities) {

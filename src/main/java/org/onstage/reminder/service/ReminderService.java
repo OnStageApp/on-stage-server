@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.event.model.Event;
 import org.onstage.event.repository.EventRepository;
+import org.onstage.exceptions.BadRequestException;
 import org.onstage.reminder.model.Reminder;
 import org.onstage.reminder.repository.ReminderRepository;
 import org.springframework.stereotype.Service;
@@ -47,10 +48,13 @@ public class ReminderService {
         }
         reminderRepository.deleteAllByEventId(eventId);
 
-        var event = eventRepository.findById(eventId).orElseThrow();
+        var event = eventRepository.getById(eventId);
+        if (event == null) {
+            throw BadRequestException.eventNotFound();
+        }
         return daysBefore.stream().map(dayBefore ->
                 save(Reminder.builder().eventId(eventId).daysBefore(dayBefore).build(), event)
-                ).toList();
+        ).toList();
     }
 
     public String delete(String id) {

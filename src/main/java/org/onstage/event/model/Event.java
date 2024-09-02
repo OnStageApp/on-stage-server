@@ -20,7 +20,8 @@ public record Event(
         String name,
         LocalDateTime dateTime,
         String location,
-        EventStatus eventStatus
+        EventStatus eventStatus,
+        String teamId
 ) {
     public Event {
         if (eventStatus == null) eventStatus = EventStatus.DRAFT;

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
+import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Component
 @RequiredArgsConstructor
@@ -26,6 +27,10 @@ public class EventRepository {
     private final EventRepo repo;
     private final MongoTemplate mongoTemplate;
 
+    public Event getById(String id) {
+        Criteria criteria = Criteria.where("id").is(id);
+        return mongoTemplate.findOne(query(criteria), Event.class);
+    }
     public Optional<Event> findById(String id) {
         return repo.findById(id);
     }
