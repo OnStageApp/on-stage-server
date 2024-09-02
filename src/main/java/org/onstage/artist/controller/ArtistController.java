@@ -2,12 +2,15 @@ package org.onstage.artist.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.artist.client.ArtistDTO;
+import org.onstage.artist.model.Artist;
 import org.onstage.artist.model.mapper.ArtistMapper;
 import org.onstage.artist.service.ArtistService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static org.onstage.exceptions.BadRequestException.artistNotFound;
 
 @RestController
 @RequestMapping("artists")
@@ -18,7 +21,11 @@ public class ArtistController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ArtistDTO> getById(@PathVariable final String id) {
-        return ResponseEntity.ok(artistMapper.toDto(artistService.getById(id)));
+        Artist artist = artistService.getById(id);
+        if (artist == null) {
+            throw artistNotFound();
+        }
+        return ResponseEntity.ok(artistMapper.toDto(artist));
     }
 
     @GetMapping
@@ -33,6 +40,10 @@ public class ArtistController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ArtistDTO> update(@PathVariable String id, @RequestBody ArtistDTO request) {
-        return ResponseEntity.ok(artistMapper.toDto(artistService.update(id, request)));
+        Artist artist = artistService.getById(id);
+        if (artist == null) {
+            throw artistNotFound();
+        }
+        return ResponseEntity.ok(artistMapper.toDto(artistService.update(artist, request)));
     }
 }

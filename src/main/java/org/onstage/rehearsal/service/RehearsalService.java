@@ -2,7 +2,6 @@ package org.onstage.rehearsal.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.onstage.exceptions.ResourceNotFoundException;
 import org.onstage.rehearsal.client.CreateRehearsalForEventRequest;
 import org.onstage.rehearsal.client.RehearsalDTO;
 import org.onstage.rehearsal.model.Rehearsal;
@@ -18,8 +17,7 @@ public class RehearsalService {
     private final RehearsalRepository rehearsalRepository;
 
     public Rehearsal getById(String id) {
-        return rehearsalRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Rehearsal with id:%s was not found".formatted(id)));
+       return rehearsalRepository.getById(id);
     }
 
     public List<Rehearsal> getAll(String eventId) {
@@ -33,11 +31,12 @@ public class RehearsalService {
     }
 
     public String delete(String id) {
+        log.info("Deleting rehearsal {}", id);
         return rehearsalRepository.delete(id);
     }
 
-    public Rehearsal update(String id, RehearsalDTO request) {
-        Rehearsal existingRehearsal = getById(id);
+    public Rehearsal update(Rehearsal existingRehearsal, RehearsalDTO request) {
+        log.info("Updating rehearsal {} with request {}", existingRehearsal.id(), request);
         Rehearsal updatedRehearsal = updateRehearsalFromDTO(existingRehearsal, request);
         return rehearsalRepository.save(updatedRehearsal);
     }
@@ -63,6 +62,7 @@ public class RehearsalService {
     }
 
     public void deleteAllByEventId(String eventId) {
+        log.info("Deleting all rehearsals for event {}", eventId);
         rehearsalRepository.deleteAllByEventId(eventId);
     }
 }

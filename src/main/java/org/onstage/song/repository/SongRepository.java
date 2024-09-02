@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
+import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Component
 @RequiredArgsConstructor
@@ -24,8 +25,9 @@ public class SongRepository {
     private final SongRepo songRepo;
     private final MongoTemplate mongoTemplate;
 
-    public Optional<Song> findById(String id) {
-        return songRepo.findById(id);
+    public Song getById(String id) {
+        Criteria criteria = Criteria.where("_id").is(id);
+        return mongoTemplate.findOne(query(criteria), Song.class);
     }
 
     public Optional<SongDTO> findProjectionById(String id) {

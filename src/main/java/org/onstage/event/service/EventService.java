@@ -8,8 +8,6 @@ import org.onstage.event.client.PaginatedEventResponse;
 import org.onstage.event.client.UpdateEventRequest;
 import org.onstage.event.model.Event;
 import org.onstage.event.repository.EventRepository;
-import org.onstage.exceptions.BadRequestException;
-import org.onstage.exceptions.ResourceNotFoundException;
 import org.onstage.rehearsal.client.CreateRehearsalForEventRequest;
 import org.onstage.rehearsal.service.RehearsalService;
 import org.onstage.reminder.model.Reminder;
@@ -23,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.onstage.enums.EventStatus.DRAFT;
+import static org.onstage.exceptions.BadRequestException.eventNotFound;
 
 @Service
 @RequiredArgsConstructor
@@ -34,15 +33,11 @@ public class EventService {
     private final ReminderService reminderService;
 
     public Event getById(String id) {
-        Event event = eventRepository.getById(id);
-        if(event == null) {
-            throw BadRequestException.eventNotFound();
-        }
-        return event;
+        return eventRepository.getById(id);
     }
 
-    public Event create(Event event, List<String> userIds, List<CreateRehearsalForEventRequest> rehearsals) {
-        Event savedEvent = this.eventRepository.save(event);
+    public Event save(Event event, List<String> userIds, List<CreateRehearsalForEventRequest> rehearsals) {
+        Event savedEvent = eventRepository.save(event);
         stagerService.createStagersForEvent(savedEvent.id(), userIds);
         rehearsalService.createRehearsalsForEvent(savedEvent.id(), rehearsals);
         log.info("Event {} has been saved", savedEvent.id());
@@ -50,14 +45,19 @@ public class EventService {
     }
 
     public String delete(String id) {
+        Event event = getById(id);
+        if (event == null) {
+            throw eventNotFound();
+        }
+        log.info("Deleting event {}", id);
         stagerService.deleteAllByEventId(id);
         rehearsalService.deleteAllByEventId(id);
         reminderService.deleteAllByEventId(id);
         return eventRepository.delete(id);
     }
 
-    public Event update(String id, UpdateEventRequest request) {
-        Event existingEvent = getById(id);
+    public Event update(Event existingEvent, UpdateEventRequest request) {
+        log.info("Updating event {} with request {}", existingEvent.id(), request);
         Event updatedEvent = updateEventFromDTO(existingEvent, request);
         return eventRepository.save(updatedEvent);
     }
@@ -89,9 +89,7 @@ public class EventService {
         return eventRepository.getUpcomingPublishedEvent();
     }
 
-    public Event duplicate(String id, LocalDateTime dateTime, String name) {
-        Event event = getById(id);
-
+    public Event duplicate(Event event, LocalDateTime dateTime, String name) {
         Event duplicatedEvent = Event.builder()
                 .name(name)
                 .location(event.location())
@@ -100,12 +98,10 @@ public class EventService {
                 .build();
         duplicatedEvent = eventRepository.save(duplicatedEvent);
 
-        //duplicating stagers
-        List<Stager> stagers = stagerService.getAllByEventId(id);
+        List<Stager> stagers = stagerService.getAllByEventId(event.id());
         stagerService.createStagersForEvent(duplicatedEvent.id(), stagers.stream().map(Stager::userId).toList());
 
-        //duplicating reminders
-        List<Reminder> reminders = reminderService.getAllByEventId(id);
+        List<Reminder> reminders = reminderService.getAllByEventId(event.id());
         reminderService.createReminders(reminders.stream().map(Reminder::daysBefore).toList(), duplicatedEvent.id());
 
         return duplicatedEvent;

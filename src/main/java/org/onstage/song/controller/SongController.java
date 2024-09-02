@@ -5,12 +5,15 @@ import org.onstage.song.client.CreateOrUpdateSongRequest;
 import org.onstage.song.client.SongDTO;
 import org.onstage.song.client.SongFilter;
 import org.onstage.song.client.SongOverview;
+import org.onstage.song.model.Song;
 import org.onstage.song.model.mapper.SongMapper;
 import org.onstage.song.service.SongService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static org.onstage.exceptions.BadRequestException.songNotFound;
 
 @RestController
 @RequestMapping("songs")
@@ -21,7 +24,7 @@ public class SongController {
 
     @GetMapping("/{id}")
     public ResponseEntity<SongDTO> getById(@PathVariable final String id) {
-        return ResponseEntity.ok(songService.getById(id));
+        return ResponseEntity.ok(songService.getDtoProjection(id));
     }
 
     @GetMapping
@@ -36,7 +39,11 @@ public class SongController {
 
     @PutMapping("/{id}")
     public ResponseEntity<SongDTO> update(@PathVariable String id, @RequestBody CreateOrUpdateSongRequest request) {
-        return ResponseEntity.ok(songService.update(id, request));
+        Song song = songService.getById(id);
+        if (song == null) {
+            throw songNotFound();
+        }
+        return ResponseEntity.ok(songService.update(song, request));
     }
 
     @PostMapping("/favorites/{songId}/{userId}")
