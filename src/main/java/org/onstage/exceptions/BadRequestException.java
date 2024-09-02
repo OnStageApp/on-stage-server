@@ -36,10 +36,22 @@ public class BadRequestException extends BaseException {
     }
 
     public static BadRequestException songNotFound() {
-        return new BadRequestException(7, "SONG_NOT_FOUND", "Song not found");
+        return new BadRequestException(8, "SONG_NOT_FOUND", "Song not found");
     }
 
     public static BadRequestException eventNotFound() {
-        return new BadRequestException(7, "EVENT_NOT_FOUND", "Event not found");
+        return new BadRequestException(9, "EVENT_NOT_FOUND", "Event not found");
+    }
+
+    public static BadRequestException teamNotFound() {
+        return new BadRequestException(10, "TEAM_NOT_FOUND", "Team not found");
+    }
+
+    public static BadRequestException artistNotFound() {
+        return new BadRequestException(11, "ARTIST_NOT_FOUND", "Artist not found");
+    }
+
+    public static BadRequestException teamMemberNotFound() {
+        return new BadRequestException(12, "TEAM_MEMBER_NOT_FOUND", "Team member not found");
     }
 }

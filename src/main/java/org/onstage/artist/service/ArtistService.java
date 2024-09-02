@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.onstage.artist.client.ArtistDTO;
 import org.onstage.artist.model.Artist;
 import org.onstage.artist.repository.ArtistRepository;
+import org.onstage.exceptions.BadRequestException;
 import org.onstage.exceptions.ResourceNotFoundException;
+import org.onstage.team.model.Team;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,8 +20,12 @@ public class ArtistService {
     private final ArtistRepository artistRepository;
 
     public Artist getById(String id) {
-        return artistRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Artist with id:%s was not found".formatted(id)));
+        Artist artist = artistRepository.getById(id);
+        if(artist == null) {
+            throw BadRequestException.artistNotFound();
+        }
+        return artist;
+
     }
 
     public List<Artist> getAll() {

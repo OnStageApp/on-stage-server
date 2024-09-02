@@ -8,6 +8,7 @@ import org.onstage.event.client.PaginatedEventResponse;
 import org.onstage.event.client.UpdateEventRequest;
 import org.onstage.event.model.Event;
 import org.onstage.event.repository.EventRepository;
+import org.onstage.exceptions.BadRequestException;
 import org.onstage.exceptions.ResourceNotFoundException;
 import org.onstage.rehearsal.client.CreateRehearsalForEventRequest;
 import org.onstage.rehearsal.service.RehearsalService;
@@ -33,8 +34,11 @@ public class EventService {
     private final ReminderService reminderService;
 
     public Event getById(String id) {
-        return eventRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Event with id:%s was not found".formatted(id)));
+        Event event = eventRepository.getById(id);
+        if(event == null) {
+            throw BadRequestException.eventNotFound();
+        }
+        return event;
     }
 
     public Event create(Event event, List<String> userIds, List<CreateRehearsalForEventRequest> rehearsals) {
