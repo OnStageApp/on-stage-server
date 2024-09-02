@@ -32,26 +32,30 @@ public class BadRequestException extends BaseException {
     }
 
     public static BadRequestException stagerNotFound() {
-        return new BadRequestException(7, "STAGER_NOT_FOUND", "Stager not found");
+        return new BadRequestException(7, "STAGER_NOT_FOUND", "Stager was not found");
     }
 
     public static BadRequestException songNotFound() {
-        return new BadRequestException(8, "SONG_NOT_FOUND", "Song not found");
+        return new BadRequestException(8, "SONG_NOT_FOUND", "Song was not found");
     }
 
     public static BadRequestException eventNotFound() {
-        return new BadRequestException(9, "EVENT_NOT_FOUND", "Event not found");
+        return new BadRequestException(9, "EVENT_NOT_FOUND", "Event was not found");
     }
 
     public static BadRequestException teamNotFound() {
-        return new BadRequestException(10, "TEAM_NOT_FOUND", "Team not found");
+        return new BadRequestException(10, "TEAM_NOT_FOUND", "Team was not found");
     }
 
     public static BadRequestException artistNotFound() {
-        return new BadRequestException(11, "ARTIST_NOT_FOUND", "Artist not found");
+        return new BadRequestException(11, "ARTIST_NOT_FOUND", "Artist was not found");
     }
 
     public static BadRequestException teamMemberNotFound() {
-        return new BadRequestException(12, "TEAM_MEMBER_NOT_FOUND", "Team member not found");
+        return new BadRequestException(12, "TEAM_MEMBER_NOT_FOUND", "Team member was not found");
+    }
+
+    public static BadRequestException rehearsalNotFound() {
+        return new BadRequestException(13, "REHEARSAL_NOT_FOUND", "Rehearsal was not found");
     }
 }

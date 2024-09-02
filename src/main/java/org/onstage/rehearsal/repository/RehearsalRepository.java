@@ -41,4 +41,10 @@ public class RehearsalRepository {
         Query query = new Query(criteria);
         mongoTemplate.remove(query, Rehearsal.class);
     }
+
+    public Rehearsal getById(String id) {
+        Criteria criteria = Criteria.where(Rehearsal.Fields.id).is(id);
+        Query query = new Query(criteria);
+        return mongoTemplate.findOne(query, Rehearsal.class);
+    }
 }

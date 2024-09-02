@@ -29,7 +29,7 @@ public class EventItemService {
         List<EventItemDTO> eventItemDTOS = eventItems.stream().map(eventItem -> {
             EventItemDTO eventItemDTO = eventItemMapper.toDto(eventItem);
             if (eventItem.eventType() == SONG) {
-                SongOverview song = songService.findOverviewById(eventItem.songId());
+                SongOverview song = songService.getOverviewSong(eventItem.songId());
                 eventItemDTO = eventItemDTO.toBuilder().song(song).build();
             }
             return eventItemDTO;
@@ -43,7 +43,7 @@ public class EventItemService {
         log.info("EventItem {} has been saved", savedEventItem.id());
         SongOverview song = null;
         if (eventItem.songId() != null) {
-            song = songService.findOverviewById(savedEventItem.songId());
+            song = songService.getOverviewSong(savedEventItem.songId());
         }
         return EventItemDTO.builder()
                 .id(savedEventItem.id())

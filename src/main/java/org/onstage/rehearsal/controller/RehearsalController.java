@@ -2,12 +2,15 @@ package org.onstage.rehearsal.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.rehearsal.client.RehearsalDTO;
+import org.onstage.rehearsal.model.Rehearsal;
 import org.onstage.rehearsal.model.mapper.RehearsalMapper;
 import org.onstage.rehearsal.service.RehearsalService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static org.onstage.exceptions.BadRequestException.rehearsalNotFound;
 
 @RestController
 @RequestMapping("rehearsals")
@@ -23,7 +26,11 @@ public class RehearsalController {
 
     @GetMapping("/{id}")
     public ResponseEntity<RehearsalDTO> getById(@PathVariable final String id) {
-        return ResponseEntity.ok(rehearsalMapper.toDto(rehearsalService.getById(id)));
+        Rehearsal rehearsal = rehearsalService.getById(id);
+        if (rehearsal == null) {
+            throw rehearsalNotFound();
+        }
+        return ResponseEntity.ok(rehearsalMapper.toDto(rehearsal));
     }
 
     @PostMapping
@@ -38,7 +45,11 @@ public class RehearsalController {
 
     @PutMapping("/{id}")
     public ResponseEntity<RehearsalDTO> update(@PathVariable String id, @RequestBody RehearsalDTO request) {
-        return ResponseEntity.ok(rehearsalMapper.toDto(rehearsalService.update(id, request)));
+        Rehearsal rehearsal = rehearsalService.getById(id);
+        if (rehearsal == null) {
+            throw rehearsalNotFound();
+        }
+        return ResponseEntity.ok(rehearsalMapper.toDto(rehearsalService.update(rehearsal, request)));
     }
 
 }

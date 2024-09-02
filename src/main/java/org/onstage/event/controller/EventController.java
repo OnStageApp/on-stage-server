@@ -8,7 +8,7 @@ import org.onstage.event.service.EventService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import static org.onstage.exceptions.BadRequestException.eventNotFound;
 
 @RestController
 @RequestMapping("events")
@@ -19,7 +19,11 @@ public class EventController {
 
     @GetMapping("/{id}")
     public ResponseEntity<EventDTO> getById(@PathVariable final String id) {
-        return ResponseEntity.ok(eventMapper.toDto(eventService.getById(id)));
+        Event event = eventService.getById(id);
+        if (event == null) {
+            throw eventNotFound();
+        }
+        return ResponseEntity.ok(eventMapper.toDto(event));
     }
 
     @GetMapping("/upcoming")
@@ -40,8 +44,7 @@ public class EventController {
 
     @PostMapping
     public ResponseEntity<EventDTO> create(@RequestBody CreateEventRequest event) {
-        Event savedEvent = eventService.create(eventMapper.fromCreateRequest(event), event.userIds(), event.rehearsals());
-        return ResponseEntity.ok(eventMapper.toDto(savedEvent));
+        return ResponseEntity.ok(eventMapper.toDto(eventService.save(eventMapper.fromCreateRequest(event), event.userIds(), event.rehearsals())));
     }
 
     @DeleteMapping("/{id}")
@@ -50,12 +53,20 @@ public class EventController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EventDTO> update(@PathVariable String id, @RequestBody UpdateEventRequest eventUpdateDTO) {
-        return ResponseEntity.ok(eventMapper.toDto(eventService.update(id, eventUpdateDTO)));
+    public ResponseEntity<EventDTO> update(@PathVariable String id, @RequestBody UpdateEventRequest request) {
+        Event event = eventService.getById(id);
+        if (event == null) {
+            throw eventNotFound();
+        }
+        return ResponseEntity.ok(eventMapper.toDto(eventService.update(event, request)));
     }
 
     @PostMapping("/duplicate/{id}")
     public ResponseEntity<EventDTO> duplicate(@PathVariable final String id, @RequestBody DuplicateEventRequest request) {
-        return ResponseEntity.ok(eventMapper.toDto(eventService.duplicate(id, request.dateTime(), request.name())));
+        Event event = eventService.getById(id);
+        if (event == null) {
+            throw eventNotFound();
+        }
+        return ResponseEntity.ok(eventMapper.toDto(eventService.duplicate(event, request.dateTime(), request.name())));
     }
 }

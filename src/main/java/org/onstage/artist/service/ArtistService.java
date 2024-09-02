@@ -5,12 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.onstage.artist.client.ArtistDTO;
 import org.onstage.artist.model.Artist;
 import org.onstage.artist.repository.ArtistRepository;
-import org.onstage.exceptions.BadRequestException;
-import org.onstage.exceptions.ResourceNotFoundException;
-import org.onstage.team.model.Team;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static org.onstage.exceptions.BadRequestException.artistNotFound;
 
 @Service
 @RequiredArgsConstructor
@@ -20,12 +19,7 @@ public class ArtistService {
     private final ArtistRepository artistRepository;
 
     public Artist getById(String id) {
-        Artist artist = artistRepository.getById(id);
-        if(artist == null) {
-            throw BadRequestException.artistNotFound();
-        }
-        return artist;
-
+        return artistRepository.getById(id);
     }
 
     public List<Artist> getAll() {
@@ -38,8 +32,8 @@ public class ArtistService {
         return savedArtist;
     }
 
-    public Artist update(String id, ArtistDTO request) {
-        Artist existingArtist = getById(id);
+    public Artist update(Artist existingArtist, ArtistDTO request) {
+        log.info("Updating artist {} with request {}", existingArtist.id(), request);
         Artist updatedArtist = updateArtistFromDTO(existingArtist, request);
         return save(updatedArtist);
     }

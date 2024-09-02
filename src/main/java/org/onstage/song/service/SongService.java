@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.onstage.exceptions.BadRequestException.songNotFound;
 
@@ -28,21 +27,19 @@ public class SongService {
     private final SongRepository songRepository;
     private final FavoriteSongRepository favoriteSongRepository;
 
-    public SongDTO getById(String id) {
+    public SongDTO getDtoProjection(String id) {
         return songRepository.findProjectionById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Song with id:%s was not found".formatted(id)));
     }
 
-    public SongOverview findOverviewById(String id) {
+    public SongOverview getOverviewSong(String id) {
         return songRepository.findOverviewById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Song with id:%s was not found".formatted(id)));
     }
 
-    public Song findById(String id) {
-        return songRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Song with id:%s was not found".formatted(id)));
+    public Song getById(String id) {
+        return songRepository.getById(id);
     }
-
 
     public List<SongOverview> getAll(SongFilter songFilter) {
         return songRepository.getAll(songFilter);
@@ -51,11 +48,11 @@ public class SongService {
     public SongDTO save(Song song) {
         Song savedSong = songRepository.save(song);
         log.info("Song {} has been saved", savedSong.id());
-        return getById(savedSong.id());
+        return getDtoProjection(savedSong.id());
     }
 
-    public SongDTO update(String id, CreateOrUpdateSongRequest request) {
-        Song existingSong = findById(id);
+    public SongDTO update(Song existingSong, CreateOrUpdateSongRequest request) {
+        log.info("Updating song {} with request {}", existingSong.id(), request);
         Song updatedSong = updateSongFromDTO(existingSong, request);
         return save(updatedSong);
     }
@@ -74,8 +71,8 @@ public class SongService {
     }
 
     public void addSavedSong(String songId, String userId) {
-        Optional<Song> song = songRepository.findById(songId);
-        if (song.isEmpty()) {
+        Song song = songRepository.getById(songId);
+        if (song == null) {
             throw songNotFound();
         }
         FavoriteSong favoriteSong = favoriteSongRepository.findBySongIdAndUserId(songId, userId);
@@ -88,7 +85,7 @@ public class SongService {
     public List<SongOverview> getFavoriteSongs(String userId) {
         List<String> favoriteSongIds = favoriteSongRepository.getAllByUserId(userId);
         List<SongOverview> favoriteSongs = new ArrayList<>();
-        favoriteSongIds.forEach(favoriteSongId -> favoriteSongs.add(findOverviewById(favoriteSongId)));
+        favoriteSongIds.forEach(favoriteSongId -> favoriteSongs.add(getOverviewSong(favoriteSongId)));
         return favoriteSongs;
     }
 
