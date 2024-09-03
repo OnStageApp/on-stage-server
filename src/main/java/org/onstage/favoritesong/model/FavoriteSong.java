@@ -1,4 +1,4 @@
-package org.onstage.song.favoritesong.model;
+package org.onstage.favoritesong.model;
 
 import lombok.Builder;
 

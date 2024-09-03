@@ -2,13 +2,13 @@ package org.onstage.song.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.onstage.exceptions.ResourceNotFoundException;
+import org.onstage.exceptions.BadRequestException;
+import org.onstage.favoritesong.model.FavoriteSong;
+import org.onstage.favoritesong.repository.FavoriteSongRepository;
 import org.onstage.song.client.CreateOrUpdateSongRequest;
 import org.onstage.song.client.SongDTO;
 import org.onstage.song.client.SongFilter;
 import org.onstage.song.client.SongOverview;
-import org.onstage.song.favoritesong.model.FavoriteSong;
-import org.onstage.song.favoritesong.repository.FavoriteSongRepository;
 import org.onstage.song.model.Song;
 import org.onstage.song.repository.SongRepository;
 import org.springframework.stereotype.Service;
@@ -29,12 +29,12 @@ public class SongService {
 
     public SongDTO getDtoProjection(String id) {
         return songRepository.findProjectionById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Song with id:%s was not found".formatted(id)));
+                .orElseThrow(BadRequestException::songNotFound);
     }
 
     public SongOverview getOverviewSong(String id) {
         return songRepository.findOverviewById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Song with id:%s was not found".formatted(id)));
+                .orElseThrow(BadRequestException::songNotFound);
     }
 
     public Song getById(String id) {
@@ -77,8 +77,10 @@ public class SongService {
         }
         FavoriteSong favoriteSong = favoriteSongRepository.findBySongIdAndUserId(songId, userId);
         if (favoriteSong != null) {
+            log.info("Song {} is already saved by user {}", songId, userId);
             return;
         }
+        log.info("Adding song {} to favorites for user {}", songId, userId);
         favoriteSongRepository.save(FavoriteSong.builder().songId(songId).userId(userId).build());
     }
 
@@ -90,6 +92,7 @@ public class SongService {
     }
 
     public void removeFavoriteSong(String songId, String userId) {
+        log.info("Removing song {} from favorites for user {}", songId, userId);
         favoriteSongRepository.removeFavoriteSong(songId, userId);
     }
 }

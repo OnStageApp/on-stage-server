@@ -3,6 +3,9 @@ package org.onstage.user.repository;
 import lombok.RequiredArgsConstructor;
 import org.onstage.user.client.UserDTO;
 import org.onstage.user.model.User;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,6 +17,7 @@ import static java.util.UUID.randomUUID;
 @RequiredArgsConstructor
 public class UserRepository {
     private final UserRepo userRepo;
+    private final MongoTemplate mongoTemplate;
 
     public List<User> findAll() {
         return userRepo.findAll();
@@ -31,15 +35,13 @@ public class UserRepository {
         return userRepo.findByEmail(email);
     }
 
-    public User save(UserDTO user) {
-        return userRepo.save(User.builder()
-                .id(randomUUID().toString())
-                .name(user.name())
-                .role(user.role())
-                .build());
-    }
-
     public User save(User user) {
         return userRepo.save(user);
+    }
+
+    public User getById(String id) {
+        Criteria criteria = Criteria.where(User.Fields.id).is(id);
+        Query query = new Query(criteria);
+        return mongoTemplate.findOne(query, User.class);
     }
 }

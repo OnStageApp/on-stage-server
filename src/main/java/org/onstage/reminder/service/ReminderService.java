@@ -46,22 +46,28 @@ public class ReminderService {
         if (daysBefore.isEmpty()) {
             return List.of();
         }
-        reminderRepository.deleteAllByEventId(eventId);
-
         var event = eventRepository.getById(eventId);
         if (event == null) {
             throw BadRequestException.eventNotFound();
         }
+
+        reminderRepository.deleteAllByEventId(eventId);
         return daysBefore.stream().map(dayBefore ->
                 save(Reminder.builder().eventId(eventId).daysBefore(dayBefore).build(), event)
         ).toList();
     }
 
     public String delete(String id) {
+        log.info("Deleting reminder {}", id);
         return reminderRepository.delete(id);
     }
 
     public void deleteAllByEventId(String eventId) {
+        Event event = eventRepository.getById(eventId);
+        if (event == null) {
+            throw BadRequestException.eventNotFound();
+        }
+        log.info("Deleting all reminders for event {}", eventId);
         reminderRepository.deleteAllByEventId(eventId);
     }
 }

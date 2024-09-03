@@ -1,7 +1,8 @@
-package org.onstage.stager;
+package org.onstage.stager.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.exceptions.BadRequestException;
+import org.onstage.event.model.Event;
+import org.onstage.event.service.EventService;
 import org.onstage.stager.client.CreateStagerRequest;
 import org.onstage.stager.client.StagerDTO;
 import org.onstage.stager.model.Stager;
@@ -12,20 +13,32 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.onstage.exceptions.BadRequestException.eventNotFound;
+import static org.onstage.exceptions.BadRequestException.stagerNotFound;
+
 @RestController
 @RequestMapping("stagers")
 @RequiredArgsConstructor
 public class StagerController {
     private final StagerService stagerService;
     private final StagerMapper stagerMapper;
+    private final EventService eventService;
 
     @GetMapping
     public ResponseEntity<List<StagerDTO>> getAll(@RequestParam(name = "eventId") String eventId) {
+        Event event = eventService.getById(eventId);
+        if (event == null) {
+            throw eventNotFound();
+        }
         return ResponseEntity.ok(stagerMapper.toDtoList(stagerService.getAllByEventId(eventId)));
     }
 
     @PostMapping
     public ResponseEntity<List<StagerDTO>> create(@RequestBody CreateStagerRequest createStagerRequest) {
+        Event event = eventService.getById(createStagerRequest.eventId());
+        if (event == null) {
+            throw eventNotFound();
+        }
         return ResponseEntity.ok(stagerMapper.toDtoList(stagerService.createStagersForEvent(createStagerRequest.eventId(), createStagerRequest.userIds())));
     }
 
@@ -38,7 +51,7 @@ public class StagerController {
     public ResponseEntity<StagerDTO> update(@PathVariable String id, @RequestBody StagerDTO request) {
         Stager existingStager = stagerService.getById(id);
         if (existingStager == null) {
-            throw BadRequestException.stagerNotFound();
+            throw stagerNotFound();
         }
         return ResponseEntity.ok(stagerMapper.toDto(stagerService.update(existingStager, request)));
     }

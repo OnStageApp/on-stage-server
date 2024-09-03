@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.LocalDateTime;
 
-@Builder
+@Builder(toBuilder = true)
 @Document("songs")
 @FieldNameConstants
 public record Song(

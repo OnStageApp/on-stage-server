@@ -58,4 +58,8 @@ public class BadRequestException extends BaseException {
     public static BadRequestException rehearsalNotFound() {
         return new BadRequestException(13, "REHEARSAL_NOT_FOUND", "Rehearsal was not found");
     }
+
+    public static BadRequestException userNotFound() {
+        return new BadRequestException(14, "USER_NOT_FOUND", "User was not found");
+    }
 }

@@ -1,11 +1,15 @@
 package org.onstage.team.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.onstage.exceptions.BadRequestException;
 import org.onstage.team.client.TeamDTO;
+import org.onstage.team.model.Team;
 import org.onstage.team.model.mapper.TeamMapper;
 import org.onstage.team.service.TeamService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import static org.onstage.exceptions.BadRequestException.teamNotFound;
 
 @RestController
 @RequestMapping("teams")
@@ -16,7 +20,11 @@ public class TeamController {
 
     @GetMapping("/{id}")
     public ResponseEntity<TeamDTO> getById(@PathVariable String id) {
-        return ResponseEntity.ok(teamMapper.toDto(teamService.getById(id)));
+        Team team = teamService.getById(id);
+        if (team == null) {
+            throw teamNotFound();
+        }
+        return ResponseEntity.ok(teamMapper.toDto(team));
     }
 
     @PostMapping
@@ -31,6 +39,10 @@ public class TeamController {
 
     @PutMapping("/{id}")
     public ResponseEntity<TeamDTO> update(@PathVariable String id, @RequestBody TeamDTO request) {
-        return ResponseEntity.ok(teamMapper.toDto(teamService.update(id, request)));
+        Team team = teamService.getById(id);
+        if (team == null) {
+            throw teamNotFound();
+        }
+        return ResponseEntity.ok(teamMapper.toDto(teamService.update(team, request)));
     }
 }
