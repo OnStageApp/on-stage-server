@@ -2,7 +2,9 @@ package org.onstage.reminder.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.common.service.FirebaseService;
+import org.onstage.event.model.Event;
 import org.onstage.event.service.EventService;
+import org.onstage.exceptions.BadRequestException;
 import org.onstage.reminder.client.ReminderDTO;
 import org.onstage.reminder.client.ReminderListRequest;
 import org.onstage.reminder.model.Reminder;
@@ -12,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static org.onstage.exceptions.BadRequestException.eventNotFound;
 
 @RestController
 @RequestMapping("reminders")
@@ -24,6 +28,10 @@ public class ReminderController {
 
     @GetMapping
     public ResponseEntity<List<ReminderDTO>> getAll(@RequestParam(name = "eventId") String eventId) {
+        Event event = eventService.getById(eventId);
+        if (event == null) {
+            throw eventNotFound();
+        }
         return ResponseEntity.ok(reminderMapper.toDtoList(reminderService.getAllByEventId(eventId)));
     }
 

@@ -9,7 +9,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.onstage.enums.ParticipationStatus.PENDING;
 
@@ -19,8 +18,10 @@ public class StagerRepository {
     private final StagerRepo stagerRepo;
     private final MongoTemplate mongoTemplate;
 
-    public Optional<Stager> findById(String id) {
-        return stagerRepo.findById(id);
+    public Stager getById(String id) {
+        Criteria criteria = Criteria.where(Stager.Fields.id).is(id);
+        Query query = new Query(criteria);
+        return mongoTemplate.findOne(query, Stager.class);
     }
 
     public List<Stager> getAllByEventId(String eventId) {

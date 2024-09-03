@@ -2,8 +2,9 @@ package org.onstage.stager.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.onstage.event.model.Event;
+import org.onstage.event.service.EventService;
 import org.onstage.exceptions.BadRequestException;
-import org.onstage.exceptions.ResourceNotFoundException;
 import org.onstage.stager.client.StagerDTO;
 import org.onstage.stager.model.Stager;
 import org.onstage.stager.repository.StagerRepository;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
+import static org.onstage.exceptions.BadRequestException.eventNotFound;
 
 @Service
 @RequiredArgsConstructor
@@ -23,8 +25,7 @@ public class StagerService {
     private final UserService userService;
 
     public Stager getById(String id) {
-        return stagerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Stager with id:%s was not found".formatted(id)));
+        return stagerRepository.getById(id);
     }
 
     public Stager getByEventAndUser(String eventId, String userId) {
@@ -42,7 +43,7 @@ public class StagerService {
     public Stager create(String eventId, String userId) {
         User user = userService.getById(userId);
         if (user == null) {
-            throw new ResourceNotFoundException("User with id:%s was not found".formatted(userId));
+            throw BadRequestException.userNotFound();
         }
         checkStagerAlreadyExists(eventId, userId);
 
@@ -65,7 +66,8 @@ public class StagerService {
     }
 
     public Stager update(Stager existingStager, StagerDTO request) {
-        Stager updatedStager = existingStager.toBuilder()
+        Stager updatedStager = existingStager
+                .toBuilder()
                 .participationStatus(request.participationStatus() != null ? request.participationStatus() : existingStager.participationStatus())
                 .build();
 
@@ -73,6 +75,7 @@ public class StagerService {
     }
 
     public void deleteAllByEventId(String eventId) {
+        log.info("Deleting all stagers for event {}", eventId);
         stagerRepository.deleteAllByEventId(eventId);
     }
 }

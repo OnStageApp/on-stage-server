@@ -1,7 +1,7 @@
-package org.onstage.song.favoritesong.repository;
+package org.onstage.favoritesong.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.song.favoritesong.model.FavoriteSong;
+import org.onstage.favoritesong.model.FavoriteSong;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;

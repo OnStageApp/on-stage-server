@@ -1,7 +1,7 @@
 package org.onstage.user.service;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.common.exceptions.ResourceNotFound;
+import lombok.extern.slf4j.Slf4j;
 import org.onstage.stager.model.Stager;
 import org.onstage.stager.repository.StagerRepository;
 import org.onstage.user.client.UserDTO;
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
@@ -32,16 +33,17 @@ public class UserService {
     }
 
     public User getById(String id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFound("No user with id:%s was found".formatted(id)));
+        return userRepository.getById(id);
     }
 
-    public User save(UserDTO user) {
-        return userRepository.save(user);
+    public User save(User user) {
+        User savedUser = userRepository.save(user);
+        log.info("User {} has been saved", savedUser.id());
+        return savedUser;
     }
 
-    public User update(String id, UserDTO request) {
-        User existingUser = getById(id);
+    public User update(User existingUser, UserDTO request) {
+        log.info("Updating user {} with request {}", existingUser.id(), request);
         User updatedUser = updateUserFromDTO(existingUser, request);
         return userRepository.save(updatedUser);
     }
