@@ -5,6 +5,8 @@ import lombok.With;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
+
 @With
 @Builder
 @Document("users")
@@ -14,6 +16,6 @@ public record User(
         String name,
         String email,
         UserRole role,
-        String profilePicture
+        LocalDateTime imageTimestamp
 ) {
 }

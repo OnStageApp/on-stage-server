@@ -1,17 +1,18 @@
 package org.onstage.user.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.user.client.UserDTO;
 import org.onstage.user.model.User;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.UUID.randomUUID;
+import static org.onstage.user.model.User.Fields.imageTimestamp;
 
 @Component
 @RequiredArgsConstructor
@@ -43,5 +44,11 @@ public class UserRepository {
         Criteria criteria = Criteria.where(User.Fields.id).is(id);
         Query query = new Query(criteria);
         return mongoTemplate.findOne(query, User.class);
+    }
+
+    public void updateImageTimestamp(String id, LocalDateTime now) {
+        Query query = new Query(Criteria.where("id").is(id));
+        Update update = new Update().set(imageTimestamp, now);
+        mongoTemplate.updateFirst(query, update, User.class);
     }
 }

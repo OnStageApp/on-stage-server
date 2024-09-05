@@ -13,7 +13,7 @@ public class UserMapper {
                 .id(entity.id())
                 .name(entity.name())
                 .email(entity.email())
-                .profilePicture(entity.profilePicture())
+                .imageTimestamp(entity.imageTimestamp())
                 .build();
     }
 
@@ -21,7 +21,7 @@ public class UserMapper {
         return User.builder()
                 .name(request.name())
                 .email(request.email())
-                .profilePicture(request.profilePicture())
+                .imageTimestamp(request.imageTimestamp())
                 .build();
     }
 
