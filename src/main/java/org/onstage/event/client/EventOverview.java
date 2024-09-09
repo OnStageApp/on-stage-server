@@ -10,6 +10,6 @@ public record EventOverview(
         String id,
         String name,
         LocalDateTime dateTime,
-        List<String> stagersPhotos
+        List<byte[]> stagersPhotos
 ) {
 }
