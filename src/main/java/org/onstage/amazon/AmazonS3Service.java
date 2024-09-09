@@ -31,19 +31,19 @@ public class AmazonS3Service {
     private final Integer DEFAULT_WIDTH = 200;
     private final Integer DEFAULT_HEIGHT = 200;
 
-    public void putObject(byte[] image, String key, String extension) {
+    public void putObject(byte[] image, String key, String contentType) {
         try {
-            byte[] resizedImage = resizeImage(image, extension);
+            byte[] resizedImage = resizeImage(image, getFormatFromContentType(contentType));
 
             InputStream inputStream = new ByteArrayInputStream(resizedImage);
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(resizedImage.length);
-            metadata.setContentType(extension);
+            metadata.setContentType(contentType);
 
             amazonS3.putObject(bucketName, key.toLowerCase(), inputStream, metadata);
         } catch (AmazonServiceException | IOException e) {
             log.error("Failed to upload image with key {} with error {}", key, e.getMessage());
-            throw BadRequestException.invalidRequest(); // add a new error
+            throw BadRequestException.invalidRequest();
         }
     }
 
@@ -57,22 +57,21 @@ public class AmazonS3Service {
         }
     }
 
-    private byte[] resizeImage(byte[] originalImage, String contentType) throws IOException {
+    private byte[] resizeImage(byte[] originalImage, String extension) throws IOException {
         BufferedImage img = ImageIO.read(new ByteArrayInputStream(originalImage));
         java.awt.Image resizedImage = img.getScaledInstance(DEFAULT_WIDTH, DEFAULT_HEIGHT, java.awt.Image.SCALE_SMOOTH);
         BufferedImage bufferedResizedImage = new BufferedImage(DEFAULT_WIDTH, DEFAULT_HEIGHT, BufferedImage.TYPE_INT_RGB);
         bufferedResizedImage.getGraphics().drawImage(resizedImage, 0, 0, null);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(bufferedResizedImage, contentType, baos);
+        ImageIO.write(bufferedResizedImage, extension, baos);
         return baos.toByteArray();
     }
 
-    private String getContentType(byte[] image) throws IOException {
-        String contentType;
-        try (InputStream is = new ByteArrayInputStream(image)) {
-            String formatName = ImageIO.getImageReaders(ImageIO.createImageInputStream(is)).next().getFormatName();
-            contentType = "image/" + formatName.toLowerCase();
-        }
-        return contentType;
+    private String getFormatFromContentType(String contentType) {
+        return switch (contentType) {
+            case "image/png" -> "png";
+            case "image/gif" -> "gif";
+            default -> "jpg";
+        };
     }
 }

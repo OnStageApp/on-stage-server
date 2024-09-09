@@ -64,11 +64,11 @@ public class UserService {
         return "user/".concat(userId);
     }
 
-    public void uploadUserPhoto(String id, byte[] image, String extension) {
+    public void uploadUserPhoto(String id, byte[] image, String contentType) {
         log.info("Uploading image for user {}", id);
         LocalDateTime now = image == null ? null : LocalDateTime.now();
         String key = getUserImageKey(id);
-        amazonS3Service.putObject(image, key, extension);
+        amazonS3Service.putObject(image, key, contentType);
         log.info("Update image timestamp to {} for artist {}", now, id);
         userRepository.updateImageTimestamp(id, now);
     }
