@@ -38,7 +38,9 @@ public class AmazonS3Service {
             InputStream inputStream = new ByteArrayInputStream(resizedImage);
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(resizedImage.length);
-            metadata.setContentType(contentType);
+            metadata.setContentType("jpeg");
+            metadata.setContentType("png");
+            metadata.setContentType("heif");
 
             amazonS3.putObject(bucketName, key.toLowerCase(), inputStream, metadata);
         } catch (AmazonServiceException | IOException e) {
