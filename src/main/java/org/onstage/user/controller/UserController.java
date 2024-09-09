@@ -1,14 +1,16 @@
 package org.onstage.user.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.user.client.UploadPhotoRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.onstage.user.client.UserDTO;
 import org.onstage.user.model.User;
 import org.onstage.user.model.mapper.UserMapper;
 import org.onstage.user.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -18,6 +20,7 @@ import static org.onstage.exceptions.BadRequestException.userNotFound;
 @RestController
 @RequestMapping("users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
     private final UserMapper userMapper;
     private final UserService userService;
@@ -54,11 +57,20 @@ public class UserController {
     }
 
     @PostMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> uploadPhoto(@ModelAttribute UploadPhotoRequest request) throws IOException {
-        if (request.image() != null) {
-            userService.uploadUserPhoto(request.id(), request.image().getBytes());
+    public ResponseEntity<Void> uploadPhoto(@PathVariable String id, @RequestParam("image") MultipartFile image) {
+        if (image.isEmpty()) {
+            return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok().build();
+
+        try {
+            userService.uploadUserPhoto(id, image.getBytes());
+            return ResponseEntity.ok().build();
+        } catch (IOException e) {
+            log.error("Error reading image file", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PutMapping("/{id}")
