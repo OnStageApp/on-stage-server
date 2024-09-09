@@ -31,16 +31,14 @@ public class AmazonS3Service {
     private final Integer DEFAULT_WIDTH = 200;
     private final Integer DEFAULT_HEIGHT = 200;
 
-    public void putObject(byte[] image, String key, String contentType) {
+    public void putObject(byte[] image, String key, String extension) {
         try {
-            byte[] resizedImage = resizeImage(image, contentType);
+            byte[] resizedImage = resizeImage(image, extension);
 
             InputStream inputStream = new ByteArrayInputStream(resizedImage);
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(resizedImage.length);
-            metadata.setContentType("jpeg");
-            metadata.setContentType("png");
-            metadata.setContentType("heif");
+            metadata.setContentType(extension);
 
             amazonS3.putObject(bucketName, key.toLowerCase(), inputStream, metadata);
         } catch (AmazonServiceException | IOException e) {
