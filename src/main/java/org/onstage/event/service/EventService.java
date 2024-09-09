@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.enums.EventSearchType;
 import org.onstage.event.client.EventDTO;
+import org.onstage.event.client.EventOverview;
 import org.onstage.event.client.PaginatedEventResponse;
 import org.onstage.event.client.UpdateEventRequest;
 import org.onstage.event.model.Event;
@@ -14,6 +15,7 @@ import org.onstage.reminder.model.Reminder;
 import org.onstage.reminder.service.ReminderService;
 import org.onstage.stager.model.Stager;
 import org.onstage.stager.service.StagerService;
+import org.onstage.user.service.UserService;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +33,7 @@ public class EventService {
     private final StagerService stagerService;
     private final RehearsalService rehearsalService;
     private final ReminderService reminderService;
+    private final UserService userService;
 
     public Event getById(String id) {
         return eventRepository.getById(id);
@@ -82,7 +85,10 @@ public class EventService {
         } else if (EventSearchType.PAST.equals(eventSearchType)) {
             criteria = Criteria.where("dateTime").lte(LocalDateTime.now());
         }
-        return eventRepository.getPaginatedEvents(criteria, offset, limit);
+        PaginatedEventResponse paginatedEvents = eventRepository.getPaginatedEvents(criteria, offset, limit);
+        List<EventOverview> events = paginatedEvents.events().stream().map(event ->
+                event.toBuilder().stagersPhotos(userService.getRandomUserIdsWithPhotos(event.id(), 4)).build()).toList();
+        return paginatedEvents.toBuilder().events(events).build();
     }
 
     public EventDTO getUpcomingPublishedEvent() {

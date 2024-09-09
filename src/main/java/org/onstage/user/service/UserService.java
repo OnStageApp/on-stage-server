@@ -78,4 +78,17 @@ public class UserService {
         String key = getUserImageKey(id);
         return amazonS3Service.getObject(key);
     }
+
+    public byte[] getUserThumbnail(String id) {
+        log.info("Getting thumbnail for user {}", id);
+        String key = getUserImageKey(id);
+        return amazonS3Service.getThumbnail(key);
+    }
+
+    public List<byte[]> getRandomUserIdsWithPhotos(String eventId, int limit) {
+        List<String> userIds = userRepository.getRandomUserIdsWithPhotos(eventId, limit);
+        return userIds.stream()
+                .map(this::getUserThumbnail)
+                .toList();
+    }
 }

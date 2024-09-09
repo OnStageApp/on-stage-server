@@ -5,8 +5,11 @@ import org.onstage.event.client.*;
 import org.onstage.event.model.Event;
 import org.onstage.event.model.mapper.EventMapper;
 import org.onstage.event.service.EventService;
+import org.onstage.user.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static org.onstage.exceptions.BadRequestException.eventNotFound;
 
@@ -16,6 +19,7 @@ import static org.onstage.exceptions.BadRequestException.eventNotFound;
 public class EventController {
     private final EventService eventService;
     private final EventMapper eventMapper;
+    private final UserService userService;
 
     @GetMapping("/{id}")
     public ResponseEntity<EventDTO> getById(@PathVariable final String id) {
@@ -23,12 +27,18 @@ public class EventController {
         if (event == null) {
             throw eventNotFound();
         }
-        return ResponseEntity.ok(eventMapper.toDto(event));
+        List<byte[]> userPhotos = userService.getRandomUserIdsWithPhotos(id, 4);
+        return ResponseEntity.ok(eventMapper.toDto(event).toBuilder().stagersPhotos(userPhotos).build());
     }
 
     @GetMapping("/upcoming")
     public ResponseEntity<EventDTO> getUpcomingEvent() {
-        return ResponseEntity.ok(eventService.getUpcomingPublishedEvent());
+        EventDTO event = eventService.getUpcomingPublishedEvent();
+        if (event == null) {
+            return ResponseEntity.ok(null);
+        }
+        List<byte[]> userPhotos = userService.getRandomUserIdsWithPhotos(event.id(), 4);
+        return ResponseEntity.ok(event.toBuilder().stagersPhotos(userPhotos).build());
     }
 
     @GetMapping
