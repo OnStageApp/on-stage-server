@@ -63,7 +63,7 @@ public class UserController {
         }
 
         try {
-            userService.uploadUserPhoto(id, image.getBytes());
+            userService.uploadUserPhoto(id, image.getBytes(), image.getContentType());
             return ResponseEntity.ok().build();
         } catch (IOException e) {
             log.error("Error reading image file", e);

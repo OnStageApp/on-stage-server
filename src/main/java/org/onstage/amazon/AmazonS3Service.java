@@ -31,10 +31,9 @@ public class AmazonS3Service {
     private final Integer DEFAULT_WIDTH = 200;
     private final Integer DEFAULT_HEIGHT = 200;
 
-    public void putObject(byte[] image, String key) {
+    public void putObject(byte[] image, String key, String contentType) {
         try {
-            byte[] resizedImage = resizeImage(image);
-            String contentType = getContentType(resizedImage);
+            byte[] resizedImage = resizeImage(image, contentType);
 
             InputStream inputStream = new ByteArrayInputStream(resizedImage);
             ObjectMetadata metadata = new ObjectMetadata();
@@ -58,13 +57,13 @@ public class AmazonS3Service {
         }
     }
 
-    private byte[] resizeImage(byte[] originalImage) throws IOException {
+    private byte[] resizeImage(byte[] originalImage, String contentType) throws IOException {
         BufferedImage img = ImageIO.read(new ByteArrayInputStream(originalImage));
         java.awt.Image resizedImage = img.getScaledInstance(DEFAULT_WIDTH, DEFAULT_HEIGHT, java.awt.Image.SCALE_SMOOTH);
         BufferedImage bufferedResizedImage = new BufferedImage(DEFAULT_WIDTH, DEFAULT_HEIGHT, BufferedImage.TYPE_INT_RGB);
         bufferedResizedImage.getGraphics().drawImage(resizedImage, 0, 0, null);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(bufferedResizedImage, "jpg", baos);
+        ImageIO.write(bufferedResizedImage, contentType, baos);
         return baos.toByteArray();
     }
 
