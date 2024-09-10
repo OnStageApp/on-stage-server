@@ -99,6 +99,7 @@ public class EventRepository {
                 .and("_id").as("id")
                 .and("name").as("name")
                 .and("dateTime").as("dateTime")
+                .and("eventStatus").as("eventStatus")
                 .and("stagers.profilePicture").as("stagersPhotos"));
 
         if (offset > 0) {
