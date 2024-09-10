@@ -6,6 +6,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Repository
@@ -26,5 +28,10 @@ public class TeamMemberRepository {
     public String delete(String id) {
         teamMemberRepo.deleteById(id);
         return id;
+    }
+
+    public List<TeamMember> getAllByTeam(String teamId) {
+        Criteria criteria = Criteria.where(TeamMember.Fields.teamId).is(teamId);
+        return mongoTemplate.find(query(criteria), TeamMember.class);
     }
 }

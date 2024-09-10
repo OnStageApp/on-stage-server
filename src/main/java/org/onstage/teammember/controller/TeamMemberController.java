@@ -1,13 +1,14 @@
 package org.onstage.teammember.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.exceptions.BadRequestException;
 import org.onstage.teammember.client.TeamMemberDTO;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.model.mapper.TeamMemberMapper;
 import org.onstage.teammember.service.TeamMemberService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static org.onstage.exceptions.BadRequestException.teamMemberNotFound;
 
@@ -25,6 +26,11 @@ public class TeamMemberController {
             throw teamMemberNotFound();
         }
         return ResponseEntity.ok(teamMemberMapper.toDto(teamMember));
+    }
+
+    @GetMapping("/team/{teamId}")
+    public ResponseEntity<List<TeamMemberDTO>> getByTeam(@PathVariable(name = "teamId") String teamId) {
+        return ResponseEntity.ok(teamMemberMapper.toDtoList(teamMemberService.getAllByTeam(teamId)));
     }
 
     @PostMapping

@@ -30,9 +30,9 @@ public class SongRepository {
         return mongoTemplate.findOne(query(criteria), Song.class);
     }
 
-    public Optional<SongDTO> findProjectionById(String id) {
+    public SongDTO findProjectionById(String id) {
         Aggregation aggregation = newAggregation(songProjectionPipeline(Criteria.where("_id").is(id)));
-        return Optional.ofNullable(mongoTemplate.aggregate(aggregation, Song.class, SongDTO.class).getUniqueMappedResult());
+        return mongoTemplate.aggregate(aggregation, Song.class, SongDTO.class).getUniqueMappedResult();
     }
 
     public Optional<SongOverview> findOverviewById(String id) {

@@ -11,6 +11,8 @@ import org.onstage.song.client.SongFilter;
 import org.onstage.song.client.SongOverview;
 import org.onstage.song.model.Song;
 import org.onstage.song.repository.SongRepository;
+import org.onstage.songversion.model.SongConfig;
+import org.onstage.songversion.service.SongConfigService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,10 +28,18 @@ public class SongService {
 
     private final SongRepository songRepository;
     private final FavoriteSongRepository favoriteSongRepository;
+    private final SongConfigService songConfigService;
 
     public SongDTO getDtoProjection(String id) {
-        return songRepository.findProjectionById(id)
-                .orElseThrow(BadRequestException::songNotFound);
+        SongDTO songDTO = songRepository.findProjectionById(id);
+        SongConfig config = songConfigService.getBySongAndTeam(id, "66e097366efe12313c4fc82a");
+        if (config != null && config.isCustom()) {
+            songDTO = songDTO.toBuilder()
+                    .lyrics(config.lyrics() == null ? songDTO.lyrics() : config.lyrics())
+                    .key(config.key() == null ? songDTO.key() : config.key())
+                    .build();
+        }
+        return songDTO;
     }
 
     public SongOverview getOverviewSong(String id) {

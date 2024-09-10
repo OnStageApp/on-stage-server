@@ -7,6 +7,8 @@ import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -29,5 +31,9 @@ public class TeamMemberService {
         }
         log.info("Deleting team member {}", id);
         return teamMemberRepository.delete(id);
+    }
+
+    public List<TeamMember> getAllByTeam(String teamId) {
+        return teamMemberRepository.getAllByTeam(teamId);
     }
 }

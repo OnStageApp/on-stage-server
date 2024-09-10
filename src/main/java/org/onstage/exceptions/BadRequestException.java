@@ -62,4 +62,8 @@ public class BadRequestException extends BaseException {
     public static BadRequestException userNotFound() {
         return new BadRequestException(14, "USER_NOT_FOUND", "User was not found");
     }
+
+    public static BadRequestException songConfigNotFound() {
+        return new BadRequestException(15, "SONG_CONFIG_NOT_FOUND", "Song config was not found");
+    }
 }
