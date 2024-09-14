@@ -2,9 +2,13 @@ package org.onstage.team.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.team.model.Team;
+import org.onstage.teammember.model.TeamMember;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 import static org.springframework.data.mongodb.core.query.Query.query;
 
@@ -26,5 +30,16 @@ public class TeamRepository {
     public String delete(String id) {
         teamRepo.deleteById(id);
         return id;
+    }
+
+    public List<Team> getAll(String userId) {
+        Query teamMemberQuery = new Query(Criteria.where(TeamMember.Fields.userId).is(userId));
+        List<String> userTeamIds = mongoTemplate.find(teamMemberQuery, TeamMember.class)
+                .stream()
+                .map(TeamMember::teamId)
+                .toList();
+
+        Query teamQuery = new Query(Criteria.where("_id").in(userTeamIds));
+        return mongoTemplate.find(teamQuery, Team.class);
     }
 }

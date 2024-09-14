@@ -12,6 +12,7 @@ public record UserDTO(
         String email,
         UserRole role,
         byte[] image,
-        LocalDateTime imageTimestamp
+        LocalDateTime imageTimestamp,
+        String currentTeamId
 ) {
 }

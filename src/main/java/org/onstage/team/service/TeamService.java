@@ -7,6 +7,8 @@ import org.onstage.team.model.Team;
 import org.onstage.team.repository.TeamRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 import static org.onstage.exceptions.BadRequestException.teamNotFound;
 
 @Service
@@ -43,5 +45,9 @@ public class TeamService {
         return Team.builder()
                 .name(request.name() == null ? existingTeam.name() : request.name())
                 .build();
+    }
+
+    public List<Team> getAll(String userId) {
+        return teamRepository.getAll(userId);
     }
 }

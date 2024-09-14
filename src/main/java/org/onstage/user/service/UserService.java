@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -90,5 +91,16 @@ public class UserService {
         return userIds.stream()
                 .map(this::getUserThumbnail)
                 .toList();
+    }
+
+    public User setCurrentTeam(String teamId, String userId) {
+        User user = getById(userId);
+        user = user.toBuilder().currentTeamId(teamId).build();
+        return save(user);
+    }
+
+    public boolean checkIsCurrentTeamForUser(String userId, String teamId) {
+        User user = getById(userId);
+        return Objects.equals(user.currentTeamId(), teamId);
     }
 }
