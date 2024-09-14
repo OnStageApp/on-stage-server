@@ -93,10 +93,9 @@ public class UserService {
                 .toList();
     }
 
-    public User setCurrentTeam(String teamId, String userId) {
+    public void setCurrentTeam(String teamId, String userId) {
         User user = getById(userId);
-        user = user.toBuilder().currentTeamId(teamId).build();
-        return save(user);
+        save(user.toBuilder().currentTeamId(teamId).build());
     }
 
     public boolean checkIsCurrentTeamForUser(String userId, String teamId) {
