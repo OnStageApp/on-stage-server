@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.LocalDateTime;
 
-@Builder
+@Builder(toBuilder = true)
 @Document("events")
 @FieldNameConstants
 public record Event(

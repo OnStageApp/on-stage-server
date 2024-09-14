@@ -59,7 +59,8 @@ public class EventController {
 
     @PostMapping
     public ResponseEntity<EventDTO> create(@RequestBody CreateEventRequest event) {
-        return ResponseEntity.ok(eventMapper.toDto(eventService.save(eventMapper.fromCreateRequest(event), event.userIds(), event.rehearsals())));
+        String teamId = userSecurityContext.getCurrentTeamId();
+        return ResponseEntity.ok(eventMapper.toDto(eventService.save(eventMapper.fromCreateRequest(event), event.userIds(), event.rehearsals(), teamId)));
     }
 
     @DeleteMapping("/{id}")

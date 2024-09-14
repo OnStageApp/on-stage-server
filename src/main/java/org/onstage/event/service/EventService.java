@@ -38,8 +38,8 @@ public class EventService {
         return eventRepository.getById(id);
     }
 
-    public Event save(Event event, List<String> userIds, List<CreateRehearsalForEventRequest> rehearsals) {
-        Event savedEvent = eventRepository.save(event);
+    public Event save(Event event, List<String> userIds, List<CreateRehearsalForEventRequest> rehearsals, String teamId) {
+        Event savedEvent = eventRepository.save(event.toBuilder().teamId(teamId).build());
         stagerService.createStagersForEvent(savedEvent.id(), userIds);
         rehearsalService.createRehearsalsForEvent(savedEvent.id(), rehearsals);
         log.info("Event {} has been saved", savedEvent.id());
