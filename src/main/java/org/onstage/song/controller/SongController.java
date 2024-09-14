@@ -1,6 +1,7 @@
 package org.onstage.song.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.onstage.common.beans.UserSecurityContext;
 import org.onstage.song.client.CreateOrUpdateSongRequest;
 import org.onstage.song.client.SongDTO;
 import org.onstage.song.client.SongFilter;
@@ -21,6 +22,7 @@ import static org.onstage.exceptions.BadRequestException.songNotFound;
 public class SongController {
     private final SongService songService;
     private final SongMapper songMapper;
+    private final UserSecurityContext userSecurityContext;
 
     @GetMapping("/{id}")
     public ResponseEntity<SongDTO> getById(@PathVariable final String id) {
@@ -46,19 +48,22 @@ public class SongController {
         return ResponseEntity.ok(songService.update(song, request));
     }
 
-    @PostMapping("/favorites/{songId}/{userId}")
-    public ResponseEntity<Void> addFavoriteSong(@PathVariable String songId, @PathVariable String userId) {
+    @PostMapping("/favorites/{songId}")
+    public ResponseEntity<Void> addFavoriteSong(@PathVariable String songId) {
+        String userId = userSecurityContext.getUserId();
         songService.addSavedSong(songId, userId);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/favorites/{userId}")
-    public ResponseEntity<List<SongOverview>> getFavoriteSongs(@PathVariable String userId) {
+    @GetMapping("/favorites")
+    public ResponseEntity<List<SongOverview>> getFavoriteSongs() {
+        String userId = userSecurityContext.getUserId();
         return ResponseEntity.ok(songService.getFavoriteSongs(userId));
     }
 
-    @DeleteMapping("/favorites/{songId}/{userId}")
-    public ResponseEntity<Void> removeFavoriteSong(@PathVariable String songId, @PathVariable String userId) {
+    @DeleteMapping("/favorites/{songId}")
+    public ResponseEntity<Void> removeFavoriteSong(@PathVariable String songId) {
+        String userId = userSecurityContext.getUserId();
         songService.removeFavoriteSong(songId, userId);
         return ResponseEntity.ok().build();
     }

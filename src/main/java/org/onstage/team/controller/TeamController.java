@@ -1,11 +1,13 @@
 package org.onstage.team.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.exceptions.BadRequestException;
+import org.onstage.common.beans.UserSecurityContext;
+import org.onstage.team.client.GetAllTeamsResponse;
 import org.onstage.team.client.TeamDTO;
 import org.onstage.team.model.Team;
 import org.onstage.team.model.mapper.TeamMapper;
 import org.onstage.team.service.TeamService;
+import org.onstage.user.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +19,8 @@ import static org.onstage.exceptions.BadRequestException.teamNotFound;
 public class TeamController {
     private final TeamService teamService;
     private final TeamMapper teamMapper;
+    private final UserSecurityContext userSecurityContext;
+    private final UserService userService;
 
     @GetMapping("/{id}")
     public ResponseEntity<TeamDTO> getById(@PathVariable String id) {
@@ -24,6 +28,23 @@ public class TeamController {
         if (team == null) {
             throw teamNotFound();
         }
+        return ResponseEntity.ok(teamMapper.toDto(team));
+    }
+
+    @GetMapping
+    public ResponseEntity<GetAllTeamsResponse> getAll() {
+        String userId = userSecurityContext.getUserId();
+        return ResponseEntity.ok(GetAllTeamsResponse.builder()
+                .teams(teamMapper.toDtoList(teamService.getAll(userId)))
+                .currentTeamId(userService.getById(userId).currentTeamId())
+                .build());
+
+    }
+
+    @GetMapping("/current")
+    public ResponseEntity<TeamDTO> getCurrentTeam() {
+        String userId = userSecurityContext.getUserId();
+        Team team = teamService.getById(userSecurityContext.getCurrentTeamId());
         return ResponseEntity.ok(teamMapper.toDto(team));
     }
 

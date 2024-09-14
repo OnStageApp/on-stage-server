@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 
 @With
-@Builder
+@Builder(toBuilder = true)
 @Document("users")
 @FieldNameConstants
 public record User(
@@ -16,6 +16,7 @@ public record User(
         String name,
         String email,
         UserRole role,
-        LocalDateTime imageTimestamp
+        LocalDateTime imageTimestamp,
+        String currentTeamId
 ) {
 }

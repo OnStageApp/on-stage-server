@@ -16,7 +16,6 @@ import org.onstage.reminder.service.ReminderService;
 import org.onstage.stager.model.Stager;
 import org.onstage.stager.service.StagerService;
 import org.onstage.user.service.UserService;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -75,17 +74,8 @@ public class EventService {
                 .build();
     }
 
-    public PaginatedEventResponse getAllByFilter(EventSearchType eventSearchType, String searchValue, int offset, int limit) {
-        Criteria criteria = new Criteria();
-
-        if (searchValue != null) {
-            criteria = Criteria.where("name").regex(searchValue, "i");
-        } else if (EventSearchType.UPCOMING.equals(eventSearchType)) {
-            criteria = Criteria.where("dateTime").gte(LocalDateTime.now());
-        } else if (EventSearchType.PAST.equals(eventSearchType)) {
-            criteria = Criteria.where("dateTime").lte(LocalDateTime.now());
-        }
-        PaginatedEventResponse paginatedEvents = eventRepository.getPaginatedEvents(criteria, offset, limit);
+    public PaginatedEventResponse getAllByFilter(String userId, String teamId, EventSearchType eventSearchType, String searchValue, int offset, int limit) {
+        PaginatedEventResponse paginatedEvents = eventRepository.getPaginatedEvents(eventSearchType, searchValue, offset, limit, userId, teamId);
         List<EventOverview> events = paginatedEvents.events().stream().map(event ->
                 event.toBuilder().stagersPhotos(userService.getRandomUserIdsWithPhotos(event.id(), 4)).build()).toList();
         return paginatedEvents.toBuilder().events(events).build();

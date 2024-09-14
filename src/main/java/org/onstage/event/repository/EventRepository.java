@@ -1,24 +1,27 @@
 package org.onstage.event.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.bson.Document;
+import org.onstage.enums.EventSearchType;
 import org.onstage.enums.EventStatus;
 import org.onstage.event.client.EventDTO;
 import org.onstage.event.client.EventOverview;
 import org.onstage.event.client.PaginatedEventResponse;
 import org.onstage.event.model.Event;
+import org.onstage.stager.model.Stager;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Component
@@ -31,50 +34,48 @@ public class EventRepository {
         Criteria criteria = Criteria.where("id").is(id);
         return mongoTemplate.findOne(query(criteria), Event.class);
     }
+
     public Optional<Event> findById(String id) {
         return repo.findById(id);
     }
-
-//    public EventOverview findEventProjectionById(String eventId) {
-//        Aggregation aggregation = newAggregation(eventProjectionPipeline(Criteria.where("_id").is(eventId)));
-//        return mongoTemplate.aggregate(aggregation, Event.class, EventOverview.class).getUniqueMappedResult();
-//    }
 
     public EventDTO getUpcomingPublishedEvent() {
         Criteria criteria = Criteria.where("dateTime").gte(LocalDateTime.now())
                 .and("eventStatus").is(EventStatus.PUBLISHED);
 
-        Aggregation aggregation = newAggregation(
-                match(criteria),
-                sort(Sort.Direction.ASC, "dateTime"),
-                limit(1),
-                lookup("stagers", "_id", "eventId", "stagers"),
-                project()
-                        .and("_id").as("id")
-                        .and("name").as("name")
-                        .and("dateTime").as("dateTime")
-                        .and("location").as("location")
-                        .and("eventStatus").as("eventStatus")
-                        .and("stagers.profilePicture").as("stagersPhotos")
-        );
+        Query query = new Query(criteria);
+        query.with(Sort.by(Sort.Direction.ASC, "dateTime"));
+        query.limit(1);
 
-        return mongoTemplate.aggregate(aggregation, Event.class, EventDTO.class).getUniqueMappedResult();
+        return mongoTemplate.findOne(query, EventDTO.class, "events");
     }
 
-    public PaginatedEventResponse getPaginatedEvents(Criteria criteria, int offset, int limit) {
-        Aggregation aggregation = newAggregation(eventProjectionPipeline(criteria, offset, limit))
-                .withOptions(Aggregation.newAggregationOptions().allowDiskUse(true).build());
+    public PaginatedEventResponse getPaginatedEvents(EventSearchType eventSearchType, String searchValue, int offset, int limit, String userId, String teamId) {
+        Query stagerQuery = new Query(Criteria.where("userId").is(userId));
+        List<String> userEventIds = mongoTemplate.find(stagerQuery, Stager.class)
+                .stream()
+                .map(Stager::eventId)
+                .toList();
 
-        List<EventOverview> events = mongoTemplate.aggregate(aggregation, Event.class, EventOverview.class).getMappedResults();
+        Criteria eventCriteria = Criteria.where("_id").in(userEventIds)
+                .and("teamId").is(teamId);
 
-        Aggregation countAggregation = newAggregation(
-                match(criteria),
-                Aggregation.skip(offset + limit),
-                Aggregation.limit(1)
-        );
+        if (searchValue != null && !searchValue.isEmpty()) {
+            eventCriteria = eventCriteria.and("name").regex(searchValue, "i");
+        } else if (EventSearchType.UPCOMING.equals(eventSearchType)) {
+            eventCriteria = eventCriteria.and("dateTime").gte(LocalDateTime.now());
+        } else if (EventSearchType.PAST.equals(eventSearchType)) {
+            eventCriteria = eventCriteria.and("dateTime").lte(LocalDateTime.now());
+        }
 
-        List<EventOverview> nextEvents = mongoTemplate.aggregate(countAggregation, Event.class, EventOverview.class).getMappedResults();
-        boolean hasMore = !nextEvents.isEmpty();
+        Query eventQuery = new Query(eventCriteria)
+                .skip(offset)
+                .limit(limit);
+
+        List<EventOverview> events = mongoTemplate.find(eventQuery, EventOverview.class, "events");
+        long totalCount = mongoTemplate.count(new Query(eventCriteria), "events");
+
+        boolean hasMore = offset + limit < totalCount;
 
         return new PaginatedEventResponse(events, hasMore);
     }
@@ -87,28 +88,5 @@ public class EventRepository {
     public String delete(String id) {
         repo.deleteById(id);
         return id;
-    }
-
-    private List<AggregationOperation> eventProjectionPipeline(Criteria criteria, int offset, int limit) {
-        List<AggregationOperation> operations = new ArrayList<>();
-        if (criteria != null) {
-            operations.add(match(criteria));
-        }
-        operations.add(lookup("stagers", "_id", "eventId", "stagers"));
-        operations.add(project()
-                .and("_id").as("id")
-                .and("name").as("name")
-                .and("dateTime").as("dateTime")
-                .and("eventStatus").as("eventStatus")
-                .and("stagers.profilePicture").as("stagersPhotos"));
-
-        if (offset > 0) {
-            operations.add(Aggregation.skip(offset));
-        }
-        if (limit > 0) {
-            operations.add(Aggregation.limit(limit));
-        }
-
-        return operations;
     }
 }

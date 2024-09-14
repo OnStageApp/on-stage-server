@@ -2,6 +2,7 @@ package org.onstage.user.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.onstage.common.beans.UserSecurityContext;
 import org.onstage.user.client.UserDTO;
 import org.onstage.user.model.User;
 import org.onstage.user.model.mapper.UserMapper;
@@ -24,6 +25,7 @@ import static org.onstage.exceptions.BadRequestException.userNotFound;
 public class UserController {
     private final UserMapper userMapper;
     private final UserService userService;
+    private final UserSecurityContext userSecurityContext;
 
     @GetMapping
     public List<UserDTO> getAll() {
@@ -80,5 +82,11 @@ public class UserController {
             throw userNotFound();
         }
         return ResponseEntity.ok(userMapper.toDto(userService.update(user, request)));
+    }
+
+    @PostMapping("/current-team/{teamId}")
+    public ResponseEntity<UserDTO> setCurrentTeam(@PathVariable String teamId) {
+        String userId = userSecurityContext.getUserId();
+        return ResponseEntity.ok(userMapper.toDto(userService.setCurrentTeam(teamId, userId)));
     }
 }

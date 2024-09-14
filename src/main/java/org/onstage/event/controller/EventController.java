@@ -1,6 +1,7 @@
 package org.onstage.event.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.onstage.common.beans.UserSecurityContext;
 import org.onstage.event.client.*;
 import org.onstage.event.model.Event;
 import org.onstage.event.model.mapper.EventMapper;
@@ -20,6 +21,7 @@ public class EventController {
     private final EventService eventService;
     private final EventMapper eventMapper;
     private final UserService userService;
+    private final UserSecurityContext userSecurityContext;
 
     @GetMapping("/{id}")
     public ResponseEntity<EventDTO> getById(@PathVariable final String id) {
@@ -27,6 +29,7 @@ public class EventController {
         if (event == null) {
             throw eventNotFound();
         }
+        //check event belongs to team
         List<byte[]> userPhotos = userService.getRandomUserIdsWithPhotos(id, 4);
         return ResponseEntity.ok(eventMapper.toDto(event).toBuilder().stagersPhotos(userPhotos).build());
     }
@@ -43,7 +46,9 @@ public class EventController {
 
     @GetMapping
     public ResponseEntity<GetAllEventsResponse> getAll(@RequestBody GetAllEventsRequest filter) {
-        PaginatedEventResponse paginatedResponse = eventService.getAllByFilter(
+        String userId = userSecurityContext.getUserId();
+        String teamId = userSecurityContext.getCurrentTeamId();
+        PaginatedEventResponse paginatedResponse = eventService.getAllByFilter(userId, teamId,
                 filter.eventSearchType(), filter.searchValue(), filter.offset(), filter.limit());
 
         return ResponseEntity.ok(GetAllEventsResponse.builder()

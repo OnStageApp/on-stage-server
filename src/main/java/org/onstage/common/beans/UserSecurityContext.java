@@ -8,4 +8,5 @@ import lombok.*;
 @NoArgsConstructor
 public class UserSecurityContext {
     private String userId;
+    private String currentTeamId;
 }
