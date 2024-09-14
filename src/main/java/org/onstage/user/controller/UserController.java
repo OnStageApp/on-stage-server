@@ -85,7 +85,7 @@ public class UserController {
     }
 
     @PostMapping("/current/{teamId}")
-    public ResponseEntity<Void> setCurrentTeam(@PathVariable String teamId) {
+    public ResponseEntity<Void> setCurrentTeam(@PathVariable(name = "teamId") String teamId) {
         String userId = userSecurityContext.getUserId();
         userService.setCurrentTeam(teamId, userId);
         return ResponseEntity.ok().build();
