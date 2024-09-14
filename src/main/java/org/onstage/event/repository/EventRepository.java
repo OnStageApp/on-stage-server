@@ -1,7 +1,6 @@
 package org.onstage.event.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.bson.Document;
 import org.onstage.enums.EventSearchType;
 import org.onstage.enums.EventStatus;
 import org.onstage.event.client.EventDTO;
@@ -11,15 +10,12 @@ import org.onstage.event.model.Event;
 import org.onstage.stager.model.Stager;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -51,15 +47,13 @@ public class EventRepository {
     }
 
     public PaginatedEventResponse getPaginatedEvents(EventSearchType eventSearchType, String searchValue, int offset, int limit, String userId, String teamId) {
-        Query stagerQuery = new Query(Criteria.where("userId").is(userId));
+        Query stagerQuery = new Query(Criteria.where(Stager.Fields.userId).is(userId));
         List<String> userEventIds = mongoTemplate.find(stagerQuery, Stager.class)
                 .stream()
                 .map(Stager::eventId)
                 .toList();
-
-        Criteria eventCriteria = Criteria.where("_id").in(userEventIds)
+        Criteria eventCriteria = Criteria.where(Event.Fields.id).in(userEventIds)
                 .and("teamId").is(teamId);
-
         if (searchValue != null && !searchValue.isEmpty()) {
             eventCriteria = eventCriteria.and("name").regex(searchValue, "i");
         } else if (EventSearchType.UPCOMING.equals(eventSearchType)) {
@@ -67,17 +61,23 @@ public class EventRepository {
         } else if (EventSearchType.PAST.equals(eventSearchType)) {
             eventCriteria = eventCriteria.and("dateTime").lte(LocalDateTime.now());
         }
-
         Query eventQuery = new Query(eventCriteria)
                 .skip(offset)
                 .limit(limit);
-
-        List<EventOverview> events = mongoTemplate.find(eventQuery, EventOverview.class, "events");
+        List<Event> events = mongoTemplate.find(eventQuery, Event.class, "events");
         long totalCount = mongoTemplate.count(new Query(eventCriteria), "events");
-
         boolean hasMore = offset + limit < totalCount;
 
-        return new PaginatedEventResponse(events, hasMore);
+        List<EventOverview> eventOverviews = events.stream()
+                .map(event -> EventOverview.builder()
+                        .id(event.id())
+                        .name(event.name())
+                        .dateTime(event.dateTime())
+                        .eventStatus(event.eventStatus())
+                        .build())
+                .toList();
+
+        return new PaginatedEventResponse(eventOverviews, hasMore);
     }
 
 

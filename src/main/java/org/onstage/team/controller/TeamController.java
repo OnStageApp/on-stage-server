@@ -43,7 +43,6 @@ public class TeamController {
 
     @GetMapping("/current")
     public ResponseEntity<TeamDTO> getCurrentTeam() {
-        String userId = userSecurityContext.getUserId();
         Team team = teamService.getById(userSecurityContext.getCurrentTeamId());
         return ResponseEntity.ok(teamMapper.toDto(team));
     }
