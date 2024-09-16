@@ -14,6 +14,7 @@ public class TeamMemberMapper {
                 .id(entity.id())
                 .name(entity.name())
                 .userId(entity.userId())
+                .teamId(entity.teamId())
                 .role(entity.role())
                 .build();
     }
@@ -23,6 +24,7 @@ public class TeamMemberMapper {
                 .id(request.id())
                 .name(request.name())
                 .userId(request.userId())
+                .teamId(request.teamId())
                 .role(request.role())
                 .build();
     }
