@@ -6,18 +6,18 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public enum MemberRight {
+public enum MemberRole {
     LEADER(0, "Leader"),
     EDITOR(1, "Editor"),
     NONE(2, "None");
 
-    private final static Map<Integer, MemberRight> map = Arrays.stream(MemberRight.values())
+    private final static Map<Integer, MemberRole> map = Arrays.stream(MemberRole.values())
             .collect(Collectors.toMap(obj -> obj.index, obj -> obj));
 
     private final Integer index;
     private final String name;
 
-    MemberRight(Integer index, String name) {
+    MemberRole(Integer index, String name) {
         this.index = index;
         this.name = name;
     }
@@ -27,7 +27,7 @@ public enum MemberRight {
         return name;
     }
 
-    public static MemberRight valueOf(int id) {
+    public static MemberRole valueOf(int id) {
         return map.get(id);
     }
 

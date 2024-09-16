@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
+import org.onstage.user.model.User;
+import org.onstage.user.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,12 +16,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TeamMemberService {
     private final TeamMemberRepository teamMemberRepository;
+    private final UserService userService;
 
     public TeamMember getById(String id) {
         return teamMemberRepository.getById(id);
     }
 
     public TeamMember save(TeamMember teamMember) {
+        User user = userService.getById(teamMember.userId());
+        teamMember = teamMember.toBuilder().name(user.name()).build();
         TeamMember savedTeamMember = teamMemberRepository.save(teamMember);
         log.info("Team member {} has been saved", savedTeamMember.id());
         return savedTeamMember;

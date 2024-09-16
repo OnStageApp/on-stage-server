@@ -1,6 +1,6 @@
-package org.onstage.songversion.reporitory;
+package org.onstage.songconfig.reporitory;
 
-import org.onstage.songversion.model.SongConfig;
+import org.onstage.songconfig.model.SongConfig;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
