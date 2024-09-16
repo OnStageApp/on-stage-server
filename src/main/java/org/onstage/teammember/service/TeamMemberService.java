@@ -41,4 +41,13 @@ public class TeamMemberService {
     public List<TeamMember> getAllByTeam(String teamId) {
         return teamMemberRepository.getAllByTeam(teamId);
     }
+
+    public TeamMember update(TeamMember existingTeamMember, TeamMember teamMember) {
+        log.info("Updating team member {} with request {}", existingTeamMember.id(), teamMember);
+        return save(
+                teamMember.toBuilder()
+                        .role(teamMember.role() != null ? teamMember.role() : existingTeamMember.role())
+                        .build()
+        );
+    }
 }
