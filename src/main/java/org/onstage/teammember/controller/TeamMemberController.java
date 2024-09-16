@@ -1,6 +1,7 @@
 package org.onstage.teammember.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.onstage.common.beans.UserSecurityContext;
 import org.onstage.teammember.client.TeamMemberDTO;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.model.mapper.TeamMemberMapper;
@@ -18,6 +19,7 @@ import static org.onstage.exceptions.BadRequestException.teamMemberNotFound;
 public class TeamMemberController {
     private final TeamMemberService teamMemberService;
     private final TeamMemberMapper teamMemberMapper;
+    private final UserSecurityContext userSecurityContext;
 
     @GetMapping("/{id}")
     public ResponseEntity<TeamMemberDTO> getById(@PathVariable(name = "id") String id) {
@@ -28,13 +30,15 @@ public class TeamMemberController {
         return ResponseEntity.ok(teamMemberMapper.toDto(teamMember));
     }
 
-    @GetMapping("/team/{teamId}")
-    public ResponseEntity<List<TeamMemberDTO>> getByTeam(@PathVariable(name = "teamId") String teamId) {
+    @GetMapping()
+    public ResponseEntity<List<TeamMemberDTO>> getByTeam() {
+        String teamId = userSecurityContext.getCurrentTeamId();
         return ResponseEntity.ok(teamMemberMapper.toDtoList(teamMemberService.getAllByTeam(teamId)));
     }
 
     @PostMapping
     public ResponseEntity<TeamMemberDTO> create(@RequestBody TeamMemberDTO request) {
+        request = request.toBuilder().teamId(userSecurityContext.getCurrentTeamId()).build();
         return ResponseEntity.ok(teamMemberMapper.toDto(teamMemberService.save(teamMemberMapper.toEntity(request))));
     }
 

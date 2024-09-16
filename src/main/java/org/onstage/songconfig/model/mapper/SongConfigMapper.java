@@ -1,7 +1,7 @@
-package org.onstage.songversion.model.mapper;
+package org.onstage.songconfig.model.mapper;
 
-import org.onstage.songversion.client.SongConfigDTO;
-import org.onstage.songversion.model.SongConfig;
+import org.onstage.songconfig.client.SongConfigDTO;
+import org.onstage.songconfig.model.SongConfig;
 import org.springframework.stereotype.Component;
 
 @Component

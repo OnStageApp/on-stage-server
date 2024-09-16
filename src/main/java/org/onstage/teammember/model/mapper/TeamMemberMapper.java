@@ -1,7 +1,5 @@
 package org.onstage.teammember.model.mapper;
 
-import org.onstage.team.client.TeamDTO;
-import org.onstage.team.model.Team;
 import org.onstage.teammember.client.TeamMemberDTO;
 import org.onstage.teammember.model.TeamMember;
 import org.springframework.stereotype.Component;
@@ -14,18 +12,18 @@ public class TeamMemberMapper {
     public TeamMemberDTO toDto(TeamMember entity) {
         return TeamMemberDTO.builder()
                 .id(entity.id())
-                .teamId(entity.teamId())
+                .name(entity.name())
                 .userId(entity.userId())
-                .memberRight(entity.memberRight())
+                .role(entity.role())
                 .build();
     }
 
     public TeamMember toEntity(TeamMemberDTO request) {
         return TeamMember.builder()
                 .id(request.id())
-                .teamId(request.teamId())
+                .name(request.name())
                 .userId(request.userId())
-                .memberRight(request.memberRight())
+                .role(request.role())
                 .build();
     }
 

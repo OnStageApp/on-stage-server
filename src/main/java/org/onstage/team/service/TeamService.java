@@ -2,7 +2,7 @@ package org.onstage.team.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.onstage.enums.MemberRight;
+import org.onstage.enums.MemberRole;
 import org.onstage.team.client.TeamDTO;
 import org.onstage.team.model.Team;
 import org.onstage.team.repository.TeamRepository;
@@ -31,7 +31,7 @@ public class TeamService {
         teamMemberService.save(TeamMember.builder()
                 .teamId(savedTeam.id())
                 .userId(userId)
-                .memberRight(MemberRight.LEADER).build());
+                .role(MemberRole.LEADER).build());
         return savedTeam;
     }
 

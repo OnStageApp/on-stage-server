@@ -11,8 +11,8 @@ import org.onstage.song.client.SongFilter;
 import org.onstage.song.client.SongOverview;
 import org.onstage.song.model.Song;
 import org.onstage.song.repository.SongRepository;
-import org.onstage.songversion.model.SongConfig;
-import org.onstage.songversion.service.SongConfigService;
+import org.onstage.songconfig.model.SongConfig;
+import org.onstage.songconfig.service.SongConfigService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

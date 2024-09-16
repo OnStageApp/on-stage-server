@@ -1,7 +1,7 @@
-package org.onstage.songversion.reporitory;
+package org.onstage.songconfig.reporitory;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.songversion.model.SongConfig;
+import org.onstage.songconfig.model.SongConfig;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;

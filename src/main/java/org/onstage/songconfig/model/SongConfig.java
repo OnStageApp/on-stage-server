@@ -1,4 +1,4 @@
-package org.onstage.songversion.model;
+package org.onstage.songconfig.model;
 
 import lombok.Builder;
 import org.onstage.enums.KeysEnum;
