@@ -47,4 +47,12 @@ public class TeamMemberController {
         return ResponseEntity.ok(teamMemberService.delete(id));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<TeamMemberDTO> update(@PathVariable final String id, @RequestBody TeamMemberDTO request) {
+        TeamMember existingTeamMember = teamMemberService.getById(id);
+        if(existingTeamMember == null) {
+            throw teamMemberNotFound();
+        }
+        return ResponseEntity.ok(teamMemberMapper.toDto(teamMemberService.update(existingTeamMember, teamMemberMapper.toEntity(request))));
+    }
 }
