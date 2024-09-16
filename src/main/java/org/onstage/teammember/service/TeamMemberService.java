@@ -22,10 +22,18 @@ public class TeamMemberService {
         return teamMemberRepository.getById(id);
     }
 
+    public TeamMember getByUserAndTeam(String userId, String teamId) {
+        return teamMemberRepository.getByUserAndTeam(userId, teamId);
+    }
+
     public TeamMember save(TeamMember teamMember) {
+        TeamMember existingTeamMember = getByUserAndTeam(teamMember.userId(), teamMember.teamId());
+        if (existingTeamMember != null) {
+            log.info("Team member {} already exists", existingTeamMember.id());
+            return existingTeamMember;
+        }
         User user = userService.getById(teamMember.userId());
-        teamMember = teamMember.toBuilder().name(user.name()).build();
-        TeamMember savedTeamMember = teamMemberRepository.save(teamMember);
+        TeamMember savedTeamMember = teamMemberRepository.save(teamMember.toBuilder().name(user.name()).build());
         log.info("Team member {} has been saved", savedTeamMember.id());
         return savedTeamMember;
     }

@@ -34,4 +34,10 @@ public class TeamMemberRepository {
         Criteria criteria = Criteria.where(TeamMember.Fields.teamId).is(teamId);
         return mongoTemplate.find(query(criteria), TeamMember.class);
     }
+
+    public TeamMember getByUserAndTeam(String userId, String teamId) {
+        Criteria criteria = Criteria.where(TeamMember.Fields.userId).is(userId)
+                .and(TeamMember.Fields.teamId).is(teamId);
+        return mongoTemplate.findOne(query(criteria), TeamMember.class);
+    }
 }
