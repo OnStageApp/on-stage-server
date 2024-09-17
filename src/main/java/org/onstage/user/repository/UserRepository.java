@@ -76,6 +76,6 @@ public class UserRepository {
 //        return users.stream()
 //                .map(User::id)
 //                .collect(Collectors.toList());
-        return null;
+        return List.of();
     }
 }
