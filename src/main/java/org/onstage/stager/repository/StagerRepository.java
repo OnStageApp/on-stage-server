@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
+import static org.onstage.enums.ParticipationStatus.CONFIRMED;
 import static org.onstage.enums.ParticipationStatus.PENDING;
 
 @Component
@@ -57,5 +58,14 @@ public class StagerRepository {
         Criteria criteria = Criteria.where(Stager.Fields.eventId).is(eventId);
         Query query = new Query(criteria);
         mongoTemplate.remove(query, Stager.class);
+    }
+
+    public Stager createEventLeader(String eventId, TeamMember teamMember) {
+        return stagerRepo.save(Stager.builder()
+                .eventId(eventId)
+                .teamMemberId(teamMember.id())
+                .name(teamMember.name())
+                .profilePicture(null)
+                .participationStatus(CONFIRMED).build());
     }
 }
