@@ -9,4 +9,5 @@ import lombok.*;
 public class UserSecurityContext {
     private String userId;
     private String currentTeamId;
+    private String currentTeamMemberId;
 }

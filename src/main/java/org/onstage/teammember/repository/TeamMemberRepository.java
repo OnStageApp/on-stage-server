@@ -1,5 +1,6 @@
 package org.onstage.teammember.repository;
 
+import com.google.common.io.Files;
 import lombok.RequiredArgsConstructor;
 import org.onstage.teammember.model.TeamMember;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -8,6 +9,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Query.query;
 
@@ -17,9 +19,8 @@ public class TeamMemberRepository {
     private final TeamMemberRepo teamMemberRepo;
     private final MongoTemplate mongoTemplate;
 
-    public TeamMember getById(String id) {
-        Criteria criteria = Criteria.where("id").is(id);
-        return mongoTemplate.findOne(query(criteria), TeamMember.class);
+    public Optional<TeamMember> findById(String id) {
+        return teamMemberRepo.findById(id);
     }
 
     public TeamMember save(TeamMember teamMember) {

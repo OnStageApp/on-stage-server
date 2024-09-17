@@ -39,9 +39,9 @@ public class EventService {
         return eventRepository.findById(id).orElseThrow(BadRequestException::eventNotFound);
     }
 
-    public Event save(Event event, List<String> userIds, List<CreateRehearsalForEventRequest> rehearsals, String teamId) {
+    public Event save(Event event, List<String> teamMembersIds, List<CreateRehearsalForEventRequest> rehearsals, String teamId) {
         Event savedEvent = eventRepository.save(event.toBuilder().teamId(teamId).build());
-        stagerService.createStagersForEvent(savedEvent.id(), userIds);
+        stagerService.createStagersForEvent(savedEvent.id(), teamMembersIds);
         rehearsalService.createRehearsalsForEvent(savedEvent.id(), rehearsals);
         log.info("Event {} has been saved", savedEvent.id());
         return savedEvent;
@@ -72,8 +72,8 @@ public class EventService {
                 .build();
     }
 
-    public PaginatedEventResponse getAllByFilter(String userId, String teamId, EventSearchType eventSearchType, String searchValue, int offset, int limit) {
-        PaginatedEventResponse paginatedEvents = eventRepository.getPaginatedEvents(eventSearchType, searchValue, offset, limit, userId, teamId);
+    public PaginatedEventResponse getAllByFilter(String teamMemberId, String teamId, EventSearchType eventSearchType, String searchValue, int offset, int limit) {
+        PaginatedEventResponse paginatedEvents = eventRepository.getPaginatedEvents(eventSearchType, searchValue, offset, limit, teamMemberId, teamId);
         List<EventOverview> events = paginatedEvents.events().stream().map(event ->
                 event.toBuilder().stagersPhotos(userService.getRandomUserIdsWithPhotos(event.id(), 4)).build()).toList();
         return paginatedEvents.toBuilder().events(events).build();
@@ -93,7 +93,7 @@ public class EventService {
         duplicatedEvent = eventRepository.save(duplicatedEvent);
 
         List<Stager> stagers = stagerService.getAllByEventId(event.id());
-        stagerService.createStagersForEvent(duplicatedEvent.id(), stagers.stream().map(Stager::userId).toList());
+        stagerService.createStagersForEvent(duplicatedEvent.id(), stagers.stream().map(Stager::teamMemberId).toList());
 
         List<Reminder> reminders = reminderService.getAllByEventId(event.id());
         reminderService.createReminders(reminders.stream().map(Reminder::daysBefore).toList(), duplicatedEvent.id());

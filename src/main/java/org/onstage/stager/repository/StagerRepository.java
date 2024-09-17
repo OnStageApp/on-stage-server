@@ -2,13 +2,14 @@ package org.onstage.stager.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.stager.model.Stager;
-import org.onstage.user.model.User;
+import org.onstage.teammember.model.TeamMember;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.onstage.enums.ParticipationStatus.PENDING;
 
@@ -18,10 +19,8 @@ public class StagerRepository {
     private final StagerRepo stagerRepo;
     private final MongoTemplate mongoTemplate;
 
-    public Stager getById(String id) {
-        Criteria criteria = Criteria.where(Stager.Fields.id).is(id);
-        Query query = new Query(criteria);
-        return mongoTemplate.findOne(query, Stager.class);
+    public Optional<Stager> findById(String id) {
+        return stagerRepo.findById(id);
     }
 
     public List<Stager> getAllByEventId(String eventId) {
@@ -30,11 +29,11 @@ public class StagerRepository {
         return mongoTemplate.find(query, Stager.class);
     }
 
-    public Stager createStager(String eventId, User user) {
+    public Stager createStager(String eventId, TeamMember teamMember) {
         return stagerRepo.save(Stager.builder()
                 .eventId(eventId)
-                .userId(user.id())
-                .name(user.name())
+                .teamMemberId(teamMember.id())
+                .name(teamMember.name())
                 .profilePicture(null)
                 .participationStatus(PENDING).build());
     }
@@ -47,9 +46,9 @@ public class StagerRepository {
         return stagerRepo.save(rehearsal);
     }
 
-    public Stager getByEventAndUser(String eventId, String userId) {
+    public Stager getByEventAndTeamMember(String eventId, String teamMemberId) {
         Criteria criteria = Criteria.where(Stager.Fields.eventId).is(eventId)
-                .and(Stager.Fields.userId).is(userId);
+                .and(Stager.Fields.teamMemberId).is(teamMemberId);
         Query query = new Query(criteria);
         return mongoTemplate.findOne(query, Stager.class);
     }

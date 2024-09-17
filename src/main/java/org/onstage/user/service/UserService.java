@@ -3,6 +3,7 @@ package org.onstage.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.amazon.AmazonS3Service;
+import org.onstage.exceptions.BadRequestException;
 import org.onstage.user.client.UserDTO;
 import org.onstage.user.model.User;
 import org.onstage.user.repository.UserRepository;
@@ -24,7 +25,7 @@ public class UserService {
     }
 
     public User getById(String id) {
-        return userRepository.getById(id);
+        return userRepository.findById(id).orElseThrow(BadRequestException::userNotFound);
     }
 
     public User save(User user) {
@@ -83,10 +84,5 @@ public class UserService {
     public void setCurrentTeam(String teamId, String userId) {
         User user = getById(userId);
         save(user.toBuilder().currentTeamId(teamId).build());
-    }
-
-    public boolean checkIsCurrentTeamForUser(String userId, String teamId) {
-        User user = getById(userId);
-        return Objects.equals(user.currentTeamId(), teamId);
     }
 }

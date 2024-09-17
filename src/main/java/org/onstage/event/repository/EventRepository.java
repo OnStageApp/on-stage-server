@@ -26,11 +26,6 @@ public class EventRepository {
     private final EventRepo repo;
     private final MongoTemplate mongoTemplate;
 
-    public Event getById(String id) {
-        Criteria criteria = Criteria.where("id").is(id);
-        return mongoTemplate.findOne(query(criteria), Event.class);
-    }
-
     public Optional<Event> findById(String id) {
         return repo.findById(id);
     }
@@ -46,13 +41,13 @@ public class EventRepository {
         return mongoTemplate.findOne(query, EventDTO.class, "events");
     }
 
-    public PaginatedEventResponse getPaginatedEvents(EventSearchType eventSearchType, String searchValue, int offset, int limit, String userId, String teamId) {
-        Query stagerQuery = new Query(Criteria.where(Stager.Fields.userId).is(userId));
-        List<String> userEventIds = mongoTemplate.find(stagerQuery, Stager.class)
+    public PaginatedEventResponse getPaginatedEvents(EventSearchType eventSearchType, String searchValue, int offset, int limit, String teamMemberId, String teamId) {
+        Query stagerQuery = new Query(Criteria.where(Stager.Fields.teamMemberId).is(teamMemberId));
+        List<String> memberEventIds = mongoTemplate.find(stagerQuery, Stager.class)
                 .stream()
                 .map(Stager::eventId)
                 .toList();
-        Criteria eventCriteria = Criteria.where(Event.Fields.id).in(userEventIds)
+        Criteria eventCriteria = Criteria.where(Event.Fields.id).in(memberEventIds)
                 .and("teamId").is(teamId);
         if (searchValue != null && !searchValue.isEmpty()) {
             eventCriteria = eventCriteria.and("name").regex(searchValue, "i");

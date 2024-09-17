@@ -7,7 +7,7 @@ import org.onstage.enums.ParticipationStatus;
 public record StagerDTO(
         String id,
         String eventId,
-        String userId,
+        String teamMemberId,
         String name,
         String profilePicture,
         ParticipationStatus participationStatus

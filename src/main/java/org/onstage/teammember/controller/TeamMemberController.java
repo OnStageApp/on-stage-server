@@ -24,9 +24,6 @@ public class TeamMemberController {
     @GetMapping("/{id}")
     public ResponseEntity<TeamMemberDTO> getById(@PathVariable(name = "id") String id) {
         TeamMember teamMember = teamMemberService.getById(id);
-        if (teamMember == null) {
-            throw teamMemberNotFound();
-        }
         return ResponseEntity.ok(teamMemberMapper.toDto(teamMember));
     }
 
@@ -59,9 +56,6 @@ public class TeamMemberController {
     @PutMapping("/{id}")
     public ResponseEntity<TeamMemberDTO> update(@PathVariable final String id, @RequestBody TeamMemberDTO request) {
         TeamMember existingTeamMember = teamMemberService.getById(id);
-        if (existingTeamMember == null) {
-            throw teamMemberNotFound();
-        }
         return ResponseEntity.ok(teamMemberMapper.toDto(teamMemberService.update(existingTeamMember, teamMemberMapper.toEntity(request))));
     }
 

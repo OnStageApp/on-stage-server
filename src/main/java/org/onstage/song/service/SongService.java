@@ -30,14 +30,19 @@ public class SongService {
     private final FavoriteSongRepository favoriteSongRepository;
     private final SongConfigService songConfigService;
 
-    public SongDTO getDtoProjection(String id) {
+    public SongDTO getDtoProjection(String id, String teamId) {
         SongDTO songDTO = songRepository.findProjectionById(id);
-        SongConfig config = songConfigService.getBySongAndTeam(id, "66e097366efe12313c4fc82a");
-        if (config != null && config.isCustom()) {
-            songDTO = songDTO.toBuilder()
-                    .lyrics(config.lyrics() == null ? songDTO.lyrics() : config.lyrics())
-                    .key(config.key() == null ? songDTO.key() : config.key())
-                    .build();
+        if (songDTO == null) {
+            throw songNotFound();
+        }
+        if (teamId != null) {
+            SongConfig config = songConfigService.getBySongAndTeam(id, teamId);
+            if (config != null && config.isCustom()) {
+                songDTO = songDTO.toBuilder()
+                        .lyrics(config.lyrics() == null ? songDTO.lyrics() : config.lyrics())
+                        .key(config.key() == null ? songDTO.key() : config.key())
+                        .build();
+            }
         }
         return songDTO;
     }
@@ -48,7 +53,7 @@ public class SongService {
     }
 
     public Song getById(String id) {
-        return songRepository.getById(id);
+        return songRepository.findById(id).orElseThrow(BadRequestException::songNotFound);
     }
 
     public List<SongOverview> getAll(SongFilter songFilter) {
@@ -58,7 +63,7 @@ public class SongService {
     public SongDTO save(Song song) {
         Song savedSong = songRepository.save(song);
         log.info("Song {} has been saved", savedSong.id());
-        return getDtoProjection(savedSong.id());
+        return getDtoProjection(savedSong.id(), null);
     }
 
     public SongDTO update(Song existingSong, CreateOrUpdateSongRequest request) {
@@ -81,17 +86,14 @@ public class SongService {
     }
 
     public void addSavedSong(String songId, String userId) {
-        Song song = songRepository.getById(songId);
-        if (song == null) {
-            throw songNotFound();
-        }
-        FavoriteSong favoriteSong = favoriteSongRepository.findBySongIdAndUserId(songId, userId);
+        Song song = songRepository.findById(songId).orElseThrow(BadRequestException::songNotFound);
+        FavoriteSong favoriteSong = favoriteSongRepository.findBySongIdAndUserId(song.id(), userId);
         if (favoriteSong != null) {
-            log.info("Song {} is already saved by user {}", songId, userId);
+            log.info("Song {} is already saved by user {}", song.id(), userId);
             return;
         }
-        log.info("Adding song {} to favorites for user {}", songId, userId);
-        favoriteSongRepository.save(FavoriteSong.builder().songId(songId).userId(userId).build());
+        log.info("Adding song {} to favorites for user {}", song.id(), userId);
+        favoriteSongRepository.save(FavoriteSong.builder().songId(song.id()).userId(userId).build());
     }
 
     public List<SongOverview> getFavoriteSongs(String userId) {

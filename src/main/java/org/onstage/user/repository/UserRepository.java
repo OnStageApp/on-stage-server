@@ -2,6 +2,7 @@ package org.onstage.user.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.stager.model.Stager;
+import org.onstage.teammember.model.TeamMember;
 import org.onstage.user.model.User;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -52,24 +53,29 @@ public class UserRepository {
 
 
     public List<String> getRandomUserIdsWithPhotos(String eventId, Integer limit) {
-        Criteria stagerCriteria = Criteria.where(Stager.Fields.eventId).is(eventId);
-        Query stagerQuery = new Query(stagerCriteria);
-        List<Stager> stagers = mongoTemplate.find(stagerQuery, Stager.class);
-
-        List<String> userIds = stagers.stream()
-                .map(Stager::userId)
-                .collect(Collectors.toList());
-
-        Criteria userCriteria = Criteria.where(User.Fields.id).in(userIds)
-                .and(imageTimestamp).ne(null);
-        Query userQuery = new Query(userCriteria);
-        userQuery.fields().include(User.Fields.id);
-        userQuery.limit(limit);
-
-        List<User> users = mongoTemplate.find(userQuery, User.class);
-
-        return users.stream()
-                .map(User::id)
-                .collect(Collectors.toList());
+//        Criteria stagerCriteria = Criteria.where(Stager.Fields.eventId).is(eventId);
+//        Query stagerQuery = new Query(stagerCriteria);
+//        List<Stager> stagers = mongoTemplate.find(stagerQuery, Stager.class);
+//
+//        List<String> teamMembers = stagers.stream()
+//                .map(Stager::teamMemberId)
+//                .toList();
+//
+//        List<String> teamMembersIds = teamMembers.stream()
+//                .map(TeamMember::userId)
+//                .collect(Collectors.toList());
+//
+//        Criteria userCriteria = Criteria.where(User.Fields.id).in(teamMembersIds)
+//                .and(imageTimestamp).ne(null);
+//        Query userQuery = new Query(userCriteria);
+//        userQuery.fields().include(User.Fields.id);
+//        userQuery.limit(limit);
+//
+//        List<User> users = mongoTemplate.find(userQuery, User.class);
+//
+//        return users.stream()
+//                .map(User::id)
+//                .collect(Collectors.toList());
+        return null;
     }
 }

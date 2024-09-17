@@ -3,6 +3,7 @@ package org.onstage.team.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.enums.MemberRole;
+import org.onstage.exceptions.BadRequestException;
 import org.onstage.team.client.TeamDTO;
 import org.onstage.team.model.Team;
 import org.onstage.team.repository.TeamRepository;
@@ -22,7 +23,7 @@ public class TeamService {
     private final TeamMemberService teamMemberService;
 
     public Team getById(String id) {
-        return teamRepository.getById(id);
+        return teamRepository.findById(id).orElseThrow(BadRequestException::teamNotFound);
     }
 
     public Team save(Team team, String userId) {
@@ -36,9 +37,7 @@ public class TeamService {
     }
 
     public String delete(String id) {
-        if (teamRepository.getById(id) == null) {
-            throw teamNotFound();
-        }
+        teamRepository.findById(id).orElseThrow(BadRequestException::teamNotFound);
         log.info("Deleting team {}", id);
         return teamRepository.delete(id);
     }

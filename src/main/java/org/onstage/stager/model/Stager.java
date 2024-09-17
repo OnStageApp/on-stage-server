@@ -15,7 +15,7 @@ public record Stager(
         @MongoId
         String id,
         String eventId,
-        String userId,
+        String teamMemberId,
         String name,
         String profilePicture,
         ParticipationStatus participationStatus) {
