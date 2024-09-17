@@ -5,11 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.onstage.artist.client.ArtistDTO;
 import org.onstage.artist.model.Artist;
 import org.onstage.artist.repository.ArtistRepository;
+import org.onstage.exceptions.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import static org.onstage.exceptions.BadRequestException.artistNotFound;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +18,7 @@ public class ArtistService {
     private final ArtistRepository artistRepository;
 
     public Artist getById(String id) {
-        return artistRepository.getById(id);
+        return artistRepository.findById(id).orElseThrow(BadRequestException::artistNotFound);
     }
 
     public List<Artist> getAll() {

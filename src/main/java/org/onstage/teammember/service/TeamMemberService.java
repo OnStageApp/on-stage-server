@@ -12,7 +12,6 @@ import org.onstage.user.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,7 +23,7 @@ public class TeamMemberService {
     private final StagerService stagerService;
 
     public TeamMember getById(String id) {
-        return teamMemberRepository.getById(id);
+        return teamMemberRepository.findById(id).orElseThrow(BadRequestException::teamMemberNotFound);
     }
 
     public TeamMember getByUserAndTeam(String userId, String teamId) {
@@ -44,9 +43,7 @@ public class TeamMemberService {
     }
 
     public String delete(String id) {
-        if (teamMemberRepository.getById(id) == null) {
-            throw BadRequestException.teamMemberNotFound();
-        }
+        teamMemberRepository.findById(id).orElseThrow(BadRequestException::teamMemberNotFound);
         log.info("Deleting team member {}", id);
         return teamMemberRepository.delete(id);
     }
@@ -68,12 +65,8 @@ public class TeamMemberService {
         final List<Stager> stagers = stagerService.getAllByEventId(eventId);
         final List<TeamMember> teamMembers = teamMemberRepository.getAllByTeam(teamId, userId, includeCurrentUser);
 
-        Set<String> stagerUserIds = stagers.stream()
-                .map(Stager::userId)
-                .collect(Collectors.toSet());
-
         return teamMembers.stream()
-                .filter(member -> !stagerUserIds.contains(member.userId()))
+                .filter(member -> !stagers.stream().map(Stager::teamMemberId).toList().contains(member.userId()))
                 .collect(Collectors.toList());
     }
 }

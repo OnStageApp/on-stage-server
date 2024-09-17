@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.onstage.common.beans.UserSecurityContext;
+import org.onstage.teammember.repository.TeamMemberRepository;
 import org.onstage.user.model.User;
 import org.onstage.user.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +22,7 @@ import static org.onstage.auth.config.SecurityConfig.extractJwtFromRequest;
 @RequiredArgsConstructor
 public class ServiceBeans implements WebMvcConfigurer {
     private final UserRepository userRepository;
+    private final TeamMemberRepository teamMemberRepository;
 
     @Bean
     @RequestScope
@@ -43,6 +45,7 @@ public class ServiceBeans implements WebMvcConfigurer {
                         .orElseThrow(() -> new RuntimeException("User not found"));
                 userSecurityContext.setUserId(currentUser.id());
                 userSecurityContext.setCurrentTeamId(currentUser.currentTeamId());
+                userSecurityContext.setCurrentTeamMemberId(teamMemberRepository.getByUserAndTeam(currentUser.id(), currentUser.currentTeamId()).id());
                 return true;
             }
         };

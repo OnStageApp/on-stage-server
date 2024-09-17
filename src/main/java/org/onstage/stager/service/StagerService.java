@@ -2,53 +2,48 @@ package org.onstage.stager.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.onstage.event.model.Event;
-import org.onstage.event.service.EventService;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.stager.client.StagerDTO;
 import org.onstage.stager.model.Stager;
 import org.onstage.stager.repository.StagerRepository;
-import org.onstage.user.model.User;
-import org.onstage.user.service.UserService;
+import org.onstage.teammember.model.TeamMember;
+import org.onstage.teammember.repository.TeamMemberRepository;
+import org.onstage.teammember.service.TeamMemberService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import static org.onstage.exceptions.BadRequestException.eventNotFound;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class StagerService {
     private final StagerRepository stagerRepository;
-    private final UserService userService;
+    private final TeamMemberRepository teamMemberRepository;
 
     public Stager getById(String id) {
-        return stagerRepository.getById(id);
+        return stagerRepository.findById(id).orElseThrow(BadRequestException::stagerNotFound);
     }
 
-    public Stager getByEventAndUser(String eventId, String userId) {
-        return stagerRepository.getByEventAndUser(eventId, userId);
+    public Stager getByEventAndTeamMember(String eventId, String teamMemberId) {
+        return stagerRepository.getByEventAndTeamMember(eventId, teamMemberId);
     }
 
     public List<Stager> getAllByEventId(String eventId) {
         return stagerRepository.getAllByEventId(eventId);
     }
 
-    public List<Stager> createStagersForEvent(String eventId, List<String> userIds) {
-        return userIds.stream().map(userId -> create(eventId, userId)).collect(toList());
+    public List<Stager> createStagersForEvent(String eventId, List<String> teamMembersIds) {
+        return teamMembersIds.stream().map(teamMemberId -> create(eventId, teamMemberId)).collect(toList());
     }
 
-    public Stager create(String eventId, String userId) {
-        User user = userService.getById(userId);
-        if (user == null) {
-            throw BadRequestException.userNotFound();
-        }
-        checkStagerAlreadyExists(eventId, userId);
+    public Stager create(String eventId, String teamMemberId) {
+       TeamMember teamMember = teamMemberRepository.findById(teamMemberId).orElseThrow(BadRequestException::teamMemberNotFound);
+        checkStagerAlreadyExists(eventId, teamMemberId);
 
-        log.info("Creating stager for event {} and user {}", eventId, userId);
-        return stagerRepository.createStager(eventId, user);
+        log.info("Creating stager for event {} and team member {}", eventId, teamMemberId);
+        return stagerRepository.createStager(eventId, teamMember);
 
     }
 
@@ -58,8 +53,8 @@ public class StagerService {
         return stagerId;
     }
 
-    private void checkStagerAlreadyExists(String eventId, String userId) {
-        Stager stager = getByEventAndUser(eventId, userId);
+    private void checkStagerAlreadyExists(String eventId, String teamMemberId) {
+        Stager stager = getByEventAndTeamMember(eventId, teamMemberId);
         if (stager != null) {
             throw BadRequestException.stagerAlreadyCreated();
         }

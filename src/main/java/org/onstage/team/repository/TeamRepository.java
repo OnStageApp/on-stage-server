@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Query.query;
 
@@ -18,9 +19,8 @@ public class TeamRepository {
     private final TeamRepo teamRepo;
     private final MongoTemplate mongoTemplate;
 
-    public Team getById(String id) {
-        Criteria criteria = Criteria.where("id").is(id);
-        return mongoTemplate.findOne(query(criteria), Team.class);
+    public Optional<Team> findById(String id) {
+        return teamRepo.findById(id);
     }
 
     public Team save(Team team) {

@@ -2,6 +2,7 @@ package org.onstage.rehearsal.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.onstage.exceptions.BadRequestException;
 import org.onstage.rehearsal.client.CreateRehearsalForEventRequest;
 import org.onstage.rehearsal.client.RehearsalDTO;
 import org.onstage.rehearsal.model.Rehearsal;
@@ -17,7 +18,7 @@ public class RehearsalService {
     private final RehearsalRepository rehearsalRepository;
 
     public Rehearsal getById(String id) {
-       return rehearsalRepository.getById(id);
+       return rehearsalRepository.findById(id).orElseThrow(BadRequestException::rehearsalNotFound);
     }
 
     public List<Rehearsal> getAll(String eventId) {

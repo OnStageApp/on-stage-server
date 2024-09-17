@@ -68,9 +68,7 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<UserDTO> update(@PathVariable String id, @RequestBody UserDTO request) {
         User user = userService.getById(id);
-        if (user == null) {
-            throw userNotFound();
-        }
+
         return ResponseEntity.ok(userMapper.toDto(userService.update(user, request)));
     }
 

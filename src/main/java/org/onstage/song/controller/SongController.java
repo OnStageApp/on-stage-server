@@ -26,7 +26,8 @@ public class SongController {
 
     @GetMapping("/{id}")
     public ResponseEntity<SongDTO> getById(@PathVariable final String id) {
-        return ResponseEntity.ok(songService.getDtoProjection(id));
+        String teamId = userSecurityContext.getCurrentTeamId();
+        return ResponseEntity.ok(songService.getDtoProjection(id, teamId));
     }
 
     @GetMapping
@@ -42,9 +43,6 @@ public class SongController {
     @PutMapping("/{id}")
     public ResponseEntity<SongDTO> update(@PathVariable String id, @RequestBody CreateOrUpdateSongRequest request) {
         Song song = songService.getById(id);
-        if (song == null) {
-            throw songNotFound();
-        }
         return ResponseEntity.ok(songService.update(song, request));
     }
 

@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static org.onstage.exceptions.BadRequestException.eventNotFound;
-
 @RestController
 @RequestMapping("events")
 @RequiredArgsConstructor
@@ -43,9 +41,9 @@ public class EventController {
 
     @GetMapping
     public ResponseEntity<GetAllEventsResponse> getAll(@RequestBody GetAllEventsRequest filter) {
-        String userId = userSecurityContext.getUserId();
+        String teamMemberId = userSecurityContext.getCurrentTeamMemberId();
         String teamId = userSecurityContext.getCurrentTeamId();
-        PaginatedEventResponse paginatedResponse = eventService.getAllByFilter(userId, teamId,
+        PaginatedEventResponse paginatedResponse = eventService.getAllByFilter(teamMemberId, teamId,
                 filter.eventSearchType(), filter.searchValue(), filter.offset(), filter.limit());
 
         return ResponseEntity.ok(GetAllEventsResponse.builder()
@@ -57,9 +55,9 @@ public class EventController {
     @PostMapping
     public ResponseEntity<EventDTO> create(@RequestBody CreateEventRequest event) {
         String teamId = userSecurityContext.getCurrentTeamId();
-        String userId = userSecurityContext.getUserId();
-        event.userIds().add(userId);
-        return ResponseEntity.ok(eventMapper.toDto(eventService.save(eventMapper.fromCreateRequest(event), event.userIds(), event.rehearsals(), teamId)));
+        String teamMemberId = userSecurityContext.getCurrentTeamMemberId();
+        event.teamMembersIds().add(teamMemberId);
+        return ResponseEntity.ok(eventMapper.toDto(eventService.save(eventMapper.fromCreateRequest(event), event.teamMembersIds(), event.rehearsals(), teamId)));
     }
 
     @DeleteMapping("/{id}")

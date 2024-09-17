@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static org.onstage.exceptions.BadRequestException.artistNotFound;
-
 @RestController
 @RequestMapping("artists")
 @RequiredArgsConstructor
@@ -22,9 +20,6 @@ public class ArtistController {
     @GetMapping("/{id}")
     public ResponseEntity<ArtistDTO> getById(@PathVariable final String id) {
         Artist artist = artistService.getById(id);
-        if (artist == null) {
-            throw artistNotFound();
-        }
         return ResponseEntity.ok(artistMapper.toDto(artist));
     }
 
@@ -41,9 +36,6 @@ public class ArtistController {
     @PutMapping("/{id}")
     public ResponseEntity<ArtistDTO> update(@PathVariable String id, @RequestBody ArtistDTO request) {
         Artist artist = artistService.getById(id);
-        if (artist == null) {
-            throw artistNotFound();
-        }
         return ResponseEntity.ok(artistMapper.toDto(artistService.update(artist, request)));
     }
 }

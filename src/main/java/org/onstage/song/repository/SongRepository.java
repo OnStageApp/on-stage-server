@@ -25,9 +25,8 @@ public class SongRepository {
     private final SongRepo songRepo;
     private final MongoTemplate mongoTemplate;
 
-    public Song getById(String id) {
-        Criteria criteria = Criteria.where("_id").is(id);
-        return mongoTemplate.findOne(query(criteria), Song.class);
+    public Optional<Song> findById(String id) {
+        return songRepo.findById(id);
     }
 
     public SongDTO findProjectionById(String id) {
