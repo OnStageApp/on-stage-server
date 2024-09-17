@@ -3,8 +3,6 @@ package org.onstage.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.amazon.AmazonS3Service;
-import org.onstage.stager.model.Stager;
-import org.onstage.stager.repository.StagerRepository;
 import org.onstage.user.client.UserDTO;
 import org.onstage.user.model.User;
 import org.onstage.user.repository.UserRepository;
@@ -19,21 +17,10 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final StagerRepository stagerRepository;
     private final AmazonS3Service amazonS3Service;
 
     public List<User> getAll() {
         return userRepository.findAll();
-    }
-
-    public List<User> getAllUninvitedUsers(String eventId) {
-        final List<Stager> stagers = stagerRepository.getAllByEventId(eventId);
-        final List<User> users = userRepository.findAll();
-
-        return users.stream()
-                .filter(user -> stagers.stream()
-                        .noneMatch(stager -> stager.userId().equals(user.id())))
-                .toList();
     }
 
     public User getById(String id) {

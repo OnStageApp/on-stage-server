@@ -26,10 +26,6 @@ public class UserRepository {
         return userRepo.findAll();
     }
 
-    public List<User> getAllUninvitedUsers(String eventId) {
-        return userRepo.findAll();
-    }
-
     public Optional<User> findById(String id) {
         return userRepo.findById(id);
     }
