@@ -46,8 +46,8 @@ public class TeamMemberService {
         return teamMemberRepository.delete(id);
     }
 
-    public List<TeamMember> getAllByTeam(String teamId) {
-        return teamMemberRepository.getAllByTeam(teamId);
+    public List<TeamMember> getAllByTeam(String teamId, String userId, boolean includeCurrentUser) {
+        return teamMemberRepository.getAllByTeam(teamId, userId, includeCurrentUser);
     }
 
     public TeamMember update(TeamMember existingTeamMember, TeamMember teamMember) {

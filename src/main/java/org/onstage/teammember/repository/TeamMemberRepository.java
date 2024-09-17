@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.onstage.teammember.model.TeamMember;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -30,9 +31,14 @@ public class TeamMemberRepository {
         return id;
     }
 
-    public List<TeamMember> getAllByTeam(String teamId) {
+    public List<TeamMember> getAllByTeam(String teamId, String currentUserId, boolean includeCurrentUser) {
         Criteria criteria = Criteria.where(TeamMember.Fields.teamId).is(teamId);
-        return mongoTemplate.find(query(criteria), TeamMember.class);
+
+        if (!includeCurrentUser) {
+            criteria = criteria.and(TeamMember.Fields.userId).ne(currentUserId);
+        }
+
+        return mongoTemplate.find(Query.query(criteria), TeamMember.class);
     }
 
     public TeamMember getByUserAndTeam(String userId, String teamId) {
