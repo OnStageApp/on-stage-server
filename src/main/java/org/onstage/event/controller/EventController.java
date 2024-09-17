@@ -55,9 +55,8 @@ public class EventController {
     @PostMapping
     public ResponseEntity<EventDTO> create(@RequestBody CreateEventRequest event) {
         String teamId = userSecurityContext.getCurrentTeamId();
-        String teamMemberId = userSecurityContext.getCurrentTeamMemberId();
-        event.teamMemberIds().add(teamMemberId);
-        return ResponseEntity.ok(eventMapper.toDto(eventService.save(eventMapper.fromCreateRequest(event), event.teamMemberIds(), event.rehearsals(), teamId)));
+        String eventLeaderId = userSecurityContext.getCurrentTeamMemberId();
+        return ResponseEntity.ok(eventMapper.toDto(eventService.save(eventMapper.fromCreateRequest(event), event.teamMemberIds(), event.rehearsals(), teamId, eventLeaderId)));
     }
 
     @DeleteMapping("/{id}")
@@ -74,6 +73,7 @@ public class EventController {
     @PostMapping("/duplicate/{id}")
     public ResponseEntity<EventDTO> duplicate(@PathVariable final String id, @RequestBody DuplicateEventRequest request) {
         Event event = eventService.getById(id);
-        return ResponseEntity.ok(eventMapper.toDto(eventService.duplicate(event, request.dateTime(), request.name())));
+        String eventLeaderId = userSecurityContext.getCurrentTeamMemberId();
+        return ResponseEntity.ok(eventMapper.toDto(eventService.duplicate(event, request.dateTime(), request.name(), eventLeaderId)));
     }
 }

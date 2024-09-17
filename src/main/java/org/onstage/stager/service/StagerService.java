@@ -8,7 +8,6 @@ import org.onstage.stager.model.Stager;
 import org.onstage.stager.repository.StagerRepository;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
-import org.onstage.teammember.service.TeamMemberService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,12 +33,15 @@ public class StagerService {
         return stagerRepository.getAllByEventId(eventId);
     }
 
-    public List<Stager> createStagersForEvent(String eventId, List<String> teamMembersIds) {
+    public List<Stager> createStagersForEvent(String eventId, List<String> teamMembersIds, String eventLeaderId) {
+        if (eventLeaderId != null) {
+            createEventLeader(eventId, eventLeaderId);
+        }
         return teamMembersIds.stream().map(teamMemberId -> create(eventId, teamMemberId)).collect(toList());
     }
 
     public Stager create(String eventId, String teamMemberId) {
-       TeamMember teamMember = teamMemberRepository.findById(teamMemberId).orElseThrow(BadRequestException::teamMemberNotFound);
+        TeamMember teamMember = teamMemberRepository.findById(teamMemberId).orElseThrow(BadRequestException::teamMemberNotFound);
         checkStagerAlreadyExists(eventId, teamMemberId);
 
         log.info("Creating stager for event {} and team member {}", eventId, teamMemberId);
@@ -72,5 +74,13 @@ public class StagerService {
     public void deleteAllByEventId(String eventId) {
         log.info("Deleting all stagers for event {}", eventId);
         stagerRepository.deleteAllByEventId(eventId);
+    }
+
+    public Stager createEventLeader(String eventId, String teamMemberId) {
+        TeamMember teamMember = teamMemberRepository.findById(teamMemberId).orElseThrow(BadRequestException::teamMemberNotFound);
+        checkStagerAlreadyExists(eventId, teamMemberId);
+
+        log.info("Creating stager for event {} and team member {}", eventId, teamMemberId);
+        return stagerRepository.createEventLeader(eventId, teamMember);
     }
 }

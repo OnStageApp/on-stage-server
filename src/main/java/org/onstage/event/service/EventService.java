@@ -23,7 +23,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.onstage.enums.EventStatus.DRAFT;
-import static org.onstage.exceptions.BadRequestException.eventNotFound;
 
 @Service
 @RequiredArgsConstructor
@@ -39,9 +38,9 @@ public class EventService {
         return eventRepository.findById(id).orElseThrow(BadRequestException::eventNotFound);
     }
 
-    public Event save(Event event, List<String> teamMembersIds, List<CreateRehearsalForEventRequest> rehearsals, String teamId) {
+    public Event save(Event event, List<String> teamMembersIds, List<CreateRehearsalForEventRequest> rehearsals, String teamId, String eventLeaderId) {
         Event savedEvent = eventRepository.save(event.toBuilder().teamId(teamId).build());
-        stagerService.createStagersForEvent(savedEvent.id(), teamMembersIds);
+        stagerService.createStagersForEvent(savedEvent.id(), teamMembersIds, eventLeaderId);
         rehearsalService.createRehearsalsForEvent(savedEvent.id(), rehearsals);
         log.info("Event {} has been saved", savedEvent.id());
         return savedEvent;
@@ -83,7 +82,7 @@ public class EventService {
         return eventRepository.getUpcomingPublishedEvent();
     }
 
-    public Event duplicate(Event event, LocalDateTime dateTime, String name) {
+    public Event duplicate(Event event, LocalDateTime dateTime, String name, String eventLeaderId) {
         Event duplicatedEvent = Event.builder()
                 .name(name)
                 .location(event.location())
@@ -93,7 +92,7 @@ public class EventService {
         duplicatedEvent = eventRepository.save(duplicatedEvent);
 
         List<Stager> stagers = stagerService.getAllByEventId(event.id());
-        stagerService.createStagersForEvent(duplicatedEvent.id(), stagers.stream().map(Stager::teamMemberId).toList());
+        stagerService.createStagersForEvent(duplicatedEvent.id(), stagers.stream().map(Stager::teamMemberId).toList(), eventLeaderId);
 
         List<Reminder> reminders = reminderService.getAllByEventId(event.id());
         reminderService.createReminders(reminders.stream().map(Reminder::daysBefore).toList(), duplicatedEvent.id());
