@@ -13,7 +13,7 @@ public record CreateEventRequest(
         LocalDateTime dateTime,
         String location,
         EventStatus eventStatus,
-        List<String> teamMembersIds,
+        List<String> teamMemberIds,
         List<CreateRehearsalForEventRequest> rehearsals
 ) {
 }

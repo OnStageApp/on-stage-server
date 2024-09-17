@@ -61,11 +61,11 @@ public class UserRepository {
 //                .map(Stager::teamMemberId)
 //                .toList();
 //
-//        List<String> teamMembersIds = teamMembers.stream()
+//        List<String> teamMemberIds = teamMembers.stream()
 //                .map(TeamMember::userId)
 //                .collect(Collectors.toList());
 //
-//        Criteria userCriteria = Criteria.where(User.Fields.id).in(teamMembersIds)
+//        Criteria userCriteria = Criteria.where(User.Fields.id).in(teamMemberIds)
 //                .and(imageTimestamp).ne(null);
 //        Query userQuery = new Query(userCriteria);
 //        userQuery.fields().include(User.Fields.id);
