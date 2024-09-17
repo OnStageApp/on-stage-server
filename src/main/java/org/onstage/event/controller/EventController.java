@@ -60,6 +60,8 @@ public class EventController {
     @PostMapping
     public ResponseEntity<EventDTO> create(@RequestBody CreateEventRequest event) {
         String teamId = userSecurityContext.getCurrentTeamId();
+        String userId = userSecurityContext.getUserId();
+        event.userIds().add(userId);
         return ResponseEntity.ok(eventMapper.toDto(eventService.save(eventMapper.fromCreateRequest(event), event.userIds(), event.rehearsals(), teamId)));
     }
 

@@ -31,10 +31,19 @@ public class TeamMemberController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<TeamMemberDTO>> getByTeam() {
+    public ResponseEntity<List<TeamMemberDTO>> getByTeam(@RequestParam(name = "includeCurrentUser", defaultValue = "true") boolean includeCurrentUser) {
         String teamId = userSecurityContext.getCurrentTeamId();
-        return ResponseEntity.ok(teamMemberMapper.toDtoList(teamMemberService.getAllByTeam(teamId)));
+        String userId = userSecurityContext.getUserId();
+        return ResponseEntity.ok(teamMemberMapper.toDtoList(teamMemberService.getAllByTeam(teamId, userId, includeCurrentUser)));
     }
+
+    @GetMapping("/current")
+    public ResponseEntity<TeamMemberDTO> getCurrentTeamMember() {
+        String userId = userSecurityContext.getUserId();
+        String teamId = userSecurityContext.getCurrentTeamId();
+        return ResponseEntity.ok(teamMemberMapper.toDto(teamMemberService.getByUserAndTeam(userId, teamId)));
+    }
+
 
     @PostMapping
     public ResponseEntity<TeamMemberDTO> create(@RequestBody TeamMemberDTO request) {
