@@ -37,16 +37,6 @@ public class UserController {
                 .toList();
     }
 
-    @GetMapping("/uninvited")
-    public List<UserDTO> getAllUninvitedUsers(@RequestParam final String eventId) {
-        List<UserDTO> users = userMapper.toDtoList(userService.getAllUninvitedUsers(eventId));
-        return users.stream().map(user -> user
-                        .toBuilder()
-                        .image(user.imageTimestamp() != null ? userService.getUserPhoto(user.id()) : null)
-                        .build())
-                .toList();
-    }
-
     @GetMapping("/{id}")
     public UserDTO getById(@PathVariable final String id) {
         User user = userService.getById(id);

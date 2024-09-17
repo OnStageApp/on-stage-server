@@ -9,6 +9,7 @@ import org.onstage.event.client.PaginatedEventResponse;
 import org.onstage.event.client.UpdateEventRequest;
 import org.onstage.event.model.Event;
 import org.onstage.event.repository.EventRepository;
+import org.onstage.exceptions.BadRequestException;
 import org.onstage.rehearsal.client.CreateRehearsalForEventRequest;
 import org.onstage.rehearsal.service.RehearsalService;
 import org.onstage.reminder.model.Reminder;
@@ -35,7 +36,7 @@ public class EventService {
     private final UserService userService;
 
     public Event getById(String id) {
-        return eventRepository.getById(id);
+        return eventRepository.findById(id).orElseThrow(BadRequestException::eventNotFound);
     }
 
     public Event save(Event event, List<String> userIds, List<CreateRehearsalForEventRequest> rehearsals, String teamId) {
@@ -48,14 +49,11 @@ public class EventService {
 
     public String delete(String id) {
         Event event = getById(id);
-        if (event == null) {
-            throw eventNotFound();
-        }
-        log.info("Deleting event {}", id);
-        stagerService.deleteAllByEventId(id);
-        rehearsalService.deleteAllByEventId(id);
-        reminderService.deleteAllByEventId(id);
-        return eventRepository.delete(id);
+        log.info("Deleting event {}", event.id());
+        stagerService.deleteAllByEventId(event.id());
+        rehearsalService.deleteAllByEventId(event.id());
+        reminderService.deleteAllByEventId(event.id());
+        return eventRepository.delete(event.id());
     }
 
     public Event update(Event existingEvent, UpdateEventRequest request) {

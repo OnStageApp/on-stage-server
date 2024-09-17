@@ -26,19 +26,13 @@ public class StagerController {
 
     @GetMapping
     public ResponseEntity<List<StagerDTO>> getAll(@RequestParam(name = "eventId") String eventId) {
-        Event event = eventService.getById(eventId);
-        if (event == null) {
-            throw eventNotFound();
-        }
+        eventService.getById(eventId);
         return ResponseEntity.ok(stagerMapper.toDtoList(stagerService.getAllByEventId(eventId)));
     }
 
     @PostMapping
     public ResponseEntity<List<StagerDTO>> create(@RequestBody CreateStagerRequest createStagerRequest) {
-        Event event = eventService.getById(createStagerRequest.eventId());
-        if (event == null) {
-            throw eventNotFound();
-        }
+        eventService.getById(createStagerRequest.eventId());
         return ResponseEntity.ok(stagerMapper.toDtoList(stagerService.createStagersForEvent(createStagerRequest.eventId(), createStagerRequest.userIds())));
     }
 

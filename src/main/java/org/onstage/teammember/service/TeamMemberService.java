@@ -3,6 +3,8 @@ package org.onstage.teammember.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.exceptions.BadRequestException;
+import org.onstage.stager.model.Stager;
+import org.onstage.stager.service.StagerService;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
 import org.onstage.user.model.User;
@@ -10,6 +12,8 @@ import org.onstage.user.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -17,6 +21,7 @@ import java.util.List;
 public class TeamMemberService {
     private final TeamMemberRepository teamMemberRepository;
     private final UserService userService;
+    private final StagerService stagerService;
 
     public TeamMember getById(String id) {
         return teamMemberRepository.getById(id);
@@ -57,5 +62,18 @@ public class TeamMemberService {
                         .role(teamMember.role() != null ? teamMember.role() : existingTeamMember.role())
                         .build()
         );
+    }
+
+    public List<TeamMember> getAllUninvitedMembers(String eventId, String userId, String teamId, boolean includeCurrentUser) {
+        final List<Stager> stagers = stagerService.getAllByEventId(eventId);
+        final List<TeamMember> teamMembers = teamMemberRepository.getAllByTeam(teamId, userId, includeCurrentUser);
+
+        Set<String> stagerUserIds = stagers.stream()
+                .map(Stager::userId)
+                .collect(Collectors.toSet());
+
+        return teamMembers.stream()
+                .filter(member -> !stagerUserIds.contains(member.userId()))
+                .collect(Collectors.toList());
     }
 }

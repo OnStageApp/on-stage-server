@@ -31,7 +31,7 @@ public class TeamMemberController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<TeamMemberDTO>> getByTeam(@RequestParam(name = "includeCurrentUser", defaultValue = "true") boolean includeCurrentUser) {
+    public ResponseEntity<List<TeamMemberDTO>> getByTeam(@RequestParam(defaultValue = "true") boolean includeCurrentUser) {
         String teamId = userSecurityContext.getCurrentTeamId();
         String userId = userSecurityContext.getUserId();
         return ResponseEntity.ok(teamMemberMapper.toDtoList(teamMemberService.getAllByTeam(teamId, userId, includeCurrentUser)));
@@ -59,9 +59,16 @@ public class TeamMemberController {
     @PutMapping("/{id}")
     public ResponseEntity<TeamMemberDTO> update(@PathVariable final String id, @RequestBody TeamMemberDTO request) {
         TeamMember existingTeamMember = teamMemberService.getById(id);
-        if(existingTeamMember == null) {
+        if (existingTeamMember == null) {
             throw teamMemberNotFound();
         }
         return ResponseEntity.ok(teamMemberMapper.toDto(teamMemberService.update(existingTeamMember, teamMemberMapper.toEntity(request))));
+    }
+
+    @GetMapping("/uninvited")
+    public List<TeamMemberDTO> getAllUninvitedMembers(@RequestParam final String eventId, @RequestParam(defaultValue = "true") boolean includeCurrentUser) {
+        String userId = userSecurityContext.getUserId();
+        String teamId = userSecurityContext.getCurrentTeamId();
+        return teamMemberMapper.toDtoList(teamMemberService.getAllUninvitedMembers(eventId, userId, teamId, includeCurrentUser));
     }
 }

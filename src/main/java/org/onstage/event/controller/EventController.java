@@ -26,9 +26,6 @@ public class EventController {
     @GetMapping("/{id}")
     public ResponseEntity<EventDTO> getById(@PathVariable final String id) {
         Event event = eventService.getById(id);
-        if (event == null) {
-            throw eventNotFound();
-        }
         //check event belongs to team
         List<byte[]> userPhotos = userService.getRandomUserIdsWithPhotos(id, 4);
         return ResponseEntity.ok(eventMapper.toDto(event).toBuilder().stagersPhotos(userPhotos).build());
@@ -73,18 +70,12 @@ public class EventController {
     @PutMapping("/{id}")
     public ResponseEntity<EventDTO> update(@PathVariable String id, @RequestBody UpdateEventRequest request) {
         Event event = eventService.getById(id);
-        if (event == null) {
-            throw eventNotFound();
-        }
         return ResponseEntity.ok(eventMapper.toDto(eventService.update(event, request)));
     }
 
     @PostMapping("/duplicate/{id}")
     public ResponseEntity<EventDTO> duplicate(@PathVariable final String id, @RequestBody DuplicateEventRequest request) {
         Event event = eventService.getById(id);
-        if (event == null) {
-            throw eventNotFound();
-        }
         return ResponseEntity.ok(eventMapper.toDto(eventService.duplicate(event, request.dateTime(), request.name())));
     }
 }

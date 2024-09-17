@@ -28,10 +28,6 @@ public class ReminderController {
 
     @GetMapping
     public ResponseEntity<List<ReminderDTO>> getAll(@RequestParam(name = "eventId") String eventId) {
-        Event event = eventService.getById(eventId);
-        if (event == null) {
-            throw eventNotFound();
-        }
         return ResponseEntity.ok(reminderMapper.toDtoList(reminderService.getAllByEventId(eventId)));
     }
 
