@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.onstage.auth.model.LoginRequest;
 import org.onstage.common.config.JwtTokenProvider;
 import org.onstage.exceptions.BadRequestException;
+import org.onstage.team.model.Team;
+import org.onstage.team.service.TeamService;
 import org.onstage.user.model.User;
 import org.onstage.user.repository.UserRepository;
 import org.springframework.stereotype.Component;
@@ -15,7 +17,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
+    private final TeamService teamService;
     private final JwtTokenProvider jwtTokenProvider;
+
+    private final static String SOLO_TEAM_NAME = "Solo Team";
 
     public String login(LoginRequest request) throws FirebaseAuthException {
         FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(request.firebaseToken());
@@ -33,10 +38,13 @@ public class AuthService {
     }
 
     private User createNewUser(String uid, FirebaseToken decodedToken) {
-        return userRepository.save(User.builder()
+        User user = userRepository.save(User.builder()
                 .id(uid)
                 .name(decodedToken.getName())
                 .email(decodedToken.getEmail())
                 .build());
+        Team team = teamService.save(Team.builder().name(SOLO_TEAM_NAME).build(), user.id());
+        userRepository.save(user.toBuilder().currentTeamId(team.id()).build());
+        return user;
     }
 }
