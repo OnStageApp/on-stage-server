@@ -5,6 +5,7 @@ import lombok.Builder;
 @Builder(toBuilder = true)
 public record TeamDTO(
         String id,
-        String name
+        String name,
+        Integer membersCount
 ) {
 }

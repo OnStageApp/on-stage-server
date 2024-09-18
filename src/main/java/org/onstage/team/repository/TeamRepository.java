@@ -6,6 +6,7 @@ import org.onstage.teammember.model.TeamMember;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -41,5 +42,11 @@ public class TeamRepository {
 
         Query teamQuery = new Query(Criteria.where("_id").in(userTeamIds));
         return mongoTemplate.find(teamQuery, Team.class);
+    }
+
+    public void increaseMembersCount(String teamId) {
+        Query query = new Query(Criteria.where("_id").is(teamId));
+        Update update = new Update().inc(Team.Fields.membersCount, 1);
+        mongoTemplate.updateFirst(query, update, Team.class);
     }
 }

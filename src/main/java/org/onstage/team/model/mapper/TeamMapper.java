@@ -13,6 +13,7 @@ public class TeamMapper {
         return TeamDTO.builder()
                 .id(entity.id())
                 .name(entity.name())
+                .membersCount(entity.membersCount())
                 .build();
     }
 
@@ -20,6 +21,7 @@ public class TeamMapper {
         return Team.builder()
                 .id(request.id())
                 .name(request.name())
+                .membersCount(request.membersCount())
                 .build();
     }
 
