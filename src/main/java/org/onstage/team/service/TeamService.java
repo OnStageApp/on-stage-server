@@ -13,8 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static org.onstage.exceptions.BadRequestException.teamNotFound;
-
 @Service
 @Slf4j
 @RequiredArgsConstructor

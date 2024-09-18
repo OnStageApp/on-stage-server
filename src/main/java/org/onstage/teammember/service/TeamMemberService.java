@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.stager.model.Stager;
 import org.onstage.stager.service.StagerService;
+import org.onstage.team.repository.TeamRepository;
+import org.onstage.team.service.TeamService;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
 import org.onstage.user.model.User;
@@ -21,6 +23,7 @@ public class TeamMemberService {
     private final TeamMemberRepository teamMemberRepository;
     private final UserService userService;
     private final StagerService stagerService;
+    private final TeamRepository teamRepository;
 
     public TeamMember getById(String id) {
         return teamMemberRepository.findById(id).orElseThrow(BadRequestException::teamMemberNotFound);
@@ -38,6 +41,7 @@ public class TeamMemberService {
         }
         User user = userService.getById(teamMember.userId());
         TeamMember savedTeamMember = teamMemberRepository.save(teamMember.toBuilder().name(user.name()).build());
+        teamRepository.increaseMembersCount(teamMember.teamId());
         log.info("Team member {} has been saved", savedTeamMember.id());
         return savedTeamMember;
     }

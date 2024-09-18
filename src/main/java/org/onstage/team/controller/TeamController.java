@@ -11,8 +11,6 @@ import org.onstage.user.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static org.onstage.exceptions.BadRequestException.teamNotFound;
-
 @RestController
 @RequestMapping("teams")
 @RequiredArgsConstructor
