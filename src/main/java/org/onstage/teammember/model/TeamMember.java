@@ -6,7 +6,7 @@ import org.onstage.enums.MemberRole;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
-@Document(collection = "team-members")
+@Document(collection = "teamMembers")
 @Builder(toBuilder = true)
 @FieldNameConstants
 public record TeamMember(

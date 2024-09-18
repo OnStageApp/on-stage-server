@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
-@Document(collection = "song-version")
+@Document(collection = "songConfig")
 @CompoundIndex(name = "songId_teamId_unique", def = "{'songId': 1, 'teamId': 1}", unique = true)
 @Builder(toBuilder = true)
 public record SongConfig(

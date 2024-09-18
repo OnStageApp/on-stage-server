@@ -5,7 +5,7 @@ import org.onstage.enums.EventItemType;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
-@Document("event-items")
+@Document("eventItems")
 @Builder(toBuilder = true)
 public record EventItem(
         @MongoId
