@@ -43,6 +43,11 @@ public class UserController {
         return userMapper.toDto(user).toBuilder().image(user.imageTimestamp() != null ? userService.getUserPhoto(user.id()) : null).build();
     }
 
+    @GetMapping("/current")
+    public UserDTO getCurrentUser() {
+        return userMapper.toDto(userService.getById(userSecurityContext.getUserId()));
+    }
+
     @PostMapping
     public UserDTO create(@RequestBody UserDTO user) {
         return userMapper.toDto(userService.save(userMapper.toEntity(user)));
