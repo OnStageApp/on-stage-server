@@ -72,6 +72,7 @@ public class EventService {
                 .dateTime((existingEvent.eventStatus().equals(DRAFT) && request.dateTime() != null) ? request.dateTime() : existingEvent.dateTime())
                 .location(request.location() == null ? existingEvent.location() : request.location())
                 .eventStatus(request.eventStatus() == null ? existingEvent.eventStatus() : request.eventStatus())
+                .teamId(existingEvent.teamId())
                 .build();
     }
 
