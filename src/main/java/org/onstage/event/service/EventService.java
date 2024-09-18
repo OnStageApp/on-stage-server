@@ -16,6 +16,8 @@ import org.onstage.reminder.model.Reminder;
 import org.onstage.reminder.service.ReminderService;
 import org.onstage.stager.model.Stager;
 import org.onstage.stager.service.StagerService;
+import org.onstage.teammember.model.TeamMember;
+import org.onstage.teammember.service.TeamMemberService;
 import org.onstage.user.service.UserService;
 import org.springframework.stereotype.Service;
 
@@ -33,13 +35,15 @@ public class EventService {
     private final RehearsalService rehearsalService;
     private final ReminderService reminderService;
     private final UserService userService;
+    private final TeamMemberService teamMemberService;
 
     public Event getById(String id) {
         return eventRepository.findById(id).orElseThrow(BadRequestException::eventNotFound);
     }
 
     public Event save(Event event, List<String> teamMembersIds, List<CreateRehearsalForEventRequest> rehearsals, String teamId, String eventLeaderId) {
-        Event savedEvent = eventRepository.save(event.toBuilder().teamId(teamId).build());
+        event = event.toBuilder().teamId(teamId).build();
+        Event savedEvent = eventRepository.save(event);
         stagerService.createStagersForEvent(savedEvent.id(), teamMembersIds, eventLeaderId);
         rehearsalService.createRehearsalsForEvent(savedEvent.id(), rehearsals);
         log.info("Event {} has been saved", savedEvent.id());
@@ -72,7 +76,8 @@ public class EventService {
     }
 
     public PaginatedEventResponse getAllByFilter(String teamMemberId, String teamId, EventSearchType eventSearchType, String searchValue, int offset, int limit) {
-        PaginatedEventResponse paginatedEvents = eventRepository.getPaginatedEvents(eventSearchType, searchValue, offset, limit, teamMemberId, teamId);
+        TeamMember teamMember = teamMemberService.getById(teamMemberId);
+        PaginatedEventResponse paginatedEvents = eventRepository.getPaginatedEvents(eventSearchType, searchValue, offset, limit, teamMember, teamId);
         List<EventOverview> events = paginatedEvents.events().stream().map(event ->
                 event.toBuilder().stagersPhotos(userService.getRandomUserIdsWithPhotos(event.id(), 4)).build()).toList();
         return paginatedEvents.toBuilder().events(events).build();

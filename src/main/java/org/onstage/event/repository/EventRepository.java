@@ -3,11 +3,13 @@ package org.onstage.event.repository;
 import lombok.RequiredArgsConstructor;
 import org.onstage.enums.EventSearchType;
 import org.onstage.enums.EventStatus;
+import org.onstage.enums.MemberRole;
 import org.onstage.event.client.EventDTO;
 import org.onstage.event.client.EventOverview;
 import org.onstage.event.client.PaginatedEventResponse;
 import org.onstage.event.model.Event;
 import org.onstage.stager.model.Stager;
+import org.onstage.teammember.model.TeamMember;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -41,20 +43,28 @@ public class EventRepository {
         return mongoTemplate.findOne(query, EventDTO.class, "events");
     }
 
-    public PaginatedEventResponse getPaginatedEvents(EventSearchType eventSearchType, String searchValue, int offset, int limit, String teamMemberId, String teamId) {
-        Query stagerQuery = new Query(Criteria.where(Stager.Fields.teamMemberId).is(teamMemberId));
+    public PaginatedEventResponse getPaginatedEvents(EventSearchType eventSearchType, String searchValue, int offset, int limit, TeamMember teamMember, String teamId) {
+        Query stagerQuery = new Query(Criteria.where(Stager.Fields.teamMemberId).is(teamMember.id()));
+
         List<String> memberEventIds = mongoTemplate.find(stagerQuery, Stager.class)
                 .stream()
                 .map(Stager::eventId)
                 .toList();
-        Criteria eventCriteria = Criteria.where(Event.Fields.id).in(memberEventIds)
-                .and("teamId").is(teamId);
+
+        Criteria eventCriteria = Criteria
+                .where(Event.Fields.id).in(memberEventIds)
+                .and(Event.Fields.teamId).is(teamId);
+
+        if(teamMember.role() == MemberRole.NONE){
+            eventCriteria.and(Event.Fields.eventStatus).is(EventStatus.PUBLISHED);
+        }
+
         if (searchValue != null && !searchValue.isEmpty()) {
-            eventCriteria = eventCriteria.and("name").regex(searchValue, "i");
+            eventCriteria = eventCriteria.and(Event.Fields.name).regex(searchValue, "i");
         } else if (EventSearchType.UPCOMING.equals(eventSearchType)) {
-            eventCriteria = eventCriteria.and("dateTime").gte(LocalDateTime.now());
+            eventCriteria = eventCriteria.and(Event.Fields.dateTime).gte(LocalDateTime.now());
         } else if (EventSearchType.PAST.equals(eventSearchType)) {
-            eventCriteria = eventCriteria.and("dateTime").lte(LocalDateTime.now());
+            eventCriteria = eventCriteria.and(Event.Fields.dateTime).lte(LocalDateTime.now());
         }
         Query eventQuery = new Query(eventCriteria)
                 .skip(offset)
