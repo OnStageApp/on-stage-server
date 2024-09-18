@@ -36,6 +36,12 @@ public class ServiceBeans implements WebMvcConfigurer {
         return new HandlerInterceptor() {
             @Override
             public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+                String requestURI = request.getRequestURI();
+                if ("/auth/login".equals(requestURI)) {
+                    // Skip JWT parsing for the /auth/login endpoint
+                    return true;
+                }
+
                 String jwt = extractJwtFromRequest(request);
                 Claims claim = Jwts.parser()
                         .setSigningKey("mySecret")
