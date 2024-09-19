@@ -14,6 +14,8 @@ public class UserMapper {
                 .name(entity.name())
                 .email(entity.email())
                 .imageTimestamp(entity.imageTimestamp())
+                .role(entity.role())
+                .currentTeamId(entity.currentTeamId())
                 .build();
     }
 
@@ -22,6 +24,8 @@ public class UserMapper {
                 .name(request.name())
                 .email(request.email())
                 .imageTimestamp(request.imageTimestamp())
+                .role(request.role())
+                .currentTeamId(request.currentTeamId())
                 .build();
     }
 
