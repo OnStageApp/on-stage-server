@@ -52,7 +52,7 @@ public class UserRepository {
     }
 
 
-    public List<String> getStagersWithPhoto(String eventId, Integer limit) {
+    public List<String> getStagersWithPhoto(String eventId) {
         Criteria stagerCriteria = Criteria.where(Stager.Fields.eventId).is(eventId);
         Query stagerQuery = new Query(stagerCriteria);
         List<Stager> stagers = mongoTemplate.find(stagerQuery, Stager.class);
@@ -65,7 +65,7 @@ public class UserRepository {
 
         Criteria userCriteria = Criteria.where(User.Fields.id).in(userIds)
                 .and(imageTimestamp).ne(null);
-        Query userQuery = Query.query(userCriteria).limit(limit);
+        Query userQuery = Query.query(userCriteria).limit(2);
 
         List<User> users = mongoTemplate.find(userQuery, User.class);
 
@@ -74,4 +74,21 @@ public class UserRepository {
                 .collect(Collectors.toList());
     }
 
+    public List<String> getMembersWithPhoto(String teamId) {
+        List<TeamMember> teamMembers = mongoTemplate.find(Query.query(Criteria.where(TeamMember.Fields.teamId).is(teamId)), TeamMember.class);
+
+        List<String> userIds = teamMembers.stream()
+                .map(TeamMember::userId)
+                .collect(Collectors.toList());
+
+        Criteria userCriteria = Criteria.where(User.Fields.id).in(userIds)
+                .and(imageTimestamp).ne(null);
+        Query userQuery = Query.query(userCriteria).limit(2);
+
+        List<User> users = mongoTemplate.find(userQuery, User.class);
+
+        return users.stream()
+                .map(User::id)
+                .collect(Collectors.toList());
+    }
 }

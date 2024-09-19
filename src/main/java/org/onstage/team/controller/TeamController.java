@@ -11,6 +11,8 @@ import org.onstage.user.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("teams")
 @RequiredArgsConstructor
@@ -23,14 +25,21 @@ public class TeamController {
     @GetMapping("/{id}")
     public ResponseEntity<TeamDTO> getById(@PathVariable String id) {
         Team team = teamService.getById(id);
-        return ResponseEntity.ok(teamMapper.toDto(team));
+        List<String> memberPhotoUrls = userService.getMembersPhotos(team.id());
+        return ResponseEntity.ok(teamMapper.toDto(team).toBuilder().memberPhotoUrls(memberPhotoUrls).build());
     }
 
     @GetMapping
     public ResponseEntity<GetAllTeamsResponse> getAll() {
         String userId = userSecurityContext.getUserId();
+        List<TeamDTO> teams = teamMapper.toDtoList(teamService.getAll(userId));
+        teams = teams.stream()
+                .map(team -> team.toBuilder()
+                        .memberPhotoUrls(userService.getMembersPhotos(team.id()))
+                        .build())
+                .toList();
         return ResponseEntity.ok(GetAllTeamsResponse.builder()
-                .teams(teamMapper.toDtoList(teamService.getAll(userId)))
+                .teams(teams)
                 .currentTeamId(userService.getById(userId).currentTeamId())
                 .build());
 
@@ -39,7 +48,8 @@ public class TeamController {
     @GetMapping("/current")
     public ResponseEntity<TeamDTO> getCurrentTeam() {
         Team team = teamService.getById(userSecurityContext.getCurrentTeamId());
-        return ResponseEntity.ok(teamMapper.toDto(team));
+        List<String> memberPhotoUrls = userService.getMembersPhotos(team.id());
+        return ResponseEntity.ok(teamMapper.toDto(team).toBuilder().memberPhotoUrls(memberPhotoUrls).build());
     }
 
     @PostMapping

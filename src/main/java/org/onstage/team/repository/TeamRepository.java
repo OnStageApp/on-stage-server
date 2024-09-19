@@ -12,8 +12,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-import static org.springframework.data.mongodb.core.query.Query.query;
-
 @Component
 @RequiredArgsConstructor
 public class TeamRepository {
@@ -44,9 +42,9 @@ public class TeamRepository {
         return mongoTemplate.find(teamQuery, Team.class);
     }
 
-    public void increaseMembersCount(String teamId) {
+    public void changeMembersCount(String teamId, int amount) {
         Query query = new Query(Criteria.where("_id").is(teamId));
-        Update update = new Update().inc(Team.Fields.membersCount, 1);
+        Update update = new Update().inc(Team.Fields.membersCount, amount);
         mongoTemplate.updateFirst(query, update, Team.class);
     }
 }
