@@ -14,7 +14,6 @@ public class StagerMapper {
                 .eventId(entity.eventId())
                 .teamMemberId(entity.teamMemberId())
                 .name(entity.name())
-                .profilePicture(entity.profilePicture())
                 .participationStatus(entity.participationStatus())
                 .build();
     }
@@ -25,7 +24,6 @@ public class StagerMapper {
                 .eventId(dto.eventId())
                 .teamMemberId(dto.teamMemberId())
                 .name(dto.name())
-                .profilePicture(dto.profilePicture())
                 .participationStatus(dto.participationStatus())
                 .build();
     }

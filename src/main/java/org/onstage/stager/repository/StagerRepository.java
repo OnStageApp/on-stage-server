@@ -35,7 +35,6 @@ public class StagerRepository {
                 .eventId(eventId)
                 .teamMemberId(teamMember.id())
                 .name(teamMember.name())
-                .profilePicture(null)
                 .participationStatus(PENDING).build());
     }
 
@@ -65,7 +64,6 @@ public class StagerRepository {
                 .eventId(eventId)
                 .teamMemberId(teamMember.id())
                 .name(teamMember.name())
-                .profilePicture(null)
                 .participationStatus(CONFIRMED).build());
     }
 }

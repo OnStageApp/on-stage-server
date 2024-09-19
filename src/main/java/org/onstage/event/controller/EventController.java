@@ -26,8 +26,7 @@ public class EventController {
     public ResponseEntity<EventDTO> getById(@PathVariable final String id) {
         Event event = eventService.getById(id);
         //check event belongs to team
-        List<String> userPhotos = userService.getStagersPhotos(id);
-        return ResponseEntity.ok(eventMapper.toDto(event).toBuilder().stagerPhotoUrls(userPhotos).build());
+        return ResponseEntity.ok(eventMapper.toDto(event));
     }
 
     @GetMapping("/upcoming")

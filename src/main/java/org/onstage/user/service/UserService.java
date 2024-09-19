@@ -5,6 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.amazon.AmazonS3Service;
 import org.onstage.exceptions.BadRequestException;
+import org.onstage.stager.client.StagerDTO;
+import org.onstage.teammember.model.TeamMember;
+import org.onstage.teammember.repository.TeamMemberRepository;
+import org.onstage.teammember.service.TeamMemberService;
 import org.onstage.user.client.UserDTO;
 import org.onstage.user.model.User;
 import org.onstage.user.repository.UserRepository;
@@ -19,6 +23,7 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final AmazonS3Service amazonS3Service;
+    private final TeamMemberRepository teamMemberRepository;
 
     public List<User> getAll() {
         return userRepository.findAll();
@@ -77,5 +82,10 @@ public class UserService {
             userRepository.updateImageTimestamp(userId, LocalDateTime.now());
         }
         return amazonS3Service.generatePresignedUrl(getUserImageKey(userId), httpMethod).toString();
+    }
+
+    public String getStagerPhoto(StagerDTO stager) {
+        TeamMember teamMember = teamMemberRepository.findById(stager.teamMemberId()).orElseThrow(BadRequestException::teamMemberNotFound);
+        return generatePresignedUrl(teamMember.userId(), HttpMethod.GET);
     }
 }

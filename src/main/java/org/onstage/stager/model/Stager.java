@@ -17,6 +17,5 @@ public record Stager(
         String eventId,
         String teamMemberId,
         String name,
-        String profilePicture,
         ParticipationStatus participationStatus) {
 }
