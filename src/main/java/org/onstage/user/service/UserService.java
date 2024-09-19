@@ -10,6 +10,7 @@ import org.onstage.user.model.User;
 import org.onstage.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -58,10 +59,10 @@ public class UserService {
         return amazonS3Service.getThumbnail(key);
     }
 
-    public List<byte[]> getRandomUserIdsWithPhotos(String eventId, int limit) {
-        List<String> userIds = userRepository.getRandomUserIdsWithPhotos(eventId, limit);
+    public List<String> getStagersPhotosForEvent(String eventId, int limit) {
+        List<String> userIds = userRepository.getStagersWithPhoto(eventId, limit);
         return userIds.stream()
-                .map(this::getUserThumbnail)
+                .map(user -> generatePresignedUrl(user, HttpMethod.GET))
                 .toList();
     }
 
@@ -71,6 +72,9 @@ public class UserService {
     }
 
     public String generatePresignedUrl(String userId, HttpMethod httpMethod) {
+        if(httpMethod == HttpMethod.PUT) {
+            userRepository.updateImageTimestamp(userId, LocalDateTime.now());
+        }
         return amazonS3Service.generatePresignedUrl(getUserImageKey(userId), httpMethod).toString();
     }
 }

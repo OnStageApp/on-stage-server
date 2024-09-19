@@ -14,7 +14,7 @@ public record EventDTO(
         LocalDateTime dateTime,
         String location,
         EventStatus eventStatus,
-        List<byte[]> stagersPhotos
+        List<String> stagersPhotos
 ) {
 }
 

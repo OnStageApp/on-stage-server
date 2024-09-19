@@ -52,30 +52,26 @@ public class UserRepository {
     }
 
 
-    public List<String> getRandomUserIdsWithPhotos(String eventId, Integer limit) {
-//        Criteria stagerCriteria = Criteria.where(Stager.Fields.eventId).is(eventId);
-//        Query stagerQuery = new Query(stagerCriteria);
-//        List<Stager> stagers = mongoTemplate.find(stagerQuery, Stager.class);
-//
-//        List<String> teamMembers = stagers.stream()
-//                .map(Stager::teamMemberId)
-//                .toList();
-//
-//        List<String> teamMemberIds = teamMembers.stream()
-//                .map(TeamMember::userId)
-//                .collect(Collectors.toList());
-//
-//        Criteria userCriteria = Criteria.where(User.Fields.id).in(teamMemberIds)
-//                .and(imageTimestamp).ne(null);
-//        Query userQuery = new Query(userCriteria);
-//        userQuery.fields().include(User.Fields.id);
-//        userQuery.limit(limit);
-//
-//        List<User> users = mongoTemplate.find(userQuery, User.class);
-//
-//        return users.stream()
-//                .map(User::id)
-//                .collect(Collectors.toList());
-        return List.of();
+    public List<String> getStagersWithPhoto(String eventId, Integer limit) {
+        Criteria stagerCriteria = Criteria.where(Stager.Fields.eventId).is(eventId);
+        Query stagerQuery = new Query(stagerCriteria);
+        List<Stager> stagers = mongoTemplate.find(stagerQuery, Stager.class);
+
+        List<TeamMember> teamMembers = mongoTemplate.find(Query.query(Criteria.where(TeamMember.Fields.id).in(stagers.stream().map(Stager::teamMemberId).toList())), TeamMember.class);
+
+        List<String> userIds = teamMembers.stream()
+                .map(TeamMember::userId)
+                .collect(Collectors.toList());
+
+        Criteria userCriteria = Criteria.where(User.Fields.id).in(userIds)
+                .and(imageTimestamp).ne(null);
+        Query userQuery = Query.query(userCriteria).limit(limit);
+
+        List<User> users = mongoTemplate.find(userQuery, User.class);
+
+        return users.stream()
+                .map(User::id)
+                .collect(Collectors.toList());
     }
+
 }
