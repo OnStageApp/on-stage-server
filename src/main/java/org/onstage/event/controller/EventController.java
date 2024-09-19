@@ -27,7 +27,7 @@ public class EventController {
         Event event = eventService.getById(id);
         //check event belongs to team
         List<String> userPhotos = userService.getStagersPhotosForEvent(id, 4);
-        return ResponseEntity.ok(eventMapper.toDto(event).toBuilder().stagersPhotos(userPhotos).build());
+        return ResponseEntity.ok(eventMapper.toDto(event).toBuilder().stagerPhotoUrls(userPhotos).build());
     }
 
     @GetMapping("/upcoming")
@@ -37,7 +37,7 @@ public class EventController {
             return ResponseEntity.ok(null);
         }
         List<String> userPhotos = userService.getStagersPhotosForEvent(event.id(), 3);
-        return ResponseEntity.ok(event.toBuilder().stagersPhotos(userPhotos).build());
+        return ResponseEntity.ok(event.toBuilder().stagerPhotoUrls(userPhotos).build());
     }
 
     @GetMapping
