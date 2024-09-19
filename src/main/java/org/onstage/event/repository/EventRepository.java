@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.onstage.enums.EventSearchType;
 import org.onstage.enums.EventStatus;
 import org.onstage.enums.MemberRole;
+import org.onstage.enums.ParticipationStatus;
 import org.onstage.event.client.EventDTO;
 import org.onstage.event.client.EventOverview;
 import org.onstage.event.client.PaginatedEventResponse;
@@ -44,7 +45,8 @@ public class EventRepository {
     }
 
     public PaginatedEventResponse getPaginatedEvents(EventSearchType eventSearchType, String searchValue, int offset, int limit, TeamMember teamMember, String teamId) {
-        Query stagerQuery = new Query(Criteria.where(Stager.Fields.teamMemberId).is(teamMember.id()));
+        Query stagerQuery = new Query(Criteria.where(Stager.Fields.teamMemberId).is(teamMember.id())
+                .and(Stager.Fields.participationStatus).is(ParticipationStatus.CONFIRMED));
 
         List<String> memberEventIds = mongoTemplate.find(stagerQuery, Stager.class)
                 .stream()
