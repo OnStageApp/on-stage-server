@@ -52,19 +52,20 @@ public class UserService {
         return "user/".concat(userId);
     }
 
-
-    public byte[] getUserThumbnail(String id) {
-        log.info("Getting thumbnail for user {}", id);
-        String key = getUserImageKey(id);
-        return amazonS3Service.getThumbnail(key);
-    }
-
-    public List<String> getStagersPhotos(String eventId, int limit) {
-        List<String> userIds = userRepository.getStagersWithPhoto(eventId, limit);
+    public List<String> getStagersPhotos(String eventId) {
+        List<String> userIds = userRepository.getStagersWithPhoto(eventId);
         return userIds.stream()
                 .map(user -> generatePresignedUrl(user, HttpMethod.GET))
                 .toList();
     }
+
+    public List<String> getMembersPhotos(String teamId) {
+        List<String> userIds = userRepository.getMembersWithPhoto(teamId);
+        return userIds.stream()
+                .map(user -> generatePresignedUrl(user, HttpMethod.GET))
+                .toList();
+    }
+
 
     public void setCurrentTeam(String teamId, String userId) {
         User user = getById(userId);

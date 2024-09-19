@@ -6,7 +6,6 @@ import org.onstage.exceptions.BadRequestException;
 import org.onstage.stager.model.Stager;
 import org.onstage.stager.service.StagerService;
 import org.onstage.team.repository.TeamRepository;
-import org.onstage.team.service.TeamService;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
 import org.onstage.user.model.User;
@@ -41,15 +40,17 @@ public class TeamMemberService {
         }
         User user = userService.getById(teamMember.userId());
         TeamMember savedTeamMember = teamMemberRepository.save(teamMember.toBuilder().name(user.name()).build());
-        teamRepository.increaseMembersCount(teamMember.teamId());
+        teamRepository.changeMembersCount(teamMember.teamId(), 1);
         log.info("Team member {} has been saved", savedTeamMember.id());
         return savedTeamMember;
     }
 
     public String delete(String id) {
-        teamMemberRepository.findById(id).orElseThrow(BadRequestException::teamMemberNotFound);
+        TeamMember teamMember = teamMemberRepository.findById(id).orElseThrow(BadRequestException::teamMemberNotFound);
         log.info("Deleting team member {}", id);
-        return teamMemberRepository.delete(id);
+        teamMemberRepository.delete(id);
+        teamRepository.changeMembersCount(teamMember.teamId(), -1);
+        return teamMember.id();
     }
 
     public List<TeamMember> getAllByTeam(String teamId, String userId, boolean includeCurrentUser) {
