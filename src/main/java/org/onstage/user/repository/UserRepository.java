@@ -1,6 +1,7 @@
 package org.onstage.user.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.onstage.enums.ParticipationStatus;
 import org.onstage.stager.model.Stager;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.user.model.User;
@@ -53,7 +54,8 @@ public class UserRepository {
 
 
     public List<String> getStagersWithPhoto(String eventId) {
-        Criteria stagerCriteria = Criteria.where(Stager.Fields.eventId).is(eventId);
+        Criteria stagerCriteria = Criteria.where(Stager.Fields.eventId).is(eventId)
+                .and(Stager.Fields.participationStatus).is(ParticipationStatus.CONFIRMED);
         Query stagerQuery = new Query(stagerCriteria);
         List<Stager> stagers = mongoTemplate.find(stagerQuery, Stager.class);
 

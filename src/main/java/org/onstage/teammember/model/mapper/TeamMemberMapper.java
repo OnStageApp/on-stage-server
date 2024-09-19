@@ -1,5 +1,6 @@
 package org.onstage.teammember.model.mapper;
 
+import org.onstage.teammember.client.GetTeamMembersResponse;
 import org.onstage.teammember.client.TeamMemberDTO;
 import org.onstage.teammember.model.TeamMember;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,22 @@ public class TeamMemberMapper {
     public List<TeamMemberDTO> toDtoList(List<TeamMember> entities) {
         return entities.stream()
                 .map(this::toDto)
+                .toList();
+    }
+
+    public GetTeamMembersResponse toGetTeamMemberResponse(TeamMember response) {
+        return GetTeamMembersResponse.builder()
+                .id(response.id())
+                .name(response.name())
+                .userId(response.userId())
+                .teamId(response.teamId())
+                .role(response.role())
+                .build();
+    }
+
+    public List<GetTeamMembersResponse> toGetTeamMembersResponse(List<TeamMember> responses) {
+        return responses.stream()
+                .map(this::toGetTeamMemberResponse)
                 .toList();
     }
 }
