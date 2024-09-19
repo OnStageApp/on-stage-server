@@ -3,7 +3,6 @@ package org.onstage.event.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.enums.EventSearchType;
-import org.onstage.enums.EventStatus;
 import org.onstage.event.client.EventDTO;
 import org.onstage.event.client.EventOverview;
 import org.onstage.event.client.PaginatedEventResponse;
@@ -26,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.onstage.enums.EventStatus.DRAFT;
+import static org.onstage.enums.EventStatus.PUBLISHED;
 
 @Service
 @RequiredArgsConstructor
@@ -81,10 +81,15 @@ public class EventService {
         TeamMember teamMember = teamMemberService.getById(teamMemberId);
         PaginatedEventResponse paginatedEvents = eventRepository.getPaginatedEvents(eventSearchType, searchValue, offset, limit, teamMember, teamId);
         List<EventOverview> events = paginatedEvents.events().stream()
-                .filter(event -> event.eventStatus().equals(EventStatus.PUBLISHED))
-                .map(event -> event.toBuilder()
-                        .stagerPhotoUrls(userService.getStagersPhotos(event.id()))
-                        .build())
+                .map(event -> {
+                    if (event.eventStatus().equals(PUBLISHED)) {
+                        return event.toBuilder()
+                                .stagerPhotoUrls(userService.getStagersPhotos(event.id()))
+                                .build();
+                    } else {
+                        return event;
+                    }
+                })
                 .toList();
         return paginatedEvents.toBuilder().events(events).build();
     }
