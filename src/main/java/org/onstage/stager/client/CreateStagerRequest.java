@@ -7,6 +7,6 @@ import java.util.List;
 @Builder(toBuilder = true)
 public record CreateStagerRequest(
         String eventId,
-        List<String> teamMembersIds
+        List<String> teamMemberIds
 ) {
 }

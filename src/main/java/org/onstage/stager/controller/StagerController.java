@@ -33,7 +33,7 @@ public class StagerController {
     @PostMapping
     public ResponseEntity<List<StagerDTO>> create(@RequestBody CreateStagerRequest createStagerRequest) {
         eventService.getById(createStagerRequest.eventId());
-        return ResponseEntity.ok(stagerMapper.toDtoList(stagerService.createStagersForEvent(createStagerRequest.eventId(), createStagerRequest.teamMembersIds(), null)));
+        return ResponseEntity.ok(stagerMapper.toDtoList(stagerService.createStagersForEvent(createStagerRequest.eventId(), createStagerRequest.teamMemberIds(), null)));
     }
 
     @DeleteMapping("/{id}")
