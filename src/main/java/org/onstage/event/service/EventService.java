@@ -80,7 +80,7 @@ public class EventService {
         TeamMember teamMember = teamMemberService.getById(teamMemberId);
         PaginatedEventResponse paginatedEvents = eventRepository.getPaginatedEvents(eventSearchType, searchValue, offset, limit, teamMember, teamId);
         List<EventOverview> events = paginatedEvents.events().stream().map(event ->
-                event.toBuilder().photoUrls(userService.getStagersPhotosForEvent(event.id(), 3)).build()).toList();
+                event.toBuilder().stagerPhotoUrls(userService.getStagersPhotos(event.id(), 3)).build()).toList();
         return paginatedEvents.toBuilder().events(events).build();
     }
 

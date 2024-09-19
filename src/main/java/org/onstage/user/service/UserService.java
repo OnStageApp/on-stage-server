@@ -59,7 +59,7 @@ public class UserService {
         return amazonS3Service.getThumbnail(key);
     }
 
-    public List<String> getStagersPhotosForEvent(String eventId, int limit) {
+    public List<String> getStagersPhotos(String eventId, int limit) {
         List<String> userIds = userRepository.getStagersWithPhoto(eventId, limit);
         return userIds.stream()
                 .map(user -> generatePresignedUrl(user, HttpMethod.GET))
