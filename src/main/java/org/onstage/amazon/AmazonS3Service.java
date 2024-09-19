@@ -1,13 +1,14 @@
 package org.onstage.amazon;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.util.IOUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.onstage.exceptions.BadRequestException;
+import org.onstage.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URL;
+import java.util.Date;
 
 @Service
 @Slf4j
@@ -28,27 +30,26 @@ public class AmazonS3Service {
     @Value("${clound.aws.s3.bucket}")
     private String bucketName;
 
+    public URL generatePresignedUrl(String key, HttpMethod httpMethod) {
+        GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(bucketName, key, httpMethod);
+        request.setExpiration(getExpirationDate(httpMethod));
+        return amazonS3.generatePresignedUrl(request);
+    }
+
+
+    private Date getExpirationDate(HttpMethod httpMethod) {
+        return switch (httpMethod) {
+            case GET -> DateUtils.addHours(new Date(), 1);
+            case PUT -> DateUtils.addMinutes(new Date(), 10L);
+            default -> DateUtils.addMinutes(new Date(), 1L);
+        };
+    }
+
+
     private final Integer DEFAULT_WIDTH = 200;
     private final Integer DEFAULT_HEIGHT = 200;
     private final Integer THUMBNAIL_WIDTH = 50;
     private final Integer THUMBNAIL_HEIGHT = 50;
-
-    public void putObject(byte[] image, String key, String contentType) {
-        try {
-            byte[] resizedImage = resizeImage(image, getFormatFromContentType(contentType), DEFAULT_WIDTH, DEFAULT_HEIGHT);
-
-            InputStream inputStream = new ByteArrayInputStream(resizedImage);
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(resizedImage.length);
-            metadata.setContentType(contentType);
-
-            amazonS3.putObject(bucketName, key.toLowerCase(), inputStream, metadata);
-        } catch (AmazonServiceException | IOException e) {
-            log.error("Failed to upload image with key {} with error {}", key, e.getMessage());
-            throw BadRequestException.invalidRequest();
-        }
-    }
-
     public byte[] getObject(String key) {
         return getObject(key, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
