@@ -12,6 +12,6 @@ public record EventOverview(
         String name,
         EventStatus eventStatus,
         LocalDateTime dateTime,
-        List<byte[]> stagersPhotos
+        List<String> photoUrls
 ) {
 }

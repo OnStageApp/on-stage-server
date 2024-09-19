@@ -26,7 +26,7 @@ public class EventController {
     public ResponseEntity<EventDTO> getById(@PathVariable final String id) {
         Event event = eventService.getById(id);
         //check event belongs to team
-        List<byte[]> userPhotos = userService.getRandomUserIdsWithPhotos(id, 4);
+        List<String> userPhotos = userService.getStagersPhotosForEvent(id, 4);
         return ResponseEntity.ok(eventMapper.toDto(event).toBuilder().stagersPhotos(userPhotos).build());
     }
 
@@ -36,7 +36,7 @@ public class EventController {
         if (event == null) {
             return ResponseEntity.ok(null);
         }
-        List<byte[]> userPhotos = userService.getRandomUserIdsWithPhotos(event.id(), 4);
+        List<String> userPhotos = userService.getStagersPhotosForEvent(event.id(), 3);
         return ResponseEntity.ok(event.toBuilder().stagersPhotos(userPhotos).build());
     }
 
