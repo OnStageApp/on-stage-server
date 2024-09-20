@@ -43,8 +43,8 @@ public class AuthService {
                 .name(decodedToken.getName())
                 .email(decodedToken.getEmail())
                 .build());
-        Team team = teamService.save(Team.builder().name(SOLO_TEAM_NAME).membersCount(1).build(), user.id());
-        userRepository.save(user.toBuilder().currentTeamId(team.id()).build());
-        return user;
+        Team team = teamService.save(Team.builder().name(SOLO_TEAM_NAME).membersCount(0).build(), user.id());
+        return userRepository.save(user.toBuilder().currentTeamId(team.id()).build());
+
     }
 }

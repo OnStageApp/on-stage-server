@@ -81,6 +81,12 @@ public class UserService {
         if(httpMethod == HttpMethod.PUT) {
             userRepository.updateImageTimestamp(userId, LocalDateTime.now());
         }
+        if(httpMethod == HttpMethod.GET) {
+            User user = getById(userId);
+            if(user.imageTimestamp() == null) {
+                return null;
+            }
+        }
         return amazonS3Service.generatePresignedUrl(getUserImageKey(userId), httpMethod).toString();
     }
 
