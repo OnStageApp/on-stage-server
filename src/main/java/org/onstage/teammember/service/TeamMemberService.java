@@ -71,7 +71,7 @@ public class TeamMemberService {
         final List<TeamMember> teamMembers = teamMemberRepository.getAllByTeam(teamId, userId, includeCurrentUser);
 
         return teamMembers.stream()
-                .filter(member -> !stagers.stream().map(Stager::teamMemberId).toList().contains(member.userId()))
+                .filter(member -> !stagers.stream().map(Stager::teamMemberId).toList().contains(member.id()))
                 .collect(Collectors.toList());
     }
 }

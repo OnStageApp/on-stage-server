@@ -21,9 +21,9 @@ public class EventItemRepository {
     }
 
     public List<EventItem> getAll(String eventId) {
-        Criteria criteria = Criteria.where("eventId").is(eventId);
+        Criteria criteria = Criteria.where(EventItem.Fields.eventId).is(eventId);
         Query query = new Query(criteria);
-        return mongoTemplate.find(query, EventItem.class, "event-items");
+        return mongoTemplate.find(query, EventItem.class);
     }
 
     public EventItem save(EventItem eventItem) {
@@ -31,8 +31,8 @@ public class EventItemRepository {
     }
 
     public void deleteAllByEventId(String eventId) {
-        Criteria criteria = Criteria.where("eventId").is(eventId);
+        Criteria criteria = Criteria.where(EventItem.Fields.eventId).is(eventId);
         Query query = new Query(criteria);
-        mongoTemplate.remove(query, EventItem.class, "event-items");
+        mongoTemplate.remove(query, EventItem.class);
     }
 }
