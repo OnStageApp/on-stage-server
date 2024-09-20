@@ -31,7 +31,7 @@ public class TeamService {
                 .teamId(savedTeam.id())
                 .userId(userId)
                 .role(MemberRole.LEADER).build());
-        return savedTeam;
+        return getById(savedTeam.id());
     }
 
     public String delete(String id) {
