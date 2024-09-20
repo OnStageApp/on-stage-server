@@ -94,8 +94,8 @@ public class EventService {
         return paginatedEvents.toBuilder().events(events).build();
     }
 
-    public EventDTO getUpcomingPublishedEvent() {
-        return eventRepository.getUpcomingPublishedEvent();
+    public EventDTO getUpcomingPublishedEvent(String teamId) {
+        return eventRepository.getUpcomingPublishedEvent(teamId);
     }
 
     public Event duplicate(Event event, LocalDateTime dateTime, String name, String eventLeaderId) {
