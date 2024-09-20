@@ -21,8 +21,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.springframework.data.mongodb.core.query.Query.query;
-
 @Component
 @RequiredArgsConstructor
 public class EventRepository {
@@ -33,9 +31,10 @@ public class EventRepository {
         return repo.findById(id);
     }
 
-    public EventDTO getUpcomingPublishedEvent() {
+    public EventDTO getUpcomingPublishedEvent(String teamId) {
         Criteria criteria = Criteria.where("dateTime").gte(LocalDateTime.now())
-                .and("eventStatus").is(EventStatus.PUBLISHED);
+                .and("eventStatus").is(EventStatus.PUBLISHED)
+                .and("teamId").is(teamId);
 
         Query query = new Query(criteria);
         query.with(Sort.by(Sort.Direction.ASC, "dateTime"));
@@ -57,7 +56,7 @@ public class EventRepository {
                 .where(Event.Fields.id).in(memberEventIds)
                 .and(Event.Fields.teamId).is(teamId);
 
-        if(teamMember.role() == MemberRole.NONE){
+        if (teamMember.role() == MemberRole.NONE) {
             eventCriteria.and(Event.Fields.eventStatus).is(EventStatus.PUBLISHED);
         }
 
