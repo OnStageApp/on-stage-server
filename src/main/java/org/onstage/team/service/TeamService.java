@@ -8,6 +8,7 @@ import org.onstage.team.client.TeamDTO;
 import org.onstage.team.model.Team;
 import org.onstage.team.repository.TeamRepository;
 import org.onstage.teammember.model.TeamMember;
+import org.onstage.teammember.repository.TeamMemberRepository;
 import org.onstage.teammember.service.TeamMemberService;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TeamService {
     private final TeamRepository teamRepository;
-    private final TeamMemberService teamMemberService;
+    private final TeamMemberRepository teamMemberRepository;
 
     public Team getById(String id) {
         return teamRepository.findById(id).orElseThrow(BadRequestException::teamNotFound);
@@ -27,7 +28,7 @@ public class TeamService {
     public Team save(Team team, String userId) {
         Team savedTeam = teamRepository.save(team);
         log.info("Team {} has been saved", savedTeam.id());
-        teamMemberService.save(TeamMember.builder()
+        teamMemberRepository.save(TeamMember.builder()
                 .teamId(savedTeam.id())
                 .userId(userId)
                 .role(MemberRole.LEADER).build());

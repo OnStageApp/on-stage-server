@@ -94,4 +94,8 @@ public class UserService {
         TeamMember teamMember = teamMemberRepository.findById(stager.teamMemberId()).orElseThrow(BadRequestException::teamMemberNotFound);
         return generatePresignedUrl(teamMember.userId(), HttpMethod.GET);
     }
+
+    public User getByEmail(String email) {
+        return userRepository.getByEmail(email);
+    }
 }

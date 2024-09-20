@@ -2,10 +2,15 @@ package org.onstage.teammember.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.onstage.enums.MemberInviteStatus;
+import org.onstage.enums.MemberRole;
 import org.onstage.exceptions.BadRequestException;
+import org.onstage.sendgrid.SendGridService;
 import org.onstage.stager.model.Stager;
 import org.onstage.stager.service.StagerService;
+import org.onstage.team.model.Team;
 import org.onstage.team.repository.TeamRepository;
+import org.onstage.team.service.TeamService;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
 import org.onstage.user.model.User;
@@ -15,6 +20,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.onstage.enums.MemberInviteStatus.PENDING;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -23,6 +30,8 @@ public class TeamMemberService {
     private final UserService userService;
     private final StagerService stagerService;
     private final TeamRepository teamRepository;
+    private final TeamService teamService;
+    private final SendGridService sendGridService;
 
     public TeamMember getById(String id) {
         return teamMemberRepository.findById(id).orElseThrow(BadRequestException::teamMemberNotFound);
@@ -73,5 +82,27 @@ public class TeamMemberService {
         return teamMembers.stream()
                 .filter(member -> !stagers.stream().map(Stager::teamMemberId).toList().contains(member.id()))
                 .collect(Collectors.toList());
+    }
+
+    public TeamMember inviteMember(String email, MemberRole memberRole, String teamId) {
+        User user = userService.getByEmail(email);
+        if (user == null) {
+            throw BadRequestException.userNotFound();
+        }
+        TeamMember existingTeamMember = getByUserAndTeam(user.id(), teamId);
+        if(existingTeamMember != null) {
+            throw BadRequestException.userAlreadyInTeam();
+        }
+
+        Team team = teamService.getById(teamId);
+        sendGridService.sendInviteToTeamEmail(user, team.name());
+
+        return save(TeamMember.builder()
+                .teamId(teamId)
+                .userId(user.id())
+                .role(memberRole)
+                .name(user.name())
+                .inviteStatus(PENDING)
+                .build());
     }
 }
