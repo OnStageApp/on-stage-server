@@ -93,4 +93,10 @@ public class UserRepository {
                 .map(User::id)
                 .collect(Collectors.toList());
     }
+
+    public User getByEmail(String email) {
+        Criteria criteria = Criteria.where(User.Fields.email).is(email);
+        Query query = new Query(criteria);
+        return mongoTemplate.findOne(query, User.class);
+    }
 }

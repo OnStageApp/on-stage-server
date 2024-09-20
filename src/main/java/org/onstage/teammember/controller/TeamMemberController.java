@@ -3,7 +3,9 @@ package org.onstage.teammember.controller;
 import com.amazonaws.HttpMethod;
 import lombok.RequiredArgsConstructor;
 import org.onstage.common.beans.UserSecurityContext;
+import org.onstage.enums.MemberInviteStatus;
 import org.onstage.teammember.client.GetTeamMembersResponse;
+import org.onstage.teammember.client.InviteMemberDTO;
 import org.onstage.teammember.client.TeamMemberDTO;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.model.mapper.TeamMemberMapper;
@@ -72,5 +74,12 @@ public class TeamMemberController {
         teamMembers = teamMembers.stream()
                 .map(teamMember -> teamMember.toBuilder().photoUrl(userService.generatePresignedUrl(teamMember.userId(), HttpMethod.GET)).build()).toList();
         return ResponseEntity.ok(teamMembers);
+    }
+
+    @PostMapping("/invite")
+    public ResponseEntity<TeamMemberDTO> inviteMember(@RequestBody InviteMemberDTO request) {
+        String teamId = userSecurityContext.getCurrentTeamId();
+        TeamMember invitedTeamMember = teamMemberService.inviteMember(request.email(), request.newMemberRole(), teamId);
+        return ResponseEntity.ok(teamMemberMapper.toDto(invitedTeamMember));
     }
 }

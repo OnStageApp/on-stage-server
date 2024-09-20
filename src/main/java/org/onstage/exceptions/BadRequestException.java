@@ -66,4 +66,12 @@ public class BadRequestException extends BaseException {
     public static BadRequestException songConfigNotFound() {
         return new BadRequestException(15, "SONG_CONFIG_NOT_FOUND", "Song config was not found");
     }
+
+    public static BadRequestException userAlreadyInTeam() {
+        return new BadRequestException(16, "USER_ALREADY_IN_TEAM", "User is already in the team");
+    }
+
+    public static BadRequestException emailNotSent() {
+        return new BadRequestException(16, "EMAIL_NOT_SENT", "Email was not sent");
+    }
 }
