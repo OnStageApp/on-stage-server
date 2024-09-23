@@ -74,6 +74,8 @@ public class UserService {
     }
 
 
+
+
     public void setCurrentTeam(String teamId, String userId) {
         User user = getById(userId);
         save(user.toBuilder().currentTeamId(teamId).build());

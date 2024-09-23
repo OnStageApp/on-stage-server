@@ -7,6 +7,7 @@ import org.onstage.enums.MemberInviteStatus;
 import org.onstage.teammember.client.GetTeamMembersResponse;
 import org.onstage.teammember.client.InviteMemberDTO;
 import org.onstage.teammember.client.TeamMemberDTO;
+import org.onstage.teammember.client.TeamMemberIdWithPhoto;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.model.mapper.TeamMemberMapper;
 import org.onstage.teammember.service.TeamMemberService;
@@ -36,9 +37,18 @@ public class TeamMemberController {
         String teamId = userSecurityContext.getCurrentTeamId();
         String userId = userSecurityContext.getUserId();
         List<GetTeamMembersResponse> teamMembers = teamMemberMapper.toGetTeamMembersResponse(teamMemberService.getAllByTeam(teamId, userId, includeCurrentUser));
-        teamMembers = teamMembers.stream()
-                .map(teamMember -> teamMember.toBuilder().photoUrl(userService.generatePresignedUrl(teamMember.userId(), HttpMethod.GET)).build()).toList();
         return ResponseEntity.ok(teamMembers);
+    }
+
+    //TODO: Refactor
+    @GetMapping("/photos")
+    public ResponseEntity<List<TeamMemberIdWithPhoto>> getMembersPhotos() {
+        String teamId = userSecurityContext.getCurrentTeamId();
+        String userId = userSecurityContext.getUserId();
+        List<TeamMemberIdWithPhoto> teamMembersWithPhotos = teamMemberMapper.toTeamMemberIdWithPhoto(teamMemberService.getAllByTeam(teamId, userId, true));
+        teamMembersWithPhotos = teamMembersWithPhotos.stream()
+                .map(teamMember -> teamMember.toBuilder().photoUrl(userService.generatePresignedUrl(teamMember.userId(), HttpMethod.GET)).build()).toList();
+        return ResponseEntity.ok(teamMembersWithPhotos);
     }
 
     @GetMapping("/current")

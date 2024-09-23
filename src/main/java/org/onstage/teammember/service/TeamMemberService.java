@@ -1,5 +1,6 @@
 package org.onstage.teammember.service;
 
+import com.amazonaws.HttpMethod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.enums.MemberInviteStatus;
@@ -11,6 +12,7 @@ import org.onstage.stager.service.StagerService;
 import org.onstage.team.model.Team;
 import org.onstage.team.repository.TeamRepository;
 import org.onstage.team.service.TeamService;
+import org.onstage.teammember.client.TeamMemberIdWithPhoto;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
 import org.onstage.user.model.User;
