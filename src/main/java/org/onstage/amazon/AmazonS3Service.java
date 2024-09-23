@@ -39,7 +39,7 @@ public class AmazonS3Service {
     private String bucketName;
 
     public URL generateUserThumbnailPresignedUrl(String userId, HttpMethod httpMethod) {
-        GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(bucketName, getUserThumbnailKey(userId), httpMethod);
+        GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(bucketName, getUserKey(userId), httpMethod);
         request.setExpiration(getExpirationDate(httpMethod));
         return amazonS3.generatePresignedUrl(request);
     }
@@ -115,5 +115,9 @@ public class AmazonS3Service {
 
     private String getUserThumbnailKey(String userId) {
         return "user/".concat(userId).concat("/thumbnail");
+    }
+
+    private String getUserKey(String userId) {
+        return "user/".concat(userId);
     }
 }
