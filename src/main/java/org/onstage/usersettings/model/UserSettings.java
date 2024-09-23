@@ -1,24 +1,21 @@
-package org.onstage.user.model;
+package org.onstage.usersettings.model;
 
 import lombok.Builder;
-import lombok.With;
 import lombok.experimental.FieldNameConstants;
+import org.onstage.enums.SongView;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
-import java.time.LocalDateTime;
-
-@With
 @Builder(toBuilder = true)
-@Document("users")
+@Document("user-settings")
 @FieldNameConstants
-public record User(
+public record UserSettings(
         @MongoId
         String id,
-        String name,
-        String email,
-        UserRole role,
-        LocalDateTime imageTimestamp,
-        String currentTeamId
+        String userId,
+        SongView songView,
+        Boolean isDarkMode,
+        Boolean isNotificationsEnabled
+
 ) {
 }

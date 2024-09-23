@@ -11,12 +11,15 @@ import org.onstage.team.model.Team;
 import org.onstage.team.service.TeamService;
 import org.onstage.user.model.User;
 import org.onstage.user.repository.UserRepository;
+import org.onstage.user.service.UserService;
+import org.onstage.usersettings.model.UserSettings;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
+    private final UserService userService;
     private final TeamService teamService;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -38,7 +41,7 @@ public class AuthService {
     }
 
     private User createNewUser(String uid, FirebaseToken decodedToken) {
-        User user = userRepository.save(User.builder()
+        User user = userService.save(User.builder()
                 .id(uid)
                 .name(decodedToken.getName())
                 .email(decodedToken.getEmail())

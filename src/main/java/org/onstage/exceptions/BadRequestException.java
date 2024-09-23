@@ -74,4 +74,8 @@ public class BadRequestException extends BaseException {
     public static BadRequestException emailNotSent() {
         return new BadRequestException(16, "EMAIL_NOT_SENT", "Email was not sent");
     }
+
+    public static BadRequestException userSettingsAlreadyCreated() {
+        return new BadRequestException(17, "USER_SETTINGS_ALREADY_CREATED", "User settings already created for this user");
+    }
 }
