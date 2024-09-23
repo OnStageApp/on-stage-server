@@ -32,7 +32,7 @@ public class SendGridService {
     public void sendEmail(String to, String subject, String templateId, Map<String, String> substitutions) {
         Email fromEmail = new Email("work.onstage@gmail.com");
         Email toEmail = new Email(to);
-        Mail mail = new Mail(fromEmail, subject, toEmail, new Content("text/plain", "will be replaced"));
+        Mail mail = new Mail(fromEmail, subject, toEmail, new Content("text/html", "will be replaced"));
         mail.setTemplateId(templateId);
 
         for (Map.Entry<String, String> entry : substitutions.entrySet()) {
