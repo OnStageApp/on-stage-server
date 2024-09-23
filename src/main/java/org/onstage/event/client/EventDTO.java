@@ -13,8 +13,7 @@ public record EventDTO(
         String name,
         LocalDateTime dateTime,
         String location,
-        EventStatus eventStatus,
-        List<String> stagerPhotoUrls
+        EventStatus eventStatus
 ) {
 }
 

@@ -5,8 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.amazon.AmazonS3Service;
 import org.onstage.exceptions.BadRequestException;
-import org.onstage.stager.client.StagerDTO;
-import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
 import org.onstage.user.client.UserDTO;
 import org.onstage.user.model.User;
@@ -55,25 +53,6 @@ public class UserService {
                 .build();
     }
 
-    private String getUserImageKey(String userId) {
-        return "user/".concat(userId);
-    }
-
-    public List<String> getStagersPhotos(String eventId) {
-        List<String> userIds = userRepository.getStagersWithPhoto(eventId);
-        return userIds.stream()
-                .map(user -> generatePresignedUrl(user, HttpMethod.GET))
-                .toList();
-    }
-
-    public List<String> getMembersPhotos(String teamId) {
-        List<String> userIds = userRepository.getMembersWithPhoto(teamId);
-        return userIds.stream()
-                .map(user -> generatePresignedUrl(user, HttpMethod.GET))
-                .toList();
-    }
-
-
 
 
     public void setCurrentTeam(String teamId, String userId) {
@@ -81,25 +60,25 @@ public class UserService {
         save(user.toBuilder().currentTeamId(teamId).build());
     }
 
-    public String generatePresignedUrl(String userId, HttpMethod httpMethod) {
-        if (httpMethod == HttpMethod.PUT) {
-            userRepository.updateImageTimestamp(userId, LocalDateTime.now());
+    public String getThumbnailPresignedUrl(String userId) {
+        User user = getById(userId);
+        if (user.imageTimestamp() == null) {
+            return null;
         }
-        if (httpMethod == HttpMethod.GET) {
-            User user = getById(userId);
-            if (user.imageTimestamp() == null) {
-                return null;
-            }
-        }
-        return amazonS3Service.generatePresignedUrl(getUserImageKey(userId), httpMethod).toString();
-    }
 
-    public String getStagerPhoto(StagerDTO stager) {
-        TeamMember teamMember = teamMemberRepository.findById(stager.teamMemberId()).orElseThrow(BadRequestException::teamMemberNotFound);
-        return generatePresignedUrl(teamMember.userId(), HttpMethod.GET);
+        return amazonS3Service.generateUserThumbnailPresignedUrl(userId, HttpMethod.GET).toString();
     }
 
     public User getByEmail(String email) {
         return userRepository.getByEmail(email);
+    }
+
+
+    public void uploadPhoto(String userId, byte[] image, String contentType) {
+        log.info("Uploading image for user {}", userId);
+        LocalDateTime now = image == null ? null : LocalDateTime.now();
+        amazonS3Service.putObject(image, userId, contentType);
+        log.info("Update image timestamp to {} for user {}", now, userId);
+        userRepository.updateImageTimestamp(userId, now);
     }
 }

@@ -1,8 +1,8 @@
 package org.onstage.teammember.model.mapper;
 
+import org.onstage.teammember.client.GetTeamMemberPhoto;
 import org.onstage.teammember.client.GetTeamMembersResponse;
 import org.onstage.teammember.client.TeamMemberDTO;
-import org.onstage.teammember.client.TeamMemberIdWithPhoto;
 import org.onstage.teammember.model.TeamMember;
 import org.springframework.stereotype.Component;
 
@@ -50,13 +50,17 @@ public class TeamMemberMapper {
                 .build();
     }
 
-    public List<TeamMemberIdWithPhoto> toTeamMemberIdWithPhoto(List<TeamMember> responses) {
+    public GetTeamMemberPhoto toTeamMemberPhoto(TeamMember response) {
+        return GetTeamMemberPhoto.builder()
+                .id(response.id())
+                .userId(response.userId())
+                .photoUrl(null)
+                .build();
+    }
+
+    public List<GetTeamMemberPhoto> toTeamMemberPhotos(List<TeamMember> responses) {
         return responses.stream()
-                .map(response -> TeamMemberIdWithPhoto.builder()
-                        .id(response.id())
-                        .userId(response.userId())
-                        .photoUrl(null)
-                        .build())
+                .map(this::toTeamMemberPhoto)
                 .toList();
     }
 

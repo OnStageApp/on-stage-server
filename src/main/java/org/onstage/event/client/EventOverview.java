@@ -11,7 +11,6 @@ public record EventOverview(
         String id,
         String name,
         EventStatus eventStatus,
-        LocalDateTime dateTime,
-        List<String> stagerPhotoUrls
+        LocalDateTime dateTime
 ) {
 }

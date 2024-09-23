@@ -7,7 +7,6 @@ import org.onstage.event.client.*;
 import org.onstage.event.model.Event;
 import org.onstage.event.model.mapper.EventMapper;
 import org.onstage.event.service.EventService;
-import org.onstage.user.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +18,6 @@ import java.util.List;
 public class EventController {
     private final EventService eventService;
     private final EventMapper eventMapper;
-    private final UserService userService;
     private final UserSecurityContext userSecurityContext;
 
     @GetMapping("/{id}")
@@ -36,8 +34,7 @@ public class EventController {
         if (event == null) {
             return ResponseEntity.ok(null);
         }
-        List<String> userPhotos = userService.getStagersPhotos(event.id());
-        return ResponseEntity.ok(event.toBuilder().stagerPhotoUrls(userPhotos).build());
+        return ResponseEntity.ok(event);
     }
 
     @GetMapping

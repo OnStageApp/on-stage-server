@@ -27,9 +27,7 @@ public class TeamController {
 
     @GetMapping("/{id}")
     public ResponseEntity<TeamDTO> getById(@PathVariable String id) {
-        Team team = teamService.getById(id);
-        List<String> memberPhotoUrls = userService.getMembersPhotos(team.id());
-        return ResponseEntity.ok(teamMapper.toDto(team).toBuilder().memberPhotoUrls(memberPhotoUrls).build());
+        return ResponseEntity.ok(teamMapper.toDto(teamService.getById(id)));
     }
 
     @GetMapping

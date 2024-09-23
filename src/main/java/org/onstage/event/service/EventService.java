@@ -79,19 +79,7 @@ public class EventService {
 
     public PaginatedEventResponse getAllByFilter(String teamMemberId, String teamId, EventSearchType eventSearchType, String searchValue, int offset, int limit) {
         TeamMember teamMember = teamMemberService.getById(teamMemberId);
-        PaginatedEventResponse paginatedEvents = eventRepository.getPaginatedEvents(eventSearchType, searchValue, offset, limit, teamMember, teamId);
-        List<EventOverview> events = paginatedEvents.events().stream()
-                .map(event -> {
-                    if (event.eventStatus().equals(PUBLISHED)) {
-                        return event.toBuilder()
-                                .stagerPhotoUrls(userService.getStagersPhotos(event.id()))
-                                .build();
-                    } else {
-                        return event;
-                    }
-                })
-                .toList();
-        return paginatedEvents.toBuilder().events(events).build();
+        return eventRepository.getPaginatedEvents(eventSearchType, searchValue, offset, limit, teamMember, teamId);
     }
 
     public EventDTO getUpcomingPublishedEvent(String teamId) {

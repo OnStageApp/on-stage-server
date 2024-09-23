@@ -3,11 +3,10 @@ package org.onstage.teammember.controller;
 import com.amazonaws.HttpMethod;
 import lombok.RequiredArgsConstructor;
 import org.onstage.common.beans.UserSecurityContext;
-import org.onstage.enums.MemberInviteStatus;
+import org.onstage.teammember.client.GetTeamMemberPhoto;
 import org.onstage.teammember.client.GetTeamMembersResponse;
 import org.onstage.teammember.client.InviteMemberDTO;
 import org.onstage.teammember.client.TeamMemberDTO;
-import org.onstage.teammember.client.TeamMemberIdWithPhoto;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.model.mapper.TeamMemberMapper;
 import org.onstage.teammember.service.TeamMemberService;
@@ -40,14 +39,13 @@ public class TeamMemberController {
         return ResponseEntity.ok(teamMembers);
     }
 
-    //TODO: Refactor
     @GetMapping("/photos")
-    public ResponseEntity<List<TeamMemberIdWithPhoto>> getMembersPhotos() {
+    public ResponseEntity<List<GetTeamMemberPhoto>> getMembersPhotos() {
         String teamId = userSecurityContext.getCurrentTeamId();
         String userId = userSecurityContext.getUserId();
-        List<TeamMemberIdWithPhoto> teamMembersWithPhotos = teamMemberMapper.toTeamMemberIdWithPhoto(teamMemberService.getAllByTeam(teamId, userId, true));
+        List<GetTeamMemberPhoto> teamMembersWithPhotos = teamMemberMapper.toTeamMemberPhotos(teamMemberService.getAllByTeam(teamId, userId, true));
         teamMembersWithPhotos = teamMembersWithPhotos.stream()
-                .map(teamMember -> teamMember.toBuilder().photoUrl(userService.generatePresignedUrl(teamMember.userId(), HttpMethod.GET)).build()).toList();
+                .map(teamMember -> teamMember.toBuilder().photoUrl(userService.getThumbnailPresignedUrl(teamMember.userId())).build()).toList();
         return ResponseEntity.ok(teamMembersWithPhotos);
     }
 
@@ -80,10 +78,7 @@ public class TeamMemberController {
     public ResponseEntity<List<GetTeamMembersResponse>> getAllUninvitedMembers(@RequestParam final String eventId, @RequestParam(defaultValue = "true") boolean includeCurrentUser) {
         String userId = userSecurityContext.getUserId();
         String teamId = userSecurityContext.getCurrentTeamId();
-        List<GetTeamMembersResponse> teamMembers = teamMemberMapper.toGetTeamMembersResponse(teamMemberService.getAllUninvitedMembers(eventId, userId, teamId, includeCurrentUser));
-        teamMembers = teamMembers.stream()
-                .map(teamMember -> teamMember.toBuilder().photoUrl(userService.generatePresignedUrl(teamMember.userId(), HttpMethod.GET)).build()).toList();
-        return ResponseEntity.ok(teamMembers);
+        return ResponseEntity.ok(teamMemberMapper.toGetTeamMembersResponse(teamMemberService.getAllUninvitedMembers(eventId, userId, teamId, includeCurrentUser)));
     }
 
     @PostMapping("/invite")

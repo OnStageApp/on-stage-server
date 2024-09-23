@@ -11,7 +11,6 @@ public record GetTeamMembersResponse(
         String userId,
         String teamId,
         MemberRole role,
-        String photoUrl,
         MemberInviteStatus inviteStatus
 ){
 }

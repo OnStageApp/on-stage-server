@@ -13,6 +13,7 @@ public class StagerMapper {
                 .id(entity.id())
                 .eventId(entity.eventId())
                 .teamMemberId(entity.teamMemberId())
+                .userId(entity.userId())
                 .name(entity.name())
                 .participationStatus(entity.participationStatus())
                 .build();
@@ -23,6 +24,7 @@ public class StagerMapper {
                 .id(dto.id())
                 .eventId(dto.eventId())
                 .teamMemberId(dto.teamMemberId())
+                .userId(dto.userId())
                 .name(dto.name())
                 .participationStatus(dto.participationStatus())
                 .build();
