@@ -8,10 +8,10 @@ import org.onstage.exceptions.BadRequestException;
 import org.onstage.stager.client.StagerDTO;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
-import org.onstage.teammember.service.TeamMemberService;
 import org.onstage.user.client.UserDTO;
 import org.onstage.user.model.User;
 import org.onstage.user.repository.UserRepository;
+import org.onstage.usersettings.service.UserSettingsService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,6 +24,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final AmazonS3Service amazonS3Service;
     private final TeamMemberRepository teamMemberRepository;
+    private final UserSettingsService userSettingsService;
 
     public List<User> getAll() {
         return userRepository.findAll();
@@ -36,6 +37,7 @@ public class UserService {
     public User save(User user) {
         User savedUser = userRepository.save(user);
         log.info("User {} has been saved", savedUser.id());
+        userSettingsService.createDefaultSettings(savedUser.id());
         return savedUser;
     }
 
@@ -78,12 +80,12 @@ public class UserService {
     }
 
     public String generatePresignedUrl(String userId, HttpMethod httpMethod) {
-        if(httpMethod == HttpMethod.PUT) {
+        if (httpMethod == HttpMethod.PUT) {
             userRepository.updateImageTimestamp(userId, LocalDateTime.now());
         }
-        if(httpMethod == HttpMethod.GET) {
+        if (httpMethod == HttpMethod.GET) {
             User user = getById(userId);
-            if(user.imageTimestamp() == null) {
+            if (user.imageTimestamp() == null) {
                 return null;
             }
         }
