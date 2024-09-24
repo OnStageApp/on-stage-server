@@ -82,7 +82,7 @@ public class EventService {
         return eventRepository.getPaginatedEvents(eventSearchType, searchValue, offset, limit, teamMember, teamId);
     }
 
-    public EventDTO getUpcomingPublishedEvent(String teamId) {
+    public EventOverview getUpcomingPublishedEvent(String teamId) {
         return eventRepository.getUpcomingPublishedEvent(teamId);
     }
 

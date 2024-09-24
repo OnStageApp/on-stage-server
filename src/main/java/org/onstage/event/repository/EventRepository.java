@@ -11,6 +11,7 @@ import org.onstage.event.client.PaginatedEventResponse;
 import org.onstage.event.model.Event;
 import org.onstage.stager.model.Stager;
 import org.onstage.teammember.model.TeamMember;
+import org.onstage.user.model.User;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Component
@@ -31,7 +33,7 @@ public class EventRepository {
         return repo.findById(id);
     }
 
-    public EventDTO getUpcomingPublishedEvent(String teamId) {
+    public EventOverview getUpcomingPublishedEvent(String teamId) {
         Criteria criteria = Criteria.where("dateTime").gte(LocalDateTime.now())
                 .and("eventStatus").is(EventStatus.PUBLISHED)
                 .and("teamId").is(teamId);
@@ -40,7 +42,15 @@ public class EventRepository {
         query.with(Sort.by(Sort.Direction.ASC, "dateTime"));
         query.limit(1);
 
-        return mongoTemplate.findOne(query, EventDTO.class, "events");
+        EventOverview eventOverview =  mongoTemplate.findOne(query, EventOverview.class, "events");
+        return EventOverview.builder()
+                .id(Objects.requireNonNull(eventOverview).id())
+                .name(eventOverview.name())
+                .dateTime(eventOverview.dateTime())
+                .location(eventOverview.location())
+                .eventStatus(eventOverview.eventStatus())
+                .userIdsWithPhoto(getFirstThreeUserIdsWithPhoto(eventOverview.id()))
+                .build();
     }
 
     public PaginatedEventResponse getPaginatedEvents(EventSearchType eventSearchType, String searchValue, int offset, int limit, TeamMember teamMember, String teamId) {
@@ -80,10 +90,26 @@ public class EventRepository {
                         .name(event.name())
                         .dateTime(event.dateTime())
                         .eventStatus(event.eventStatus())
+                        .userIdsWithPhoto(getFirstThreeUserIdsWithPhoto(event.id()))
                         .build())
                 .toList();
 
         return new PaginatedEventResponse(eventOverviews, hasMore);
+    }
+
+    public List<String> getFirstThreeUserIdsWithPhoto(String eventId) {
+        return mongoTemplate.find(
+                        Query.query(Criteria.where(Stager.Fields.eventId).is(eventId)), Stager.class
+                ).stream()
+                .map(Stager::userId)
+                .distinct()
+                .flatMap(userId -> mongoTemplate.find(
+                        Query.query(Criteria.where(User.Fields.id).is(userId).and(User.Fields.imageTimestamp).ne(null)),
+                        User.class
+                ).stream())
+                .map(User::id)
+                .limit(3)
+                .toList();
     }
 
 

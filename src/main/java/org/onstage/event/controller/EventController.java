@@ -28,9 +28,9 @@ public class EventController {
     }
 
     @GetMapping("/upcoming")
-    public ResponseEntity<EventDTO> getUpcomingEvent() {
+    public ResponseEntity<EventOverview> getUpcomingEvent() {
         String teamId = userSecurityContext.getCurrentTeamId();
-        EventDTO event = eventService.getUpcomingPublishedEvent(teamId);
+        EventOverview event = eventService.getUpcomingPublishedEvent(teamId);
         if (event == null) {
             return ResponseEntity.ok(null);
         }

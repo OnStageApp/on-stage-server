@@ -11,6 +11,8 @@ public record EventOverview(
         String id,
         String name,
         EventStatus eventStatus,
-        LocalDateTime dateTime
+        LocalDateTime dateTime,
+        String location,
+        List<String> userIdsWithPhoto
 ) {
 }
