@@ -53,7 +53,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadPhoto(@RequestParam("image") MultipartFile image) {
+    public ResponseEntity<String> uploadPhoto(@ModelAttribute MultipartFile image) {
         String userId = userSecurityContext.getUserId();
         if (image.isEmpty()) {
             return ResponseEntity.badRequest().build();
