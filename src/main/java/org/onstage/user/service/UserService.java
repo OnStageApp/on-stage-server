@@ -3,6 +3,7 @@ package org.onstage.user.service;
 import com.amazonaws.HttpMethod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.onstage.amazon.AmazonS3Service;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.stager.client.StagerDTO;
@@ -42,13 +43,18 @@ public class UserService {
     }
 
     public User update(User existingUser, UserDTO request) {
+        if (!Strings.isEmpty(request.name()) && !request.name().equals(existingUser.name())) {
+            List<TeamMember> teamMembers = teamMemberRepository.getAllByUserId(existingUser.id());
+            for (TeamMember teamMember : teamMembers) {
+                teamMemberRepository.save(teamMember.toBuilder().name(request.name()).build());
+            }
+        }
         User updatedUser = updateUserFromDTO(existingUser, request);
         return userRepository.save(updatedUser);
     }
 
     private User updateUserFromDTO(User existingUser, UserDTO request) {
-        return User.builder()
-                .id(existingUser.id())
+        return existingUser.toBuilder()
                 .email(request.email() == null ? existingUser.email() : request.email())
                 .name(request.name() == null ? existingUser.name() : request.name())
                 .role(request.role() == null ? existingUser.role() : request.role())

@@ -46,4 +46,9 @@ public class TeamMemberRepository {
                 .and(TeamMember.Fields.teamId).is(teamId);
         return mongoTemplate.findOne(query(criteria), TeamMember.class);
     }
+
+    public List<TeamMember> getAllByUserId(String userId) {
+        Criteria criteria = Criteria.where(TeamMember.Fields.userId).is(userId);
+        return mongoTemplate.find(query(criteria), TeamMember.class);
+    }
 }
