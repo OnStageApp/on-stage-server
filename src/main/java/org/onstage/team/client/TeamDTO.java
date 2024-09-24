@@ -9,6 +9,7 @@ public record TeamDTO(
         String id,
         String name,
         Integer membersCount,
-        List<String> memberPhotoUrls
+        List<String> memberPhotoUrls,
+        List<String> membersUserIds
 ) {
 }

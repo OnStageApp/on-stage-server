@@ -7,7 +7,6 @@ import org.onstage.event.client.*;
 import org.onstage.event.model.Event;
 import org.onstage.event.model.mapper.EventMapper;
 import org.onstage.event.service.EventService;
-import org.onstage.user.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +18,6 @@ import java.util.List;
 public class EventController {
     private final EventService eventService;
     private final EventMapper eventMapper;
-    private final UserService userService;
     private final UserSecurityContext userSecurityContext;
 
     @GetMapping("/{id}")
@@ -30,14 +28,13 @@ public class EventController {
     }
 
     @GetMapping("/upcoming")
-    public ResponseEntity<EventDTO> getUpcomingEvent() {
+    public ResponseEntity<EventOverview> getUpcomingEvent() {
         String teamId = userSecurityContext.getCurrentTeamId();
-        EventDTO event = eventService.getUpcomingPublishedEvent(teamId);
+        Event event = eventService.getUpcomingPublishedEvent(teamId);
         if (event == null) {
             return ResponseEntity.ok(null);
         }
-        List<String> userPhotos = userService.getStagersPhotos(event.id());
-        return ResponseEntity.ok(event.toBuilder().stagerPhotoUrls(userPhotos).build());
+        return ResponseEntity.ok(eventMapper.toOverview(event));
     }
 
     @GetMapping
@@ -47,10 +44,7 @@ public class EventController {
         PaginatedEventResponse paginatedResponse = eventService.getAllByFilter(teamMemberId, teamId,
                 filter.eventSearchType(), filter.searchValue(), filter.offset(), filter.limit());
 
-        return ResponseEntity.ok(GetAllEventsResponse.builder()
-                .events(paginatedResponse.events())
-                .hasMore(paginatedResponse.hasMore())
-                .build());
+        return ResponseEntity.ok(eventMapper.toGetAllEventsResponse(paginatedResponse));
     }
 
     @PostMapping

@@ -76,11 +76,11 @@ public class StagerService {
         stagerRepository.deleteAllByEventId(eventId);
     }
 
-    public Stager createEventLeader(String eventId, String teamMemberId) {
+    public void createEventLeader(String eventId, String teamMemberId) {
         TeamMember teamMember = teamMemberRepository.findById(teamMemberId).orElseThrow(BadRequestException::teamMemberNotFound);
         checkStagerAlreadyExists(eventId, teamMemberId);
 
         log.info("Creating stager for event {} and team member {}", eventId, teamMemberId);
-        return stagerRepository.createEventLeader(eventId, teamMember);
+        stagerRepository.createEventLeader(eventId, teamMember);
     }
 }

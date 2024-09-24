@@ -3,8 +3,6 @@ package org.onstage.event.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.enums.EventSearchType;
-import org.onstage.event.client.EventDTO;
-import org.onstage.event.client.EventOverview;
 import org.onstage.event.client.PaginatedEventResponse;
 import org.onstage.event.client.UpdateEventRequest;
 import org.onstage.event.model.Event;
@@ -25,7 +23,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.onstage.enums.EventStatus.DRAFT;
-import static org.onstage.enums.EventStatus.PUBLISHED;
 
 @Service
 @RequiredArgsConstructor
@@ -79,22 +76,10 @@ public class EventService {
 
     public PaginatedEventResponse getAllByFilter(String teamMemberId, String teamId, EventSearchType eventSearchType, String searchValue, int offset, int limit) {
         TeamMember teamMember = teamMemberService.getById(teamMemberId);
-        PaginatedEventResponse paginatedEvents = eventRepository.getPaginatedEvents(eventSearchType, searchValue, offset, limit, teamMember, teamId);
-        List<EventOverview> events = paginatedEvents.events().stream()
-                .map(event -> {
-                    if (event.eventStatus().equals(PUBLISHED)) {
-                        return event.toBuilder()
-                                .stagerPhotoUrls(userService.getStagersPhotos(event.id()))
-                                .build();
-                    } else {
-                        return event;
-                    }
-                })
-                .toList();
-        return paginatedEvents.toBuilder().events(events).build();
+        return eventRepository.getPaginatedEvents(eventSearchType, searchValue, offset, limit, teamMember, teamId);
     }
 
-    public EventDTO getUpcomingPublishedEvent(String teamId) {
+    public Event getUpcomingPublishedEvent(String teamId) {
         return eventRepository.getUpcomingPublishedEvent(teamId);
     }
 

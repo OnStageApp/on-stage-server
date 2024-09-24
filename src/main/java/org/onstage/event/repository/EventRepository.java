@@ -5,8 +5,6 @@ import org.onstage.enums.EventSearchType;
 import org.onstage.enums.EventStatus;
 import org.onstage.enums.MemberRole;
 import org.onstage.enums.ParticipationStatus;
-import org.onstage.event.client.EventDTO;
-import org.onstage.event.client.EventOverview;
 import org.onstage.event.client.PaginatedEventResponse;
 import org.onstage.event.model.Event;
 import org.onstage.stager.model.Stager;
@@ -31,29 +29,29 @@ public class EventRepository {
         return repo.findById(id);
     }
 
-    public EventDTO getUpcomingPublishedEvent(String teamId) {
-        Criteria criteria = Criteria.where("dateTime").gte(LocalDateTime.now())
-                .and("eventStatus").is(EventStatus.PUBLISHED)
-                .and("teamId").is(teamId);
+    public Event getUpcomingPublishedEvent(String teamId) {
+        Criteria criteria = Criteria.where(Event.Fields.dateTime).gte(LocalDateTime.now())
+                .and(Event.Fields.eventStatus).is(EventStatus.PUBLISHED)
+                .and(Event.Fields.teamId).is(teamId);
 
         Query query = new Query(criteria);
-        query.with(Sort.by(Sort.Direction.ASC, "dateTime"));
+        query.with(Sort.by(Sort.Direction.ASC, Event.Fields.dateTime));
         query.limit(1);
 
-        return mongoTemplate.findOne(query, EventDTO.class, "events");
+        return mongoTemplate.findOne(query, Event.class);
     }
 
     public PaginatedEventResponse getPaginatedEvents(EventSearchType eventSearchType, String searchValue, int offset, int limit, TeamMember teamMember, String teamId) {
         Query stagerQuery = new Query(Criteria.where(Stager.Fields.teamMemberId).is(teamMember.id())
                 .and(Stager.Fields.participationStatus).is(ParticipationStatus.CONFIRMED));
 
-        List<String> memberEventIds = mongoTemplate.find(stagerQuery, Stager.class)
+        List<String> memberEvents = mongoTemplate.find(stagerQuery, Stager.class)
                 .stream()
                 .map(Stager::eventId)
                 .toList();
 
         Criteria eventCriteria = Criteria
-                .where(Event.Fields.id).in(memberEventIds)
+                .where(Event.Fields.id).in(memberEvents)
                 .and(Event.Fields.teamId).is(teamId);
 
         if (teamMember.role() == MemberRole.NONE) {
@@ -70,20 +68,11 @@ public class EventRepository {
         Query eventQuery = new Query(eventCriteria)
                 .skip(offset)
                 .limit(limit);
-        List<Event> events = mongoTemplate.find(eventQuery, Event.class, "events");
-        long totalCount = mongoTemplate.count(new Query(eventCriteria), "events");
+        List<Event> events = mongoTemplate.find(eventQuery, Event.class);
+        long totalCount = mongoTemplate.count(new Query(eventCriteria), Event.class);
         boolean hasMore = offset + limit < totalCount;
 
-        List<EventOverview> eventOverviews = events.stream()
-                .map(event -> EventOverview.builder()
-                        .id(event.id())
-                        .name(event.name())
-                        .dateTime(event.dateTime())
-                        .eventStatus(event.eventStatus())
-                        .build())
-                .toList();
-
-        return new PaginatedEventResponse(eventOverviews, hasMore);
+        return new PaginatedEventResponse(events, hasMore);
     }
 
 

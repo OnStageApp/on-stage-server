@@ -8,8 +8,8 @@ public record StagerDTO(
         String id,
         String eventId,
         String teamMemberId,
+        String userId,
         String name,
-        String photoUrl,
         ParticipationStatus participationStatus
 ) {
 }

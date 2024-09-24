@@ -7,7 +7,6 @@ import org.onstage.stager.client.StagerDTO;
 import org.onstage.stager.model.Stager;
 import org.onstage.stager.model.mapper.StagerMapper;
 import org.onstage.stager.service.StagerService;
-import org.onstage.user.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,14 +19,11 @@ public class StagerController {
     private final StagerService stagerService;
     private final StagerMapper stagerMapper;
     private final EventService eventService;
-    private final UserService userService;
 
     @GetMapping
     public ResponseEntity<List<StagerDTO>> getAll(@RequestParam(name = "eventId") String eventId) {
         eventService.getById(eventId);
-        List<StagerDTO> stagers = stagerMapper.toDtoList(stagerService.getAllByEventId(eventId));
-        stagers = stagers.stream().map(stager -> stager.toBuilder().photoUrl(userService.getStagerPhoto(stager)).build()).toList();
-        return ResponseEntity.ok(stagers);
+        return ResponseEntity.ok(stagerMapper.toDtoList(stagerService.getAllByEventId(eventId)));
     }
 
     @PostMapping

@@ -1,5 +1,6 @@
 package org.onstage.teammember.model.mapper;
 
+import org.onstage.teammember.client.GetTeamMemberPhoto;
 import org.onstage.teammember.client.GetTeamMembersResponse;
 import org.onstage.teammember.client.TeamMemberDTO;
 import org.onstage.teammember.model.TeamMember;
@@ -47,6 +48,20 @@ public class TeamMemberMapper {
                 .role(response.role())
                 .inviteStatus(response.inviteStatus())
                 .build();
+    }
+
+    public GetTeamMemberPhoto toTeamMemberPhoto(TeamMember response) {
+        return GetTeamMemberPhoto.builder()
+                .id(response.id())
+                .userId(response.userId())
+                .photoUrl(null)
+                .build();
+    }
+
+    public List<GetTeamMemberPhoto> toTeamMemberPhotos(List<TeamMember> responses) {
+        return responses.stream()
+                .map(this::toTeamMemberPhoto)
+                .toList();
     }
 
     public List<GetTeamMembersResponse> toGetTeamMembersResponse(List<TeamMember> responses) {

@@ -1,6 +1,5 @@
 package org.onstage.user.controller;
 
-import com.amazonaws.HttpMethod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.common.beans.UserSecurityContext;
@@ -8,9 +7,13 @@ import org.onstage.user.client.UserDTO;
 import org.onstage.user.model.User;
 import org.onstage.user.model.mapper.UserMapper;
 import org.onstage.user.service.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -42,18 +45,28 @@ public class UserController {
         return ResponseEntity.ok(userMapper.toDto(userService.save(userMapper.toEntity(user))));
     }
 
-    @GetMapping(value = "/photoUrl")
+    @GetMapping(value = "/photo")
     public ResponseEntity<String> generateGetPresignedUrl() {
         String userId = userSecurityContext.getUserId();
         log.info("Get photo for user {}", userId);
-        return ResponseEntity.ok(userService.generatePresignedUrl(userId, HttpMethod.GET));
+        return ResponseEntity.ok(userService.getPresignedUrl(userId, false));
     }
 
-    @PutMapping(value = "/photoUrl")
-    public ResponseEntity<String> generatePutPresignedUrl() {
+    @PostMapping(value = "/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> uploadPhoto(@ModelAttribute MultipartFile image) {
         String userId = userSecurityContext.getUserId();
-        log.info("Upload photo for user {}", userId);
-        return ResponseEntity.ok(userService.generatePresignedUrl(userId, HttpMethod.PUT));
+        if (image.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        try {
+            userService.uploadPhoto(userId, image.getBytes(), image.getContentType());
+            return ResponseEntity.ok().build();
+        } catch (IOException e) {
+            log.error("Error reading image file", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PutMapping("/{id}")

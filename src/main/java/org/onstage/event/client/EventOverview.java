@@ -12,6 +12,7 @@ public record EventOverview(
         String name,
         EventStatus eventStatus,
         LocalDateTime dateTime,
-        List<String> stagerPhotoUrls
+        String location,
+        List<String> userIdsWithPhoto
 ) {
 }

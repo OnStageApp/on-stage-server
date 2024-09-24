@@ -35,6 +35,7 @@ public class StagerRepository {
                 .eventId(eventId)
                 .teamMemberId(teamMember.id())
                 .name(teamMember.name())
+                .userId(teamMember.userId())
                 .participationStatus(PENDING).build());
     }
 
@@ -59,10 +60,11 @@ public class StagerRepository {
         mongoTemplate.remove(query, Stager.class);
     }
 
-    public Stager createEventLeader(String eventId, TeamMember teamMember) {
-        return stagerRepo.save(Stager.builder()
+    public void createEventLeader(String eventId, TeamMember teamMember) {
+        stagerRepo.save(Stager.builder()
                 .eventId(eventId)
                 .teamMemberId(teamMember.id())
+                .userId(teamMember.userId())
                 .name(teamMember.name())
                 .participationStatus(CONFIRMED).build());
     }

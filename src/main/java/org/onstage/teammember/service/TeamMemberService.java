@@ -2,7 +2,6 @@ package org.onstage.teammember.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.onstage.enums.MemberInviteStatus;
 import org.onstage.enums.MemberRole;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.sendgrid.SendGridService;
