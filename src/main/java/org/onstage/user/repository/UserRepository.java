@@ -3,7 +3,6 @@ package org.onstage.user.repository;
 import lombok.RequiredArgsConstructor;
 import org.onstage.enums.ParticipationStatus;
 import org.onstage.stager.model.Stager;
-import org.onstage.teammember.model.TeamMember;
 import org.onstage.user.model.User;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -56,40 +55,14 @@ public class UserRepository {
     public List<String> getStagersWithPhoto(String eventId) {
         Criteria stagerCriteria = Criteria.where(Stager.Fields.eventId).is(eventId)
                 .and(Stager.Fields.participationStatus).is(ParticipationStatus.CONFIRMED);
-        Query stagerQuery = new Query(stagerCriteria);
-        List<Stager> stagers = mongoTemplate.find(stagerQuery, Stager.class);
+        List<Stager> stagers = mongoTemplate.find(new Query(stagerCriteria), Stager.class);
 
-        List<TeamMember> teamMembers = mongoTemplate.find(Query.query(Criteria.where(TeamMember.Fields.id).in(stagers.stream().map(Stager::teamMemberId).toList())), TeamMember.class);
+        List<String> users = stagers.stream().map(Stager::userId).toList();
 
-        List<String> userIds = teamMembers.stream()
-                .map(TeamMember::userId)
-                .collect(Collectors.toList());
-
-        Criteria userCriteria = Criteria.where(User.Fields.id).in(userIds)
+        Criteria userCriteria = Criteria.where(User.Fields.id).in(users)
                 .and(imageTimestamp).ne(null);
-        Query userQuery = Query.query(userCriteria).limit(2);
 
-        List<User> users = mongoTemplate.find(userQuery, User.class);
-
-        return users.stream()
-                .map(User::id)
-                .collect(Collectors.toList());
-    }
-
-    public List<String> getMembersWithPhoto(String teamId) {
-        List<TeamMember> teamMembers = mongoTemplate.find(Query.query(Criteria.where(TeamMember.Fields.teamId).is(teamId)), TeamMember.class);
-
-        List<String> userIds = teamMembers.stream()
-                .map(TeamMember::userId)
-                .collect(Collectors.toList());
-
-        Criteria userCriteria = Criteria.where(User.Fields.id).in(userIds)
-                .and(imageTimestamp).ne(null);
-        Query userQuery = Query.query(userCriteria).limit(2);
-
-        List<User> users = mongoTemplate.find(userQuery, User.class);
-
-        return users.stream()
+        return mongoTemplate.find(new Query(userCriteria).limit(2), User.class).stream()
                 .map(User::id)
                 .collect(Collectors.toList());
     }

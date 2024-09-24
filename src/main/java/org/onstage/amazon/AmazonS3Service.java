@@ -5,7 +5,6 @@ import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.exceptions.BadRequestException;
@@ -39,7 +38,13 @@ public class AmazonS3Service {
     private String bucketName;
 
     public URL generateUserThumbnailPresignedUrl(String userId, HttpMethod httpMethod) {
-        GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(bucketName, getUserKey(userId), httpMethod);
+        GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(bucketName, getUserThumbnailKey(userId), httpMethod);
+        request.setExpiration(getExpirationDate(httpMethod));
+        return amazonS3.generatePresignedUrl(request);
+    }
+
+    public URL generateUserProfilePresignedUrl(String userId, HttpMethod httpMethod) {
+        GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(bucketName, getUserProfileKey(userId), httpMethod);
         request.setExpiration(getExpirationDate(httpMethod));
         return amazonS3.generatePresignedUrl(request);
     }
@@ -76,7 +81,7 @@ public class AmazonS3Service {
         metadata.setContentLength(image.length);
         metadata.setContentType(contentType);
 
-        amazonS3.putObject(bucketName, key.toLowerCase(), inputStream, metadata);
+        amazonS3.putObject(bucketName, key, inputStream, metadata);
     }
 
     private byte[] resizeImage(byte[] originalImage, String format, int maxWidth, int maxHeight) throws IOException {
@@ -110,14 +115,10 @@ public class AmazonS3Service {
     }
 
     private String getUserProfileKey(String userId) {
-        return "user/".concat(userId).concat("/profilePicture");
+        return "user/".concat(userId).concat("/profile");
     }
 
     private String getUserThumbnailKey(String userId) {
         return "user/".concat(userId).concat("/thumbnail");
-    }
-
-    private String getUserKey(String userId) {
-        return "user/".concat(userId);
     }
 }

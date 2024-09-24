@@ -54,19 +54,19 @@ public class UserService {
     }
 
 
-
     public void setCurrentTeam(String teamId, String userId) {
         User user = getById(userId);
         save(user.toBuilder().currentTeamId(teamId).build());
     }
 
-    public String getThumbnailPresignedUrl(String userId) {
+    public String getPresignedUrl(String userId, boolean isThumbnail) {
         User user = getById(userId);
         if (user.imageTimestamp() == null) {
             return null;
         }
-
-        return amazonS3Service.generateUserThumbnailPresignedUrl(userId, HttpMethod.GET).toString();
+        if (isThumbnail)
+            return amazonS3Service.generateUserThumbnailPresignedUrl(userId, HttpMethod.GET).toString();
+        return amazonS3Service.generateUserProfilePresignedUrl(userId, HttpMethod.GET).toString();
     }
 
     public User getByEmail(String email) {
@@ -80,5 +80,9 @@ public class UserService {
         amazonS3Service.putObject(image, userId, contentType);
         log.info("Update image timestamp to {} for user {}", now, userId);
         userRepository.updateImageTimestamp(userId, now);
+    }
+
+    public List<String> getStagersWithPhoto(String eventId) {
+        return userRepository.getStagersWithPhoto(eventId);
     }
 }

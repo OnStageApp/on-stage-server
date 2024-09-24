@@ -1,6 +1,5 @@
 package org.onstage.teammember.controller;
 
-import com.amazonaws.HttpMethod;
 import lombok.RequiredArgsConstructor;
 import org.onstage.common.beans.UserSecurityContext;
 import org.onstage.teammember.client.GetTeamMemberPhoto;
@@ -45,7 +44,7 @@ public class TeamMemberController {
         String userId = userSecurityContext.getUserId();
         List<GetTeamMemberPhoto> teamMembersWithPhotos = teamMemberMapper.toTeamMemberPhotos(teamMemberService.getAllByTeam(teamId, userId, true));
         teamMembersWithPhotos = teamMembersWithPhotos.stream()
-                .map(teamMember -> teamMember.toBuilder().photoUrl(userService.getThumbnailPresignedUrl(teamMember.userId())).build()).toList();
+                .map(teamMember -> teamMember.toBuilder().photoUrl(userService.getPresignedUrl(teamMember.userId(), true)).build()).toList();
         return ResponseEntity.ok(teamMembersWithPhotos);
     }
 

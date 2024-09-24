@@ -30,11 +30,11 @@ public class EventController {
     @GetMapping("/upcoming")
     public ResponseEntity<EventOverview> getUpcomingEvent() {
         String teamId = userSecurityContext.getCurrentTeamId();
-        EventOverview event = eventService.getUpcomingPublishedEvent(teamId);
+        Event event = eventService.getUpcomingPublishedEvent(teamId);
         if (event == null) {
             return ResponseEntity.ok(null);
         }
-        return ResponseEntity.ok(event);
+        return ResponseEntity.ok(eventMapper.toOverview(event));
     }
 
     @GetMapping
@@ -44,10 +44,7 @@ public class EventController {
         PaginatedEventResponse paginatedResponse = eventService.getAllByFilter(teamMemberId, teamId,
                 filter.eventSearchType(), filter.searchValue(), filter.offset(), filter.limit());
 
-        return ResponseEntity.ok(GetAllEventsResponse.builder()
-                .events(paginatedResponse.events())
-                .hasMore(paginatedResponse.hasMore())
-                .build());
+        return ResponseEntity.ok(eventMapper.toGetAllEventsResponse(paginatedResponse));
     }
 
     @PostMapping

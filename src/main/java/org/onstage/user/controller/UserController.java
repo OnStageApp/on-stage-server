@@ -49,7 +49,7 @@ public class UserController {
     public ResponseEntity<String> generateGetPresignedUrl() {
         String userId = userSecurityContext.getUserId();
         log.info("Get photo for user {}", userId);
-        return ResponseEntity.ok(userService.getThumbnailPresignedUrl(userId));
+        return ResponseEntity.ok(userService.getPresignedUrl(userId, false));
     }
 
     @PostMapping(value = "/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
