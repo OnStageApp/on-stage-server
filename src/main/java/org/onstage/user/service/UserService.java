@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.onstage.amazon.AmazonS3Service;
 import org.onstage.exceptions.BadRequestException;
+import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
 import org.onstage.user.client.UserDTO;
 import org.onstage.user.model.User;
