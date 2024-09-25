@@ -3,6 +3,7 @@ package org.onstage.teammember.repository;
 import lombok.RequiredArgsConstructor;
 import org.onstage.enums.MemberInviteStatus;
 import org.onstage.teammember.model.TeamMember;
+import org.onstage.user.model.User;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -63,5 +64,19 @@ public class TeamMemberRepository {
         Criteria criteria = Criteria.where(TeamMember.Fields.userId).is(userId);
         Query query = new Query(criteria);
         mongoTemplate.remove(query, TeamMember.class);
+    }
+
+    public List<String> getMemberWithPhotoIds(String teamId) {
+        Criteria membersCriteria = Criteria.where(TeamMember.Fields.teamId).is(teamId)
+                .and(TeamMember.Fields.inviteStatus).is(MemberInviteStatus.CONFIRMED);
+        List<String> userIds = mongoTemplate.find(query(membersCriteria), TeamMember.class).stream()
+                .map(TeamMember::userId)
+                .toList();
+
+        Criteria userCriteria = Criteria.where(User.Fields.id).in(userIds)
+                .and(User.Fields.imageTimestamp).ne(null);
+        return mongoTemplate.find(query(userCriteria).limit(2), User.class).stream()
+                .map(User::id)
+                .toList();
     }
 }

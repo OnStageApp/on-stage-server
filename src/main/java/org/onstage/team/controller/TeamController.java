@@ -2,6 +2,7 @@ package org.onstage.team.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.common.beans.UserSecurityContext;
+import org.onstage.team.client.CurrentTeamDTO;
 import org.onstage.team.client.GetAllTeamsResponse;
 import org.onstage.team.client.TeamDTO;
 import org.onstage.team.model.Team;
@@ -40,9 +41,9 @@ public class TeamController {
     }
 
     @GetMapping("/current")
-    public ResponseEntity<TeamDTO> getCurrentTeam() {
+    public ResponseEntity<CurrentTeamDTO> getCurrentTeam() {
         Team team = teamService.getById(userSecurityContext.getCurrentTeamId());
-        return ResponseEntity.ok(teamMapper.toDto(team));
+        return ResponseEntity.ok(teamMapper.toCurrentTeamDTO(team));
     }
 
     @PostMapping

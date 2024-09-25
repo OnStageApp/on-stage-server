@@ -109,4 +109,8 @@ public class TeamMemberService {
     public Integer countByTeamId(String teamId) {
         return teamMemberRepository.countByTeamId(teamId);
     }
+
+    public List<String> getMemberWithPhotoIds(String teamId) {
+        return teamMemberRepository.getMemberWithPhotoIds(teamId);
+    }
 }
