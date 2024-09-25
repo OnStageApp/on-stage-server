@@ -34,7 +34,7 @@ public class UserService {
         return userRepository.findById(id).orElseThrow(BadRequestException::userNotFound);
     }
 
-    public User save(User user) {
+    public User create(User user) {
         User savedUser = userRepository.save(user);
         log.info("User {} has been saved", savedUser.id());
         userSettingsService.createDefaultSettings(savedUser.id());
@@ -42,7 +42,7 @@ public class UserService {
     }
 
     public User update(User existingUser, UserDTO request) {
-        if (!Strings.isEmpty(request.name()) && !request.name().equals(existingUser.name())) {
+        if (!Strings.isEmpty(request.name())) {
             List<TeamMember> teamMembers = teamMemberRepository.getAllByUserId(existingUser.id());
             for (TeamMember teamMember : teamMembers) {
                 teamMemberRepository.save(teamMember.toBuilder().name(request.name()).build());
@@ -63,7 +63,7 @@ public class UserService {
 
     public void setCurrentTeam(String teamId, String userId) {
         User user = getById(userId);
-        save(user.toBuilder().currentTeamId(teamId).build());
+        userRepository.save(user.toBuilder().currentTeamId(teamId).build());
     }
 
     public String getPresignedUrl(String userId, boolean isThumbnail) {
