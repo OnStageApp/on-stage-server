@@ -72,4 +72,8 @@ public class UserRepository {
         Query query = new Query(criteria);
         return mongoTemplate.findOne(query, User.class);
     }
+
+    public void deleteById(String userId) {
+        userRepo.deleteById(userId);
+    }
 }

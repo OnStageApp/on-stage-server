@@ -74,4 +74,10 @@ public class StagerRepository {
         Query query = new Query(criteria);
         return (int) mongoTemplate.count(query, Stager.class);
     }
+
+    public void deleteAllByUserId(String userId) {
+        Criteria criteria = Criteria.where(Stager.Fields.userId).is(userId);
+        Query query = new Query(criteria);
+        mongoTemplate.remove(query, Stager.class);
+    }
 }

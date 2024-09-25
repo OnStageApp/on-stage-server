@@ -45,6 +45,13 @@ public class UserController {
         return ResponseEntity.ok(userMapper.toDto(userService.create(userMapper.toEntity(user))));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable(name = "id") String id) {
+        log.info("Deleting user {}", id);
+        userService.delete(id);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping(value = "/photo")
     public ResponseEntity<String> generateGetPresignedUrl() {
         String userId = userSecurityContext.getUserId();
