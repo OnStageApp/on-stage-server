@@ -68,4 +68,10 @@ public class StagerRepository {
                 .name(teamMember.name())
                 .participationStatus(CONFIRMED).build());
     }
+
+    public Integer countByEventId(String eventId) {
+        Criteria criteria = Criteria.where(Stager.Fields.eventId).is(eventId);
+        Query query = new Query(criteria);
+        return (int) mongoTemplate.count(query, Stager.class);
+    }
 }

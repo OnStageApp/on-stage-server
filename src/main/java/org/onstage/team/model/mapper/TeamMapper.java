@@ -1,19 +1,23 @@
 package org.onstage.team.model.mapper;
 
+import lombok.RequiredArgsConstructor;
 import org.onstage.team.client.TeamDTO;
 import org.onstage.team.model.Team;
+import org.onstage.teammember.service.TeamMemberService;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class TeamMapper {
+    private final TeamMemberService teamMemberService;
 
     public TeamDTO toDto(Team entity) {
         return TeamDTO.builder()
                 .id(entity.id())
                 .name(entity.name())
-                .membersCount(entity.membersCount())
+                .membersCount(teamMemberService.countByTeamId(entity.id()))
                 .build();
     }
 
@@ -21,7 +25,6 @@ public class TeamMapper {
         return Team.builder()
                 .id(request.id())
                 .name(request.name())
-                .membersCount(request.membersCount())
                 .build();
     }
 

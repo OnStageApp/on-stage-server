@@ -42,10 +42,4 @@ public class TeamRepository {
         Query teamQuery = new Query(Criteria.where("_id").in(teamIds));
         return mongoTemplate.find(teamQuery, Team.class);
     }
-
-    public void changeMembersCount(String teamId, int amount) {
-        Query query = new Query(Criteria.where("_id").is(teamId));
-        Update update = new Update().inc(Team.Fields.membersCount, amount);
-        mongoTemplate.updateFirst(query, update, Team.class);
-    }
 }

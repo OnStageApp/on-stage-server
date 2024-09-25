@@ -42,7 +42,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<UserDTO> create(@RequestBody UserDTO user) {
-        return ResponseEntity.ok(userMapper.toDto(userService.save(userMapper.toEntity(user))));
+        return ResponseEntity.ok(userMapper.toDto(userService.create(userMapper.toEntity(user))));
     }
 
     @GetMapping(value = "/photo")

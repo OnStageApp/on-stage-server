@@ -7,8 +7,6 @@ import org.onstage.team.client.TeamDTO;
 import org.onstage.team.model.Team;
 import org.onstage.team.model.mapper.TeamMapper;
 import org.onstage.team.service.TeamService;
-import org.onstage.teammember.model.TeamMember;
-import org.onstage.teammember.service.TeamMemberService;
 import org.onstage.user.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +18,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TeamController {
     private final TeamService teamService;
-    private final TeamMemberService teamMemberService;
     private final TeamMapper teamMapper;
     private final UserSecurityContext userSecurityContext;
     private final UserService userService;
@@ -34,7 +31,7 @@ public class TeamController {
     public ResponseEntity<GetAllTeamsResponse> getAll() {
         String userId = userSecurityContext.getUserId();
         List<TeamDTO> teams = teamMapper.toDtoList(teamService.getAll(userId));
-        
+
         return ResponseEntity.ok(GetAllTeamsResponse.builder()
                 .teams(teams)
                 .currentTeamId(userService.getById(userId).currentTeamId())
@@ -45,9 +42,7 @@ public class TeamController {
     @GetMapping("/current")
     public ResponseEntity<TeamDTO> getCurrentTeam() {
         Team team = teamService.getById(userSecurityContext.getCurrentTeamId());
-        List<String> teamMembersUserIds = teamMemberService.getAllByTeam(team.id(), userSecurityContext.getUserId(), true).stream().map(TeamMember::userId).toList();
-        teamMembersUserIds = teamMembersUserIds.stream().filter(userId -> userService.getById(userId).imageTimestamp() != null).limit(3).toList();
-        return ResponseEntity.ok(teamMapper.toDto(team).toBuilder().membersUserIds(teamMembersUserIds).build());
+        return ResponseEntity.ok(teamMapper.toDto(team));
     }
 
     @PostMapping

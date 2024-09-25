@@ -49,8 +49,6 @@ public class TeamMemberService {
         }
         User user = userService.getById(teamMember.userId());
         TeamMember savedTeamMember = teamMemberRepository.save(teamMember.toBuilder().name(user.name()).build());
-        if (teamMember.inviteStatus() == CONFIRMED)
-            teamRepository.changeMembersCount(teamMember.teamId(), 1);
         log.info("Team member {} has been saved", savedTeamMember.id());
         return savedTeamMember;
     }
@@ -59,7 +57,6 @@ public class TeamMemberService {
         TeamMember teamMember = teamMemberRepository.findById(id).orElseThrow(BadRequestException::teamMemberNotFound);
         log.info("Deleting team member {}", id);
         teamMemberRepository.delete(id);
-        teamRepository.changeMembersCount(teamMember.teamId(), -1);
         return teamMember.id();
     }
 
@@ -69,8 +66,6 @@ public class TeamMemberService {
 
     public TeamMember update(TeamMember existingTeamMember, TeamMember teamMember) {
         log.info("Updating team member {} with request {}", existingTeamMember.id(), teamMember);
-        if (existingTeamMember.inviteStatus() == PENDING && teamMember.inviteStatus() == CONFIRMED)
-            teamRepository.changeMembersCount(teamMember.teamId(), 1);
         return save(
                 teamMember.toBuilder()
                         .role(teamMember.role() != null ? teamMember.role() : existingTeamMember.role())
@@ -84,6 +79,7 @@ public class TeamMemberService {
         final List<TeamMember> teamMembers = teamMemberRepository.getAllByTeam(teamId, userId, includeCurrentUser);
 
         return teamMembers.stream()
+                .filter(teamMember -> teamMember.inviteStatus() == CONFIRMED)
                 .filter(member -> !stagers.stream().map(Stager::teamMemberId).toList().contains(member.id()))
                 .collect(Collectors.toList());
     }
@@ -108,5 +104,9 @@ public class TeamMemberService {
                 .name(user.name())
                 .inviteStatus(PENDING)
                 .build());
+    }
+
+    public Integer countByTeamId(String teamId) {
+        return teamMemberRepository.countByTeamId(teamId);
     }
 }

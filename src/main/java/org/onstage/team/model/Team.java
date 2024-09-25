@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 public record Team(
         @MongoId
         String id,
-        String name,
-        Integer membersCount
+        String name
 ) {
 }

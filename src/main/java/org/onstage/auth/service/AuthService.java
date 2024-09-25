@@ -12,7 +12,6 @@ import org.onstage.team.service.TeamService;
 import org.onstage.user.model.User;
 import org.onstage.user.repository.UserRepository;
 import org.onstage.user.service.UserService;
-import org.onstage.usersettings.model.UserSettings;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -41,12 +40,12 @@ public class AuthService {
     }
 
     private User createNewUser(String uid, FirebaseToken decodedToken) {
-        User user = userService.save(User.builder()
+        User user = userService.create(User.builder()
                 .id(uid)
                 .name(decodedToken.getName())
                 .email(decodedToken.getEmail())
                 .build());
-        Team team = teamService.save(Team.builder().name(SOLO_TEAM_NAME).membersCount(0).build(), user.id());
+        Team team = teamService.save(Team.builder().name(SOLO_TEAM_NAME).build(), user.id());
         return userRepository.save(user.toBuilder().currentTeamId(team.id()).build());
 
     }

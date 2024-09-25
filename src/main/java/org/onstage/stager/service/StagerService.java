@@ -83,4 +83,8 @@ public class StagerService {
         log.info("Creating stager for event {} and team member {}", eventId, teamMemberId);
         stagerRepository.createEventLeader(eventId, teamMember);
     }
+
+    public Integer countByEventId(String eventId) {
+        return stagerRepository.countByEventId(eventId);
+    }
 }

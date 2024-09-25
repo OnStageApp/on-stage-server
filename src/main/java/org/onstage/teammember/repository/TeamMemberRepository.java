@@ -1,6 +1,7 @@
 package org.onstage.teammember.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.onstage.enums.MemberInviteStatus;
 import org.onstage.teammember.model.TeamMember;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -50,5 +51,11 @@ public class TeamMemberRepository {
     public List<TeamMember> getAllByUserId(String userId) {
         Criteria criteria = Criteria.where(TeamMember.Fields.userId).is(userId);
         return mongoTemplate.find(query(criteria), TeamMember.class);
+    }
+
+    public Integer countByTeamId(String teamId) {
+        Criteria criteria = Criteria.where(TeamMember.Fields.teamId).is(teamId)
+                .and(TeamMember.Fields.inviteStatus).is(MemberInviteStatus.CONFIRMED);
+        return (int) mongoTemplate.count(query(criteria), TeamMember.class);
     }
 }

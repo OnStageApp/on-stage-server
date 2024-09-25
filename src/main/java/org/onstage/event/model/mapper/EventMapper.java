@@ -3,6 +3,7 @@ package org.onstage.event.model.mapper;
 import lombok.RequiredArgsConstructor;
 import org.onstage.event.client.*;
 import org.onstage.event.model.Event;
+import org.onstage.stager.service.StagerService;
 import org.onstage.user.service.UserService;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class EventMapper {
     private final UserService userService;
+    private final StagerService stagerService;
 
     public EventDTO toDto(Event entity) {
         return EventDTO.builder()
@@ -32,16 +34,7 @@ public class EventMapper {
 
     public GetAllEventsResponse toGetAllEventsResponse(PaginatedEventResponse paginatedResponse) {
         return GetAllEventsResponse.builder()
-                .events(paginatedResponse.events().stream().map(event ->
-                        EventOverview.builder()
-                                .id(event.id())
-                                .name(event.name())
-                                .eventStatus(event.eventStatus())
-                                .dateTime(event.dateTime())
-                                .location(event.location())
-                                .userIdsWithPhoto(userService.getStagersWithPhoto(event.id()))
-                                .build()
-                ).toList())
+                .events(paginatedResponse.events().stream().map(this::toOverview).toList())
                 .hasMore(paginatedResponse.hasMore())
                 .build();
     }
@@ -54,6 +47,7 @@ public class EventMapper {
                 .dateTime(event.dateTime())
                 .location(event.location())
                 .userIdsWithPhoto(userService.getStagersWithPhoto(event.id()))
+                .stagerCount(stagerService.countByEventId(event.id()))
                 .build();
     }
 }
