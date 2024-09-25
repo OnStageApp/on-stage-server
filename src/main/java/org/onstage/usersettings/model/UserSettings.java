@@ -15,7 +15,8 @@ public record UserSettings(
         String userId,
         SongView songView,
         Boolean isDarkMode,
-        Boolean isNotificationsEnabled
+        Boolean isNotificationsEnabled,
+        Boolean isOnboardingDone
 
 ) {
 }
