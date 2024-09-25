@@ -58,4 +58,10 @@ public class TeamMemberRepository {
                 .and(TeamMember.Fields.inviteStatus).is(MemberInviteStatus.CONFIRMED);
         return (int) mongoTemplate.count(query(criteria), TeamMember.class);
     }
+
+    public void deleteAllByUserId(String userId) {
+        Criteria criteria = Criteria.where(TeamMember.Fields.userId).is(userId);
+        Query query = new Query(criteria);
+        mongoTemplate.remove(query, TeamMember.class);
+    }
 }

@@ -1,11 +1,15 @@
 package org.onstage.user.service;
 
 import com.amazonaws.HttpMethod;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.onstage.amazon.AmazonS3Service;
 import org.onstage.exceptions.BadRequestException;
+import org.onstage.stager.repository.StagerRepository;
+import org.onstage.team.repository.TeamRepository;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
 import org.onstage.user.client.UserDTO;
@@ -25,6 +29,10 @@ public class UserService {
     private final AmazonS3Service amazonS3Service;
     private final TeamMemberRepository teamMemberRepository;
     private final UserSettingsService userSettingsService;
+    private final StagerRepository stagerRepository;
+    private final TeamRepository teamRepository;
+    private final FirebaseAuth firebaseAuth;
+
 
     public List<User> getAll() {
         return userRepository.findAll();
@@ -91,5 +99,19 @@ public class UserService {
 
     public List<String> getStagersWithPhoto(String eventId) {
         return userRepository.getStagersWithPhoto(eventId);
+    }
+
+    public void delete(String userId) {
+        try {
+            stagerRepository.deleteAllByUserId(userId);
+            teamMemberRepository.deleteAllByUserId(userId);
+            teamRepository.deleteAllByLeaderId(userId);
+            // delete events where user is the team leader
+            firebaseAuth.deleteUser(userId);
+            userRepository.deleteById(userId);
+        } catch (FirebaseAuthException e) {
+            log.error("Error deleting user", e);
+            throw BadRequestException.invalidRequest();
+        }
     }
 }
