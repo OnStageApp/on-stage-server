@@ -21,13 +21,14 @@ public class UserSettingsService {
 
     public void createDefaultSettings(String userId) {
         UserSettings existingUserSettings = getUserSettings(userId);
-        if(existingUserSettings != null) {
+        if (existingUserSettings != null) {
             throw BadRequestException.userSettingsAlreadyCreated();
         }
         UserSettings savedUserSettings = userSettingsRepository.save(UserSettings.builder()
                 .isDarkMode(false)
                 .isNotificationsEnabled(true)
                 .songView(SongView.AMERICAN)
+                .isOnboardingDone(false)
                 .userId(userId)
                 .build());
         log.info("Default user settings for user {} has been saved", savedUserSettings.userId());
@@ -39,6 +40,7 @@ public class UserSettingsService {
                 .isDarkMode(request.isDarkMode() == null ? existingUserSettings.isDarkMode() : request.isDarkMode())
                 .isNotificationsEnabled(request.isNotificationsEnabled() == null ? existingUserSettings.isNotificationsEnabled() : request.isNotificationsEnabled())
                 .songView(request.songView() == null ? existingUserSettings.songView() : request.songView())
+                .isOnboardingDone(request.isOnboardingDone() == null ? existingUserSettings.isOnboardingDone() : request.isOnboardingDone())
                 .build();
         return userSettingsRepository.save(updatedUserSettings);
     }

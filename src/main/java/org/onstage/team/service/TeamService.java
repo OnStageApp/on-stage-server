@@ -2,7 +2,6 @@ package org.onstage.team.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.onstage.enums.MemberInviteStatus;
 import org.onstage.enums.MemberRole;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.team.client.TeamDTO;
@@ -10,7 +9,6 @@ import org.onstage.team.model.Team;
 import org.onstage.team.repository.TeamRepository;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
-import org.onstage.teammember.service.TeamMemberService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

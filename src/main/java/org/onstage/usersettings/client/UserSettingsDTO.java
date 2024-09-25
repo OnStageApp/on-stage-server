@@ -8,6 +8,7 @@ public record UserSettingsDTO(
         String userId,
         Boolean isDarkMode,
         Boolean isNotificationsEnabled,
+        Boolean isOnboardingDone,
         SongView songView
         ) {
 }

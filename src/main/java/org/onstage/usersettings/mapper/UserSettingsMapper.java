@@ -11,6 +11,7 @@ public class UserSettingsMapper {
                 .userId(userSettings.userId())
                 .isDarkMode(userSettings.isDarkMode())
                 .isNotificationsEnabled(userSettings.isNotificationsEnabled())
+                .isOnboardingDone(userSettings.isOnboardingDone())
                 .songView(userSettings.songView())
                 .build();
     }
@@ -20,6 +21,7 @@ public class UserSettingsMapper {
                 .userId(userSettingsDTO.userId())
                 .isDarkMode(userSettingsDTO.isDarkMode())
                 .isNotificationsEnabled(userSettingsDTO.isNotificationsEnabled())
+                .isOnboardingDone(userSettingsDTO.isOnboardingDone())
                 .songView(userSettingsDTO.songView())
                 .build();
     }
