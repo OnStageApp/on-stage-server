@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.onstage.enums.MemberInviteStatus.CONFIRMED;
 import static org.onstage.enums.MemberInviteStatus.PENDING;
 
 @Service
@@ -48,7 +49,8 @@ public class TeamMemberService {
         }
         User user = userService.getById(teamMember.userId());
         TeamMember savedTeamMember = teamMemberRepository.save(teamMember.toBuilder().name(user.name()).build());
-        teamRepository.changeMembersCount(teamMember.teamId(), 1);
+        if (teamMember.inviteStatus() == CONFIRMED)
+            teamRepository.changeMembersCount(teamMember.teamId(), 1);
         log.info("Team member {} has been saved", savedTeamMember.id());
         return savedTeamMember;
     }
@@ -67,9 +69,12 @@ public class TeamMemberService {
 
     public TeamMember update(TeamMember existingTeamMember, TeamMember teamMember) {
         log.info("Updating team member {} with request {}", existingTeamMember.id(), teamMember);
+        if (existingTeamMember.inviteStatus() == PENDING && teamMember.inviteStatus() == CONFIRMED)
+            teamRepository.changeMembersCount(teamMember.teamId(), 1);
         return save(
                 teamMember.toBuilder()
                         .role(teamMember.role() != null ? teamMember.role() : existingTeamMember.role())
+                        .inviteStatus(teamMember.inviteStatus() != null ? teamMember.inviteStatus() : existingTeamMember.inviteStatus())
                         .build()
         );
     }
@@ -89,7 +94,7 @@ public class TeamMemberService {
             throw BadRequestException.userNotFound();
         }
         TeamMember existingTeamMember = getByUserAndTeam(user.id(), teamId);
-        if(existingTeamMember != null) {
+        if (existingTeamMember != null) {
             throw BadRequestException.userAlreadyInTeam();
         }
 

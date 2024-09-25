@@ -32,13 +32,14 @@ public class TeamRepository {
     }
 
     public List<Team> getAll(String userId) {
-        Query teamMemberQuery = new Query(Criteria.where(TeamMember.Fields.userId).is(userId));
-        List<String> userTeamIds = mongoTemplate.find(teamMemberQuery, TeamMember.class)
+        Query teamMemberQuery = new Query(Criteria.where(TeamMember.Fields.userId).is(userId)
+                .and(TeamMember.Fields.inviteStatus).is("CONFIRMED"));
+        List<String> teamIds = mongoTemplate.find(teamMemberQuery, TeamMember.class)
                 .stream()
                 .map(TeamMember::teamId)
                 .toList();
 
-        Query teamQuery = new Query(Criteria.where("_id").in(userTeamIds));
+        Query teamQuery = new Query(Criteria.where("_id").in(teamIds));
         return mongoTemplate.find(teamQuery, Team.class);
     }
 
