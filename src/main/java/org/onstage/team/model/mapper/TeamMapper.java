@@ -40,7 +40,7 @@ public class TeamMapper {
                 .id(team.id())
                 .name(team.name())
                 .membersCount(teamMemberService.countByTeamId(team.id()))
-                .memberWithPhotoIds(teamMemberService.getMemberWithPhotoIds(team.id()))
+                .membersUserIds(teamMemberService.getMemberWithPhotoIds(team.id()))
                 .build();
     }
 }

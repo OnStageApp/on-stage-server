@@ -9,6 +9,6 @@ public record CurrentTeamDTO(
         String id,
         String name,
         Integer membersCount,
-        List<String> memberWithPhotoIds
+        List<String> membersUserIds
 ) {
 }
