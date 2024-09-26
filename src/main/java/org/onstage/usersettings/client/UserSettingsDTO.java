@@ -2,6 +2,7 @@ package org.onstage.usersettings.client;
 
 import lombok.Builder;
 import org.onstage.enums.SongView;
+import org.onstage.enums.TextSize;
 
 @Builder
 public record UserSettingsDTO(
@@ -9,6 +10,7 @@ public record UserSettingsDTO(
         Boolean isDarkMode,
         Boolean isNotificationsEnabled,
         Boolean isOnboardingDone,
-        SongView songView
+        SongView songView,
+        TextSize textSize
         ) {
 }

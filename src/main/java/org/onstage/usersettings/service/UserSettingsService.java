@@ -3,6 +3,7 @@ package org.onstage.usersettings.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.enums.SongView;
+import org.onstage.enums.TextSize;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.usersettings.client.UserSettingsDTO;
 import org.onstage.usersettings.model.UserSettings;
@@ -28,6 +29,7 @@ public class UserSettingsService {
                 .isDarkMode(false)
                 .isNotificationsEnabled(true)
                 .songView(SongView.AMERICAN)
+                .textSize(TextSize.NORMAL)
                 .isOnboardingDone(false)
                 .userId(userId)
                 .build());
@@ -41,6 +43,7 @@ public class UserSettingsService {
                 .isNotificationsEnabled(request.isNotificationsEnabled() == null ? existingUserSettings.isNotificationsEnabled() : request.isNotificationsEnabled())
                 .songView(request.songView() == null ? existingUserSettings.songView() : request.songView())
                 .isOnboardingDone(request.isOnboardingDone() == null ? existingUserSettings.isOnboardingDone() : request.isOnboardingDone())
+                .textSize(request.textSize() == null ? existingUserSettings.textSize() : request.textSize())
                 .build();
         return userSettingsRepository.save(updatedUserSettings);
     }

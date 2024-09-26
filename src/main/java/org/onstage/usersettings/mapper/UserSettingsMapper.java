@@ -13,6 +13,7 @@ public class UserSettingsMapper {
                 .isNotificationsEnabled(userSettings.isNotificationsEnabled())
                 .isOnboardingDone(userSettings.isOnboardingDone())
                 .songView(userSettings.songView())
+                .textSize(userSettings.textSize())
                 .build();
     }
 
@@ -23,6 +24,7 @@ public class UserSettingsMapper {
                 .isNotificationsEnabled(userSettingsDTO.isNotificationsEnabled())
                 .isOnboardingDone(userSettingsDTO.isOnboardingDone())
                 .songView(userSettingsDTO.songView())
+                .textSize(userSettingsDTO.textSize())
                 .build();
     }
 }
