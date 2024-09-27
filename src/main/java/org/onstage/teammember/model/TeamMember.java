@@ -3,6 +3,7 @@ package org.onstage.teammember.model;
 import lombok.Builder;
 import lombok.experimental.FieldNameConstants;
 import org.onstage.enums.MemberInviteStatus;
+import org.onstage.enums.MemberPosition;
 import org.onstage.enums.MemberRole;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
@@ -17,6 +18,7 @@ public record TeamMember(
         String userId,
         String teamId,
         MemberRole role,
-        MemberInviteStatus inviteStatus
+        MemberInviteStatus inviteStatus,
+        MemberPosition position
 ) {
 }

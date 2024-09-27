@@ -55,7 +55,6 @@ public class TeamMemberController {
         return ResponseEntity.ok(teamMemberMapper.toDto(teamMemberService.getByUserAndTeam(userId, teamId)));
     }
 
-
     @PostMapping
     public ResponseEntity<TeamMemberDTO> create(@RequestBody TeamMemberDTO request) {
         request = request.toBuilder().teamId(userSecurityContext.getCurrentTeamId()).build();

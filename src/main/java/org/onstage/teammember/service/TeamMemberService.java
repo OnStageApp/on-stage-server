@@ -8,7 +8,6 @@ import org.onstage.sendgrid.SendGridService;
 import org.onstage.stager.model.Stager;
 import org.onstage.stager.service.StagerService;
 import org.onstage.team.model.Team;
-import org.onstage.team.repository.TeamRepository;
 import org.onstage.team.service.TeamService;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
@@ -29,7 +28,6 @@ public class TeamMemberService {
     private final TeamMemberRepository teamMemberRepository;
     private final UserService userService;
     private final StagerService stagerService;
-    private final TeamRepository teamRepository;
     private final TeamService teamService;
     private final SendGridService sendGridService;
 
@@ -70,6 +68,7 @@ public class TeamMemberService {
                 teamMember.toBuilder()
                         .role(teamMember.role() != null ? teamMember.role() : existingTeamMember.role())
                         .inviteStatus(teamMember.inviteStatus() != null ? teamMember.inviteStatus() : existingTeamMember.inviteStatus())
+                        .position(teamMember.position() != null ? teamMember.position() : existingTeamMember.position())
                         .build()
         );
     }
