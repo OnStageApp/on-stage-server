@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-// we wont use this for now
 public enum MemberPosition {
     LEAD_VOICE(0, "Lead Voice"),
     ALTO_VOICE(1, "Alto Voice"),
@@ -15,7 +14,8 @@ public enum MemberPosition {
     BASSIST(4, "Bassist"),
     DRUMMER(5, "Drummer"),
     GUITARIST(6, "Guitarist"),
-    VIOLINIST(7, "Violinist");
+    VIOLINIST(7, "Violinist"),
+    OTHER(8, "Other");
 
     private final static Map<Integer, MemberPosition> map = Arrays.stream(MemberPosition.values())
             .collect(Collectors.toMap(obj -> obj.index, obj -> obj));
