@@ -89,6 +89,7 @@ public class EventService {
                 .location(event.location())
                 .eventStatus(DRAFT)
                 .dateTime(dateTime)
+                .teamId(event.teamId())
                 .build();
         duplicatedEvent = eventRepository.save(duplicatedEvent);
 
