@@ -7,6 +7,8 @@ import org.onstage.event.client.PaginatedEventResponse;
 import org.onstage.event.client.UpdateEventRequest;
 import org.onstage.event.model.Event;
 import org.onstage.event.repository.EventRepository;
+import org.onstage.eventitem.model.EventItem;
+import org.onstage.eventitem.repository.EventItemRepository;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.rehearsal.client.CreateRehearsalForEventRequest;
 import org.onstage.rehearsal.service.RehearsalService;
@@ -16,7 +18,6 @@ import org.onstage.stager.model.Stager;
 import org.onstage.stager.service.StagerService;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.service.TeamMemberService;
-import org.onstage.user.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -32,7 +33,7 @@ public class EventService {
     private final StagerService stagerService;
     private final RehearsalService rehearsalService;
     private final ReminderService reminderService;
-    private final UserService userService;
+    private final EventItemRepository eventItemRepository;
     private final TeamMemberService teamMemberService;
 
     public Event getById(String id) {
@@ -98,6 +99,17 @@ public class EventService {
 
         List<Reminder> reminders = reminderService.getAllByEventId(event.id());
         reminderService.createReminders(reminders.stream().map(Reminder::daysBefore).toList(), duplicatedEvent.id());
+
+        List<EventItem> eventItems = eventItemRepository.getAll(event.id());
+        for (EventItem eventItem : eventItems) {
+            eventItemRepository.save(EventItem.builder()
+                    .eventId(duplicatedEvent.id())
+                    .eventType(eventItem.eventType())
+                    .songId(eventItem.songId())
+                    .index(eventItem.index())
+                    .name(eventItem.name())
+                    .build());
+        }
 
         return duplicatedEvent;
     }
