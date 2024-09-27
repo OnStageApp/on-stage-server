@@ -36,6 +36,9 @@ public class StagerService {
     public List<Stager> createStagersForEvent(String eventId, List<String> teamMembersIds, String eventLeaderId) {
         if (eventLeaderId != null) {
             createEventLeader(eventId, eventLeaderId);
+            teamMembersIds = teamMembersIds.stream()
+                    .filter(id -> !id.equals(eventLeaderId))
+                    .toList();
         }
         return teamMembersIds.stream().map(teamMemberId -> create(eventId, teamMemberId)).collect(toList());
     }
