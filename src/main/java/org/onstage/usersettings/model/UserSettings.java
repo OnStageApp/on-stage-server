@@ -18,7 +18,9 @@ public record UserSettings(
         TextSize textSize,
         Boolean isDarkMode,
         Boolean isNotificationsEnabled,
-        Boolean isOnboardingDone
+        Boolean isOnboardingDone,
+        Boolean isAddRemindersTooltipShown,
+        Boolean isCreateEventTooltipShown
 
 ) {
 }

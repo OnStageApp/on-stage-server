@@ -14,6 +14,8 @@ public class UserSettingsMapper {
                 .isOnboardingDone(userSettings.isOnboardingDone())
                 .songView(userSettings.songView())
                 .textSize(userSettings.textSize())
+                .isAddRemindersTooltipShown(userSettings.isAddRemindersTooltipShown())
+                .isCreateEventTooltipShown(userSettings.isCreateEventTooltipShown())
                 .build();
     }
 
@@ -25,6 +27,8 @@ public class UserSettingsMapper {
                 .isOnboardingDone(userSettingsDTO.isOnboardingDone())
                 .songView(userSettingsDTO.songView())
                 .textSize(userSettingsDTO.textSize())
+                .isCreateEventTooltipShown(userSettingsDTO.isCreateEventTooltipShown())
+                .isAddRemindersTooltipShown(userSettingsDTO.isAddRemindersTooltipShown())
                 .build();
     }
 }

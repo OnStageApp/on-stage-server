@@ -7,15 +7,17 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public enum MemberPosition {
-    LEAD_VOICE(0, "Lead Voice"),
-    ALTO_VOICE(1, "Alto Voice"),
-    TENOR_VOICE(2, "Tenor Voice"),
-    PIANIST(3, "Pianist"),
-    BASSIST(4, "Bassist"),
-    DRUMMER(5, "Drummer"),
-    GUITARIST(6, "Guitarist"),
-    VIOLINIST(7, "Violinist"),
-    OTHER(8, "Other");
+    leadVoice(0, "leadVoice"),
+    altoVoice(1, "altoVoice"),
+    tenorVoice(2, "tenorVoice"),
+    piano(3, "piano"),
+    bass(4, "bass"),
+    drums(5, "drums"),
+    acGuitar(6, "acGuitar"),
+    elGuitar(7, "guitar"),
+    synth(8, "synth"),
+    violin(9, "violin"),
+    other(10, "other");
 
     private final static Map<Integer, MemberPosition> map = Arrays.stream(MemberPosition.values())
             .collect(Collectors.toMap(obj -> obj.index, obj -> obj));

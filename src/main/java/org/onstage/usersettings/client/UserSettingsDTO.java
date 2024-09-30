@@ -10,6 +10,8 @@ public record UserSettingsDTO(
         Boolean isDarkMode,
         Boolean isNotificationsEnabled,
         Boolean isOnboardingDone,
+        Boolean isAddRemindersTooltipShown,
+        Boolean isCreateEventTooltipShown,
         SongView songView,
         TextSize textSize
         ) {

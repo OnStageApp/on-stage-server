@@ -31,8 +31,11 @@ public class UserSettingsService {
                 .songView(SongView.AMERICAN)
                 .textSize(TextSize.NORMAL)
                 .isOnboardingDone(false)
+                .isAddRemindersTooltipShown(false)
+                .isCreateEventTooltipShown(false)
                 .userId(userId)
                 .build());
+
         log.info("Default user settings for user {} has been saved", savedUserSettings.userId());
     }
 
@@ -44,6 +47,8 @@ public class UserSettingsService {
                 .songView(request.songView() == null ? existingUserSettings.songView() : request.songView())
                 .isOnboardingDone(request.isOnboardingDone() == null ? existingUserSettings.isOnboardingDone() : request.isOnboardingDone())
                 .textSize(request.textSize() == null ? existingUserSettings.textSize() : request.textSize())
+                .isCreateEventTooltipShown(request.isCreateEventTooltipShown() == null ? existingUserSettings.isCreateEventTooltipShown() : request.isCreateEventTooltipShown())
+                .isAddRemindersTooltipShown(request.isAddRemindersTooltipShown() == null ? existingUserSettings.isAddRemindersTooltipShown() : request.isAddRemindersTooltipShown())
                 .build();
         return userSettingsRepository.save(updatedUserSettings);
     }
