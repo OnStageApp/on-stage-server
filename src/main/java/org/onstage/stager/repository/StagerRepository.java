@@ -80,4 +80,10 @@ public class StagerRepository {
         Query query = new Query(criteria);
         mongoTemplate.remove(query, Stager.class);
     }
+
+    public List<Stager> getStagersByIds(List<String> stagerIds) {
+        Criteria criteria = Criteria.where(Stager.Fields.id).in(stagerIds);
+        Query query = new Query(criteria);
+        return mongoTemplate.find(query, Stager.class);
+    }
 }

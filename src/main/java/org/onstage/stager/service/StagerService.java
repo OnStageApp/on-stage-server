@@ -2,6 +2,8 @@ package org.onstage.stager.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.onstage.enums.ParticipationStatus;
+import org.onstage.eventitem.service.EventItemService;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.stager.client.StagerDTO;
 import org.onstage.stager.model.Stager;
@@ -20,6 +22,7 @@ import static java.util.stream.Collectors.toList;
 public class StagerService {
     private final StagerRepository stagerRepository;
     private final TeamMemberRepository teamMemberRepository;
+    private final EventItemService eventItemService;
 
     public Stager getById(String id) {
         return stagerRepository.findById(id).orElseThrow(BadRequestException::stagerNotFound);
@@ -66,6 +69,9 @@ public class StagerService {
     }
 
     public Stager update(Stager existingStager, StagerDTO request) {
+        if (request.participationStatus() == ParticipationStatus.DECLINED) {
+            eventItemService.removeLeadVocalFromEvent(existingStager.id(), existingStager.eventId());
+        }
         Stager updatedStager = existingStager
                 .toBuilder()
                 .participationStatus(request.participationStatus() != null ? request.participationStatus() : existingStager.participationStatus())
@@ -90,4 +96,5 @@ public class StagerService {
     public Integer countByEventId(String eventId) {
         return stagerRepository.countByEventId(eventId);
     }
+
 }
