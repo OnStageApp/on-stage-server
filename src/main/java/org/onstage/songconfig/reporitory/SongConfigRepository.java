@@ -14,7 +14,7 @@ public class SongConfigRepository {
     private final SongConfigRepo songConfigRepo;
 
     public SongConfig getBySongAndTeam(String songId, String teamId) {
-        Criteria criteria = Criteria.where("songId").is(songId).and("teamId").is(teamId);
+        Criteria criteria = Criteria.where(SongConfig.Fields.songId).is(songId).and(SongConfig.Fields.teamId).is(teamId);
         Query query = new Query(criteria);
         return mongoTemplate.findOne(query, SongConfig.class);
     }

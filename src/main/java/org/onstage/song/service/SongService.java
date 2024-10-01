@@ -30,12 +30,20 @@ public class SongService {
     private final FavoriteSongRepository favoriteSongRepository;
     private final SongConfigService songConfigService;
 
-    public SongDTO getDtoProjection(String id, String teamId) {
+    public SongDTO getSongProjection(String id) {
         SongDTO songDTO = songRepository.findProjectionById(id);
         if (songDTO == null) {
             throw songNotFound();
         }
-        if (teamId != null) {
+        return songDTO;
+    }
+
+    public SongDTO getSongCustom(String id, String teamId, Boolean isCustom) {
+        SongDTO songDTO = songRepository.findProjectionById(id);
+        if (songDTO == null) {
+            throw songNotFound();
+        }
+        if (isCustom == null || isCustom) {
             SongConfig config = songConfigService.getBySongAndTeam(id, teamId);
             if (config != null && config.isCustom()) {
                 songDTO = songDTO.toBuilder()
@@ -63,7 +71,7 @@ public class SongService {
     public SongDTO save(Song song) {
         Song savedSong = songRepository.save(song);
         log.info("Song {} has been saved", savedSong.id());
-        return getDtoProjection(savedSong.id(), null);
+        return getSongProjection(savedSong.id());
     }
 
     public SongDTO update(Song existingSong, CreateOrUpdateSongRequest request) {

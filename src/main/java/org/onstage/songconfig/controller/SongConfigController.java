@@ -19,23 +19,16 @@ public class SongConfigController {
     private final SongConfigMapper songConfigMapper;
     private final UserSecurityContext userSecurityContext;
 
-    @GetMapping("{id}")
-    public ResponseEntity<SongConfigDTO> getBySongId(@PathVariable String id) {
+    @GetMapping("/{songId}")
+    public ResponseEntity<SongConfigDTO> getBySongId(@PathVariable(name = "songId") String songId) {
         String teamId = userSecurityContext.getCurrentTeamId();
-        SongConfig songConfig = songConfigService.getBySongAndTeam(id, teamId);
-        return ResponseEntity.ok(songConfigMapper.toDto(songConfig));
+        SongConfig songConfig = songConfigService.getBySongAndTeam(songId, teamId);
+        return ResponseEntity.ok(songConfig != null ? songConfigMapper.toDto(songConfig) : null);
     }
 
     @PostMapping
-    public ResponseEntity<SongConfigDTO> create(@RequestBody SongConfigDTO songConfigDTO) {
+    public ResponseEntity<SongConfigDTO> addSongConfig(@RequestBody SongConfigDTO songConfigDTO) {
         SongConfig songConfig = songConfigService.save(songConfigMapper.toEntity(songConfigDTO));
-        return ResponseEntity.ok(songConfigMapper.toDto(songConfig));
-    }
-
-    @PutMapping("{id}")
-    public ResponseEntity<SongConfigDTO> update(@PathVariable String id, @RequestBody SongConfigDTO songConfigDTO) {
-        String teamId = userSecurityContext.getCurrentTeamId();
-        SongConfig songConfig = songConfigService.update(id, teamId, songConfigMapper.toEntity(songConfigDTO));
         return ResponseEntity.ok(songConfigMapper.toDto(songConfig));
     }
 

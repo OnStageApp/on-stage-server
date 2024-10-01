@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static org.onstage.exceptions.BadRequestException.songNotFound;
-
 @RestController
 @RequestMapping("songs")
 @RequiredArgsConstructor
@@ -25,9 +23,9 @@ public class SongController {
     private final UserSecurityContext userSecurityContext;
 
     @GetMapping("/{id}")
-    public ResponseEntity<SongDTO> getById(@PathVariable final String id) {
+    public ResponseEntity<SongDTO> getById(@PathVariable final String id, @RequestParam(required = false) Boolean isCustom) {
         String teamId = userSecurityContext.getCurrentTeamId();
-        return ResponseEntity.ok(songService.getDtoProjection(id, teamId));
+        return ResponseEntity.ok(songService.getSongCustom(id, teamId, isCustom));
     }
 
     @GetMapping
