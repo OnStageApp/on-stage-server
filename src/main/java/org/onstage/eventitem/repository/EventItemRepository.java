@@ -35,4 +35,11 @@ public class EventItemRepository {
         Query query = new Query(criteria);
         mongoTemplate.remove(query, EventItem.class);
     }
+
+    public EventItem getByLeadVocalId(String stagerId, String eventId) {
+        Criteria criteria = Criteria.where(EventItem.Fields.leadVocalIds).is(stagerId)
+                .and(EventItem.Fields.eventId).is(eventId);
+        Query query = new Query(criteria);
+        return mongoTemplate.findOne(query, EventItem.class);
+    }
 }

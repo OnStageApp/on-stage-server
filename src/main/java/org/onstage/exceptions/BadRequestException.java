@@ -78,4 +78,7 @@ public class BadRequestException extends BaseException {
     public static BadRequestException userSettingsAlreadyCreated() {
         return new BadRequestException(17, "USER_SETTINGS_ALREADY_CREATED", "User settings already created for this user");
     }
+    public static BadRequestException eventItemNotFound() {
+        return new BadRequestException(18, "EVENT_ITEM_NOT_FOUND", "Event item was not found");
+    }
 }
