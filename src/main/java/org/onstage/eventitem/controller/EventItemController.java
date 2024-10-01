@@ -5,6 +5,7 @@ import org.onstage.eventitem.client.EventItemDTO;
 import org.onstage.eventitem.client.UpdateEventItemListRequest;
 import org.onstage.eventitem.mapper.EventItemMapper;
 import org.onstage.eventitem.service.EventItemService;
+import org.onstage.stager.client.StagerDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,4 +33,17 @@ public class EventItemController {
     public ResponseEntity<EventItemDTO> update(@PathVariable String id, @RequestBody EventItemDTO request) {
         return ResponseEntity.ok(eventItemService.update(id, request));
     }
+
+    @PutMapping("/{id}/lead-vocals")
+    public ResponseEntity<Object> updateEventItemList(@PathVariable String id, @RequestBody List<String> stagerIds) {
+        eventItemService.updateEventItemLeadVocals(id, stagerIds);
+        return ResponseEntity.ok(null);
+    }
+
+    @GetMapping("/{id}/lead-vocals")
+    public ResponseEntity<List<StagerDTO>> getLeadVocals(@PathVariable String id) {
+        return ResponseEntity.ok(eventItemService.getLeadVocals(id));
+    }
+
+
 }

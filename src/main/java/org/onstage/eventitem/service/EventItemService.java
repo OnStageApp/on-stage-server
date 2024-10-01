@@ -9,9 +9,12 @@ import org.onstage.eventitem.repository.EventItemRepository;
 import org.onstage.exceptions.ResourceNotFoundException;
 import org.onstage.song.client.SongOverview;
 import org.onstage.song.service.SongService;
+import org.onstage.stager.client.StagerDTO;
+import org.onstage.stager.service.StagerService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 import static org.onstage.enums.EventItemType.SONG;
 
@@ -23,6 +26,8 @@ public class EventItemService {
     private final EventItemRepository eventItemRepository;
     private final SongService songService;
     private final EventItemMapper eventItemMapper;
+    private final StagerService stagerService;
+
 
     public List<EventItemDTO> getAll(String eventId) {
         List<EventItem> eventItems = eventItemRepository.getAll(eventId);
@@ -36,6 +41,16 @@ public class EventItemService {
         }).toList();
         log.info("Retrieved {} event items for event id: {}", eventItems.size(), eventId);
         return eventItemDTOS;
+    }
+
+    public List<StagerDTO> getLeadVocals(String id) {
+        EventItem eventItem = eventItemRepository.getById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("EventItem with id:%s was not found".formatted(id)));
+        List<String> leadVocalIds = eventItem.leadVocalIds();
+        if (Objects.nonNull(leadVocalIds) && !leadVocalIds.isEmpty()) {
+            return getStagerDTOsByIds(leadVocalIds);
+        }
+        return List.of();
     }
 
     public EventItemDTO save(EventItem eventItem) {
@@ -73,11 +88,27 @@ public class EventItemService {
                 .build();
     }
 
+    public void updateEventItemLeadVocals(String eventItemId, List<String> stagerIds) {
+        EventItem existingEventItem = eventItemRepository.getById(eventItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("EventItem with id:%s was not found".formatted(eventItemId)));
+
+        EventItem updatedEventItem = existingEventItem.toBuilder()
+                .leadVocalIds(stagerIds)
+                .build();
+
+        eventItemRepository.save(updatedEventItem);
+
+    }
+
     public List<EventItemDTO> updateEventItemList(List<EventItem> eventItems, String eventId) {
         if (eventItems.isEmpty()) {
             return List.of();
         }
         eventItemRepository.deleteAllByEventId(eventId);
         return eventItems.stream().map(this::save).toList();
+    }
+
+    private List<StagerDTO> getStagerDTOsByIds(List<String> stagerIds) {
+        return stagerService.getStagersByIds(stagerIds);
     }
 }

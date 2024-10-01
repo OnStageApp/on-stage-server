@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.stager.client.StagerDTO;
 import org.onstage.stager.model.Stager;
+import org.onstage.stager.model.mapper.StagerMapper;
 import org.onstage.stager.repository.StagerRepository;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
@@ -20,6 +21,7 @@ import static java.util.stream.Collectors.toList;
 public class StagerService {
     private final StagerRepository stagerRepository;
     private final TeamMemberRepository teamMemberRepository;
+    private final StagerMapper stagerMapper;
 
     public Stager getById(String id) {
         return stagerRepository.findById(id).orElseThrow(BadRequestException::stagerNotFound);
@@ -89,5 +91,10 @@ public class StagerService {
 
     public Integer countByEventId(String eventId) {
         return stagerRepository.countByEventId(eventId);
+    }
+
+    public List<StagerDTO> getStagersByIds(List<String> stagerIds) {
+        List<Stager> stagers = stagerIds.stream().map(this::getById).toList();
+        return stagerMapper.toDtoList(stagers);
     }
 }
