@@ -1,6 +1,7 @@
 package org.onstage.songconfig.model.mapper;
 
 import org.onstage.songconfig.client.SongConfigDTO;
+import org.onstage.songconfig.client.SongConfigOverview;
 import org.onstage.songconfig.model.SongConfig;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,12 @@ public class SongConfigMapper {
                 .key(songConfigDTO.key())
                 .lyrics(songConfigDTO.lyrics())
                 .isCustom(songConfigDTO.isCustom())
+                .build();
+    }
+
+    public SongConfigOverview toOverview(SongConfig songConfig) {
+        return SongConfigOverview.builder()
+                .isCustom(songConfig.isCustom())
                 .build();
     }
 }

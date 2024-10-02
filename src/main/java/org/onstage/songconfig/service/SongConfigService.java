@@ -2,7 +2,6 @@ package org.onstage.songconfig.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.onstage.exceptions.BadRequestException;
 import org.onstage.songconfig.model.SongConfig;
 import org.onstage.songconfig.reporitory.SongConfigRepository;
 import org.springframework.stereotype.Service;
@@ -19,26 +18,24 @@ public class SongConfigService {
 
     public SongConfig save(SongConfig songConfig) {
         SongConfig existingConfig = songConfigRepository.getBySongAndTeam(songConfig.songId(), songConfig.teamId());
+        log.info("Saving song config for song {} and team {}.", songConfig.songId(), songConfig.teamId());
         if (existingConfig != null) {
-            log.info("Deleting older song config for song {} and team {}.", existingConfig.songId(), existingConfig.teamId());
-            songConfigRepository.delete(existingConfig);
+            return update(existingConfig, songConfig);
+        } else {
+            return songConfigRepository.save(songConfig);
         }
-        SongConfig savedEntity = songConfigRepository.save(songConfig);
-        log.info("Song config {} has been saved", savedEntity.songId());
-        return savedEntity;
     }
 
-    public SongConfig update(String songId, String teamId, SongConfig songConfig) {
-        SongConfig existingConfig = songConfigRepository.getBySongAndTeam(songId, teamId);
-        if(existingConfig == null) {
-            throw BadRequestException.songConfigNotFound();
-        }
-
-        log.info("Updating song config for song {} and team {}.", songId, teamId);
+    public SongConfig update(SongConfig existingConfig, SongConfig songConfig) {
+        log.info("Updating song config for song {} and team {}.", existingConfig.songId(), existingConfig.teamId());
         return songConfigRepository.save(existingConfig.toBuilder()
-                .key(songConfig.key())
-                .lyrics(songConfig.lyrics())
-                .isCustom(songConfig.isCustom())
+                .key(songConfig.key() != null ? songConfig.key() : existingConfig.key())
+                .lyrics(songConfig.lyrics() != null ? songConfig.lyrics() : existingConfig.lyrics())
+                .isCustom(songConfig.isCustom() != null ? songConfig.isCustom() : existingConfig.isCustom())
                 .build());
+    }
+
+    public boolean isCustomBySongAndTeam(String songId, String teamId) {
+        return songConfigRepository.isCustomBySongAndTeam(songId, teamId);
     }
 }

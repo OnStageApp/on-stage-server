@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.common.beans.UserSecurityContext;
 import org.onstage.songconfig.client.SongConfigDTO;
+import org.onstage.songconfig.client.SongConfigOverview;
 import org.onstage.songconfig.model.SongConfig;
 import org.onstage.songconfig.model.mapper.SongConfigMapper;
 import org.onstage.songconfig.service.SongConfigService;
@@ -20,10 +21,12 @@ public class SongConfigController {
     private final UserSecurityContext userSecurityContext;
 
     @GetMapping("/{songId}")
-    public ResponseEntity<SongConfigDTO> getBySongId(@PathVariable(name = "songId") String songId) {
+    public ResponseEntity<SongConfigOverview> getBySongId(@PathVariable(name = "songId") String songId) {
         String teamId = userSecurityContext.getCurrentTeamId();
-        SongConfig songConfig = songConfigService.getBySongAndTeam(songId, teamId);
-        return ResponseEntity.ok(songConfig != null ? songConfigMapper.toDto(songConfig) : null);
+        Boolean isCustom = songConfigService.isCustomBySongAndTeam(songId, teamId);
+        return ResponseEntity.ok(SongConfigOverview.builder()
+                .isCustom(isCustom)
+                .build());
     }
 
     @PostMapping
