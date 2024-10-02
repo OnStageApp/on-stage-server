@@ -69,7 +69,7 @@ public class TeamMemberService {
                 .role(teamMember.role() != null ? teamMember.role() : existingTeamMember.role())
                 .inviteStatus(teamMember.inviteStatus() != null ? teamMember.inviteStatus() : existingTeamMember.inviteStatus())
                 .position(teamMember.position() != null ? teamMember.position() : existingTeamMember.position())
-                .build() );
+                .build());
     }
 
     public List<TeamMember> getAllUninvitedMembers(String eventId, String userId, String teamId, boolean includeCurrentUser) {
@@ -110,5 +110,9 @@ public class TeamMemberService {
 
     public List<String> getMemberWithPhotoIds(String teamId) {
         return teamMemberRepository.getMemberWithPhotoIds(teamId);
+    }
+
+    public MemberRole getRole(Team team, String userId) {
+        return teamMemberRepository.getByUserAndTeam(userId, team.id()).role();
     }
 }

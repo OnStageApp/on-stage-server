@@ -2,6 +2,7 @@ package org.onstage.team.model.mapper;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.team.client.CurrentTeamDTO;
+import org.onstage.team.client.GetTeamResponse;
 import org.onstage.team.client.TeamDTO;
 import org.onstage.team.model.Team;
 import org.onstage.teammember.service.TeamMemberService;
@@ -29,9 +30,9 @@ public class TeamMapper {
                 .build();
     }
 
-    public List<TeamDTO> toDtoList(List<Team> entities) {
+    public List<GetTeamResponse> toDtoList(List<Team> entities, String userId) {
         return entities.stream()
-                .map(this::toDto)
+                .map(team -> toGetTeamResponse(team, userId))
                 .toList();
     }
 
@@ -41,6 +42,15 @@ public class TeamMapper {
                 .name(team.name())
                 .membersCount(teamMemberService.countByTeamId(team.id()))
                 .membersUserIds(teamMemberService.getMemberWithPhotoIds(team.id()))
+                .build();
+    }
+
+    public GetTeamResponse toGetTeamResponse(Team team, String userId) {
+        return GetTeamResponse.builder()
+                .id(team.id())
+                .name(team.name())
+                .membersCount(teamMemberService.countByTeamId(team.id()))
+                .role(teamMemberService.getRole(team, userId))
                 .build();
     }
 }
