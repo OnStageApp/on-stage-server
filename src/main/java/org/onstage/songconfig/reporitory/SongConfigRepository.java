@@ -19,6 +19,16 @@ public class SongConfigRepository {
         return mongoTemplate.findOne(query, SongConfig.class);
     }
 
+    public Boolean isCustomBySongAndTeam(String songId, String teamId) {
+        Criteria criteria = Criteria.where(SongConfig.Fields.songId).is(songId)
+                .and(SongConfig.Fields.teamId).is(teamId);
+        Query query = new Query(criteria);
+        query.fields().include(SongConfig.Fields.isCustom);
+
+        SongConfig songConfig = mongoTemplate.findOne(query, SongConfig.class);
+        return songConfig != null ? songConfig.isCustom() : null;
+    }
+
     public SongConfig save(SongConfig songConfig) {
         return songConfigRepo.save(songConfig);
     }
