@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.onstage.common.beans.UserSecurityContext;
 import org.onstage.team.client.CurrentTeamDTO;
 import org.onstage.team.client.GetAllTeamsResponse;
+import org.onstage.team.client.GetTeamResponse;
 import org.onstage.team.client.TeamDTO;
 import org.onstage.team.model.Team;
 import org.onstage.team.model.mapper.TeamMapper;
@@ -31,7 +32,7 @@ public class TeamController {
     @GetMapping
     public ResponseEntity<GetAllTeamsResponse> getAll() {
         String userId = userSecurityContext.getUserId();
-        List<TeamDTO> teams = teamMapper.toDtoList(teamService.getAll(userId));
+        List<GetTeamResponse> teams = teamMapper.toDtoList(teamService.getAll(userId), userId);
 
         return ResponseEntity.ok(GetAllTeamsResponse.builder()
                 .teams(teams)

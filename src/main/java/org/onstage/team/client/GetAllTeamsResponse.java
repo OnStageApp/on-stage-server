@@ -6,7 +6,7 @@ import java.util.List;
 
 @Builder
 public record GetAllTeamsResponse(
-        List<TeamDTO> teams,
+        List<GetTeamResponse> teams,
         String currentTeamId
 ) {
 }
