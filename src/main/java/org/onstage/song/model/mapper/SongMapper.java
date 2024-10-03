@@ -14,7 +14,8 @@ public class SongMapper {
     public Song fromCreateRequest(CreateOrUpdateSongRequest song) {
         return Song.builder()
                 .title(song.title())
-                .lyrics(song.lyrics())
+                .structure(song.structure())
+                .rawSections(song.rawSections())
                 .tempo(song.tempo())
                 .key(song.key())
                 .artistId(song.artistId())

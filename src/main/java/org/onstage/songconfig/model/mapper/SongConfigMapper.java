@@ -12,7 +12,7 @@ public class SongConfigMapper {
                 .songId(songConfig.songId())
                 .teamId(songConfig.teamId())
                 .key(songConfig.key())
-                .lyrics(songConfig.lyrics())
+                .structure(songConfig.structure())
                 .isCustom(songConfig.isCustom())
                 .build();
     }
@@ -22,7 +22,7 @@ public class SongConfigMapper {
                 .songId(songConfigDTO.songId())
                 .teamId(songConfigDTO.teamId())
                 .key(songConfigDTO.key())
-                .lyrics(songConfigDTO.lyrics())
+                .structure(songConfigDTO.structure())
                 .isCustom(songConfigDTO.isCustom())
                 .build();
     }

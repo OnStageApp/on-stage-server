@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
-import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Component
 @RequiredArgsConstructor
@@ -30,12 +29,12 @@ public class SongRepository {
     }
 
     public SongDTO findProjectionById(String id) {
-        Aggregation aggregation = newAggregation(songProjectionPipeline(Criteria.where("_id").is(id)));
+        Aggregation aggregation = newAggregation(songProjectionPipeline(Criteria.where(Song.Fields.id).is(id)));
         return mongoTemplate.aggregate(aggregation, Song.class, SongDTO.class).getUniqueMappedResult();
     }
 
     public Optional<SongOverview> findOverviewById(String id) {
-        Aggregation aggregation = newAggregation(songOverviewProjectionPipeline(Criteria.where("_id").is(id), null, null));
+        Aggregation aggregation = newAggregation(songOverviewProjectionPipeline(Criteria.where(Song.Fields.id).is(id), null, null));
         return Optional.ofNullable(mongoTemplate.aggregate(aggregation, Song.class, SongOverview.class)
                 .getUniqueMappedResult());
     }
@@ -45,17 +44,12 @@ public class SongRepository {
 
         if (songFilter.search() != null && !songFilter.search().isEmpty()) {
             criteriaList.add(new Criteria().orOperator(
-                    Criteria.where("title").regex(songFilter.search(), "i"),
-                    Criteria.where("lyrics").regex(songFilter.search(), "i")
+                    Criteria.where(Song.Fields.title).regex(songFilter.search(), "i")
             ));
         }
 
         if (songFilter.key() != null) {
-            criteriaList.add(Criteria.where("key").is(songFilter.key()));
-        }
-
-        if (songFilter.genres() != null && !songFilter.genres().isEmpty()) {
-            criteriaList.add(Criteria.where("genres").in(songFilter.genres()));
+            criteriaList.add(Criteria.where(Song.Fields.key).is(songFilter.key()));
         }
 
         Criteria finalCriteria = new Criteria();
@@ -63,7 +57,7 @@ public class SongRepository {
             finalCriteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[0]));
         }
 
-        Sort sort = Sort.by(Sort.Order.asc("title"), Sort.Order.asc("artist.name"));
+        Sort sort = Sort.by(Sort.Order.asc(Song.Fields.title), Sort.Order.asc("artist.name"));
         Aggregation aggregation = newAggregation(songOverviewProjectionPipeline(finalCriteria, songFilter.artistId(), sort));
         return mongoTemplate.aggregate(aggregation, Song.class, SongOverview.class).getMappedResults();
     }
@@ -84,7 +78,8 @@ public class SongRepository {
         operations.add(project()
                 .and("_id").as("id")
                 .and("title").as("title")
-                .and("lyrics").as("lyrics")
+                .and("structure").as("structure")
+                .and("rawSections").as("rawSections")
                 .and("createdAt").as("createdAt")
                 .and("updatedAt").as("updatedAt")
                 .and("key").as("key")

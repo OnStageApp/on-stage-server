@@ -47,7 +47,7 @@ public class SongService {
             SongConfig config = songConfigService.getBySongAndTeam(id, teamId);
             if (config != null && config.isCustom()) {
                 songDTO = songDTO.toBuilder()
-                        .lyrics(config.lyrics() == null ? songDTO.lyrics() : config.lyrics())
+                        .structure(config.structure() == null ? songDTO.structure() : config.structure())
                         .key(config.key() == null ? songDTO.key() : config.key())
                         .build();
             }
@@ -84,7 +84,8 @@ public class SongService {
         return Song.builder()
                 .id(existingSong.id())
                 .title(request.title() == null ? existingSong.title() : request.title())
-                .lyrics(request.lyrics() == null ? existingSong.lyrics() : request.lyrics())
+                .structure(request.structure() == null ? existingSong.structure() : request.structure())
+                .rawSections(request.rawSections() == null ? existingSong.rawSections() : request.rawSections())
                 .tempo(request.tempo() == null ? existingSong.tempo() : request.tempo())
                 .key(request.key() == null ? existingSong.key() : request.key())
                 .artistId(request.artistId() == null ? existingSong.artistId() : request.artistId())

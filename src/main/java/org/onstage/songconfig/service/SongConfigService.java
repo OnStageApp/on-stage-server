@@ -30,7 +30,7 @@ public class SongConfigService {
         log.info("Updating song config for song {} and team {}.", existingConfig.songId(), existingConfig.teamId());
         return songConfigRepository.save(existingConfig.toBuilder()
                 .key(songConfig.key() != null ? songConfig.key() : existingConfig.key())
-                .lyrics(songConfig.lyrics() != null ? songConfig.lyrics() : existingConfig.lyrics())
+                .structure(songConfig.structure() != null ? songConfig.structure() : existingConfig.structure())
                 .isCustom(songConfig.isCustom() != null ? songConfig.isCustom() : existingConfig.isCustom())
                 .build());
     }
