@@ -18,7 +18,7 @@ public record Song(
         String id,
         String title,
         List<StructureItemEnum> structure,
-        String rawSections,
+        List<RawSongSection> rawSections,
         Integer tempo,
         KeysEnum key,
         LocalDateTime createdAt,

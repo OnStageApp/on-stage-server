@@ -4,6 +4,7 @@ import lombok.Builder;
 import org.onstage.artist.client.ArtistDTO;
 import org.onstage.enums.KeysEnum;
 import org.onstage.enums.StructureItemEnum;
+import org.onstage.song.model.RawSongSection;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ public record SongDTO(
         String id,
         String title,
         List<StructureItemEnum> structure,
-        String rawSections,
+        List<RawSongSection> rawSections,
         Integer tempo,
         KeysEnum key,
         ArtistDTO artist

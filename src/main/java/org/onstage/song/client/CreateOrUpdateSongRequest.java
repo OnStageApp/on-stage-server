@@ -3,6 +3,7 @@ package org.onstage.song.client;
 import lombok.Builder;
 import org.onstage.enums.KeysEnum;
 import org.onstage.enums.StructureItemEnum;
+import org.onstage.song.model.RawSongSection;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
 public record CreateOrUpdateSongRequest(
         String title,
         List<StructureItemEnum> structure,
-        String rawSections,
+        List<RawSongSection> rawSections,
         Integer tempo,
         KeysEnum key,
         String artistId
