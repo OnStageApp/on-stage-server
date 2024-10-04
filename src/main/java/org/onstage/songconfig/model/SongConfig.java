@@ -2,8 +2,8 @@ package org.onstage.songconfig.model;
 
 import lombok.Builder;
 import lombok.experimental.FieldNameConstants;
-import org.onstage.enums.KeysEnum;
 import org.onstage.enums.StructureItemEnum;
+import org.onstage.song.model.SongKey;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
@@ -19,7 +19,7 @@ public record SongConfig(
         String id,
         String songId,
         String teamId,
-        KeysEnum key,
+        SongKey key,
         List<StructureItemEnum> structure,
         Boolean isCustom
 ) {
