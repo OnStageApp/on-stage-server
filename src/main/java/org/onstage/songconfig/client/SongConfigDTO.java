@@ -1,8 +1,8 @@
 package org.onstage.songconfig.client;
 
 import lombok.Builder;
-import org.onstage.enums.KeysEnum;
 import org.onstage.enums.StructureItemEnum;
+import org.onstage.song.model.SongKey;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import java.util.List;
 public record SongConfigDTO(
         String songId,
         String teamId,
-        KeysEnum key,
+        SongKey key,
         List<StructureItemEnum> structure,
         Boolean isCustom
 ) {

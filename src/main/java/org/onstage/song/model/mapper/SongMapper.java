@@ -17,7 +17,7 @@ public class SongMapper {
                 .structure(song.structure())
                 .rawSections(song.rawSections())
                 .tempo(song.tempo())
-                .key(song.key())
+                .originalKey(song.originalKey())
                 .artistId(song.artistId())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())

@@ -48,8 +48,8 @@ public class SongRepository {
             ));
         }
 
-        if (songFilter.key() != null) {
-            criteriaList.add(Criteria.where(Song.Fields.key).is(songFilter.key()));
+        if (songFilter.originalKey() != null) {
+            criteriaList.add(Criteria.where(Song.Fields.originalKey).is(songFilter.originalKey()));
         }
 
         Criteria finalCriteria = new Criteria();
@@ -82,7 +82,7 @@ public class SongRepository {
                 .and("rawSections").as("rawSections")
                 .and("createdAt").as("createdAt")
                 .and("updatedAt").as("updatedAt")
-                .and("key").as("key")
+                .and("originalKey").as("originalKey")
                 .and("tempo").as("tempo")
                 .and("artist").as("artist"));
 
@@ -106,7 +106,7 @@ public class SongRepository {
         operations.add(project()
                 .and("_id").as("id")
                 .and("title").as("title")
-                .and("key").as("key")
+                .and("originalKey").as("originalKey")
                 .and("tempo").as("tempo")
                 .and("artist").as("artist"));
 

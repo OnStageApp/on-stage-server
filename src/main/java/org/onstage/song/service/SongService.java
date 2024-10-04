@@ -40,6 +40,7 @@ public class SongService {
 
     public SongDTO getSongCustom(String id, String teamId, Boolean isCustom) {
         SongDTO songDTO = songRepository.findProjectionById(id);
+        songDTO = songDTO.toBuilder().key(songDTO.originalKey()).build();
         if (songDTO == null) {
             throw songNotFound();
         }
@@ -87,7 +88,7 @@ public class SongService {
                 .structure(request.structure() == null ? existingSong.structure() : request.structure())
                 .rawSections(request.rawSections() == null ? existingSong.rawSections() : request.rawSections())
                 .tempo(request.tempo() == null ? existingSong.tempo() : request.tempo())
-                .key(request.key() == null ? existingSong.key() : request.key())
+                .originalKey(request.originalKey() == null ? existingSong.originalKey() : request.originalKey())
                 .artistId(request.artistId() == null ? existingSong.artistId() : request.artistId())
                 .createdAt(existingSong.createdAt())
                 .updatedAt(LocalDateTime.now())

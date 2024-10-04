@@ -2,7 +2,6 @@ package org.onstage.song.model;
 
 import lombok.Builder;
 import lombok.experimental.FieldNameConstants;
-import org.onstage.enums.KeysEnum;
 import org.onstage.enums.StructureItemEnum;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
@@ -20,7 +19,7 @@ public record Song(
         List<StructureItemEnum> structure,
         List<RawSongSection> rawSections,
         Integer tempo,
-        KeysEnum key,
+        SongKey originalKey,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         String artistId
