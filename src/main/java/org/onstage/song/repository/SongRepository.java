@@ -48,10 +48,6 @@ public class SongRepository {
             ));
         }
 
-        if (songFilter.originalKey() != null) {
-            criteriaList.add(Criteria.where(Song.Fields.originalKey).is(songFilter.originalKey()));
-        }
-
         Criteria finalCriteria = new Criteria();
         if (!criteriaList.isEmpty()) {
             finalCriteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[0]));
@@ -106,7 +102,7 @@ public class SongRepository {
         operations.add(project()
                 .and("_id").as("id")
                 .and("title").as("title")
-                .and("originalKey").as("originalKey")
+                .and("originalKey").as("key")
                 .and("tempo").as("tempo")
                 .and("artist").as("artist"));
 

@@ -7,7 +7,6 @@ import org.onstage.song.model.SongKey;
 public record SongFilter(
         String search,
         String artistId,
-        SongKey originalKey,
         String genres
 ) {
 }

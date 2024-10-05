@@ -9,7 +9,7 @@ public record SongOverview(
         String id,
         String title,
         ArtistDTO artist,
-        SongKey originalKey,
+        SongKey key,
         Integer tempo
 ) {
 }
