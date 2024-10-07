@@ -7,15 +7,18 @@ import org.onstage.enums.MemberRole;
 import org.onstage.enums.ParticipationStatus;
 import org.onstage.event.client.PaginatedEventResponse;
 import org.onstage.event.model.Event;
-import org.onstage.stager.model.Stager;
 import org.onstage.teammember.model.TeamMember;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,38 +44,63 @@ public class EventRepository {
         return mongoTemplate.findOne(query, Event.class);
     }
 
-    public PaginatedEventResponse getPaginatedEvents(EventSearchType eventSearchType, String searchValue, int offset, int limit, TeamMember teamMember, String teamId) {
-        Query stagerQuery = new Query(Criteria.where(Stager.Fields.teamMemberId).is(teamMember.id())
-                .and(Stager.Fields.participationStatus).is(ParticipationStatus.CONFIRMED));
+    public PaginatedEventResponse getPaginatedEvents(TeamMember teamMember, String teamId, EventSearchType eventSearchType, String searchValue, int offset, int limit) {
 
-        List<String> memberEvents = mongoTemplate.find(stagerQuery, Stager.class)
-                .stream()
-                .map(Stager::eventId)
-                .toList();
+        Aggregation aggregation = createEventAggregation(teamMember, teamId, eventSearchType, searchValue, offset, limit);
+        AggregationResults<Event> aggregationResults = mongoTemplate.aggregate(aggregation, "events", Event.class);
 
-        Criteria eventCriteria = Criteria
-                .where(Event.Fields.id).in(memberEvents)
-                .and(Event.Fields.teamId).is(teamId);
-
-        if (teamMember.role() == MemberRole.NONE) {
-            eventCriteria.and(Event.Fields.eventStatus).is(EventStatus.PUBLISHED);
-        }
-
-        if (searchValue != null && !searchValue.isEmpty()) {
-            eventCriteria = eventCriteria.and(Event.Fields.name).regex(searchValue, "i");
-        } else if (EventSearchType.UPCOMING.equals(eventSearchType)) {
-            eventCriteria = eventCriteria.and(Event.Fields.dateTime).gte(LocalDateTime.now());
-        } else if (EventSearchType.PAST.equals(eventSearchType)) {
-            eventCriteria = eventCriteria.and(Event.Fields.dateTime).lte(LocalDateTime.now());
-        }
-        Query eventQuery = new Query(eventCriteria)
-                .skip(offset)
-                .limit(limit);
-        List<Event> events = mongoTemplate.find(eventQuery, Event.class);
-        long totalCount = mongoTemplate.count(new Query(eventCriteria), Event.class);
+        List<Event> events = aggregationResults.getMappedResults();
+        long totalCount = mongoTemplate.count(createCountQuery(teamMember, teamId, eventSearchType, searchValue), Event.class);
         boolean hasMore = offset + limit < totalCount;
 
         return new PaginatedEventResponse(events, hasMore);
+    }
+
+    private Aggregation createEventAggregation(TeamMember teamMember, String teamId,
+                                               EventSearchType eventSearchType, String searchValue, int offset, int limit) {
+        List<AggregationOperation> operations = new ArrayList<>();
+
+        operations.add(Aggregation.match(Criteria.where(Event.Fields.teamId).is(teamId)));
+
+        if (teamMember.role() == MemberRole.NONE) {
+            operations.add(Aggregation.match(Criteria.where(Event.Fields.eventStatus).is(EventStatus.PUBLISHED)));
+        }
+
+        if (searchValue != null && !searchValue.isEmpty()) {
+            operations.add(Aggregation.match(Criteria.where(Event.Fields.name).regex(searchValue, "i")));
+        } else if (EventSearchType.UPCOMING.equals(eventSearchType)) {
+            operations.add(Aggregation.match(Criteria.where(Event.Fields.dateTime).gte(LocalDateTime.now())));
+        } else if (EventSearchType.PAST.equals(eventSearchType)) {
+            operations.add(Aggregation.match(Criteria.where(Event.Fields.dateTime).lte(LocalDateTime.now())));
+        }
+
+        operations.add(Aggregation.lookup("stagers", "_id", "eventId", "stagers"));
+        operations.add(Aggregation.match(Criteria.where("stagers.teamMemberId").is(teamMember.id())
+                .and("stagers.participationStatus").is(ParticipationStatus.CONFIRMED)));
+
+        operations.add(Aggregation.skip(offset));
+        operations.add(Aggregation.limit(limit));
+
+        return Aggregation.newAggregation(operations);
+    }
+
+    private Query createCountQuery(TeamMember teamMember, String teamId,
+                                   EventSearchType eventSearchType, String searchValue) {
+        Criteria criteria = Criteria.where(Event.Fields.teamId).is(teamId);
+
+        if (teamMember.role() == MemberRole.NONE) {
+            criteria.and(Event.Fields.eventStatus).is(EventStatus.PUBLISHED);
+        }
+
+        if (searchValue != null && !searchValue.isEmpty()) {
+            criteria.and(Event.Fields.name).regex(searchValue, "i");
+        } else if (EventSearchType.UPCOMING.equals(eventSearchType)) {
+            criteria.and(Event.Fields.dateTime).gte(LocalDateTime.now());
+        } else if (EventSearchType.PAST.equals(eventSearchType)) {
+            criteria.and(Event.Fields.dateTime).lte(LocalDateTime.now());
+        }
+
+        return new Query(criteria);
     }
 
 

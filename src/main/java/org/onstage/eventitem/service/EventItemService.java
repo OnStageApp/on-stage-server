@@ -10,6 +10,8 @@ import org.onstage.exceptions.BadRequestException;
 import org.onstage.exceptions.ResourceNotFoundException;
 import org.onstage.song.client.SongOverview;
 import org.onstage.song.service.SongService;
+import org.onstage.songconfig.model.SongConfig;
+import org.onstage.songconfig.service.SongConfigService;
 import org.onstage.stager.model.Stager;
 import org.onstage.stager.repository.StagerRepository;
 import org.springframework.stereotype.Service;
@@ -28,14 +30,21 @@ public class EventItemService {
     private final SongService songService;
     private final EventItemMapper eventItemMapper;
     private final StagerRepository stagerRepository;
+    private final SongConfigService songConfigService;
 
 
-    public List<EventItemDTO> getAll(String eventId) {
+    public List<EventItemDTO> getAll(String eventId, String teamId) {
         List<EventItem> eventItems = eventItemRepository.getAll(eventId);
         List<EventItemDTO> eventItemDTOS = eventItems.stream().map(eventItem -> {
             EventItemDTO eventItemDTO = eventItemMapper.toDto(eventItem);
             if (eventItem.eventType() == SONG) {
                 SongOverview song = songService.getOverviewSong(eventItem.songId());
+                SongConfig config = songConfigService.getBySongAndTeam(song.id(), teamId);
+                if (config != null && config.isCustom()) {
+                    song = song.toBuilder()
+                            .key(config.key() == null ? song.key() : config.key())
+                            .build();
+                }
                 eventItemDTO = eventItemDTO.toBuilder().song(song).build();
             }
             return eventItemDTO;

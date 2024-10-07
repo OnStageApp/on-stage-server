@@ -77,7 +77,7 @@ public class EventService {
 
     public PaginatedEventResponse getAllByFilter(String teamMemberId, String teamId, EventSearchType eventSearchType, String searchValue, int offset, int limit) {
         TeamMember teamMember = teamMemberService.getById(teamMemberId);
-        return eventRepository.getPaginatedEvents(eventSearchType, searchValue, offset, limit, teamMember, teamId);
+        return eventRepository.getPaginatedEvents(teamMember, teamId, eventSearchType, searchValue, offset, limit);
     }
 
     public Event getUpcomingPublishedEvent(String teamId) {
