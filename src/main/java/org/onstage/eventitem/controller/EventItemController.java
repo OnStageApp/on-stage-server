@@ -1,6 +1,7 @@
 package org.onstage.eventitem.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.onstage.common.beans.UserSecurityContext;
 import org.onstage.eventitem.client.EventItemDTO;
 import org.onstage.eventitem.client.UpdateEventItemListRequest;
 import org.onstage.eventitem.mapper.EventItemMapper;
@@ -19,10 +20,12 @@ public class EventItemController {
     private final EventItemService eventItemService;
     private final EventItemMapper eventItemMapper;
     private final StagerMapper stagerMapper;
+    private final UserSecurityContext userSecurityContext;
 
     @GetMapping
     public ResponseEntity<List<EventItemDTO>> getAll(@RequestParam String eventId) {
-        return ResponseEntity.ok(eventItemService.getAll(eventId));
+        String teamId = userSecurityContext.getCurrentTeamId();
+        return ResponseEntity.ok(eventItemService.getAll(eventId, teamId));
     }
 
     @PostMapping
