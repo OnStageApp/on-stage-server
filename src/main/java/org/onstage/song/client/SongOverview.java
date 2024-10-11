@@ -10,6 +10,7 @@ public record SongOverview(
         String title,
         ArtistDTO artist,
         SongKey key,
-        Integer tempo
+        Integer tempo,
+        String teamId
 ) {
 }

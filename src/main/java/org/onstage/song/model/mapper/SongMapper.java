@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class SongMapper {
 
-    public Song fromCreateRequest(CreateOrUpdateSongRequest song) {
+    public Song fromCreateRequest(CreateOrUpdateSongRequest song, String teamId) {
         return Song.builder()
                 .title(song.title())
                 .structure(song.structure())
@@ -21,6 +21,7 @@ public class SongMapper {
                 .artistId(song.artistId())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
+                .teamId(teamId)
                 .build();
     }
 

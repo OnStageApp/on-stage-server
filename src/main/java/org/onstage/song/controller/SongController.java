@@ -30,12 +30,14 @@ public class SongController {
 
     @GetMapping
     public ResponseEntity<List<SongOverview>> getAll(@RequestBody SongFilter songFilter) {
-        return ResponseEntity.ok(songService.getAll(songFilter));
+        String teamId = userSecurityContext.getCurrentTeamId();
+        return ResponseEntity.ok(songService.getAll(songFilter, teamId));
     }
 
     @PostMapping
     public ResponseEntity<SongDTO> create(@RequestBody CreateOrUpdateSongRequest song) {
-        return ResponseEntity.ok(songService.save(songMapper.fromCreateRequest(song)));
+        String teamId = userSecurityContext.getCurrentTeamId();
+        return ResponseEntity.ok(songService.save(songMapper.fromCreateRequest(song, teamId)));
     }
 
     @PutMapping("/{id}")

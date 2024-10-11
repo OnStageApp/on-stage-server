@@ -44,7 +44,7 @@ public class SongService {
         if (songDTO == null) {
             throw songNotFound();
         }
-        if (isCustom == null || isCustom) {
+        if (songDTO.teamId() == null && (isCustom == null || isCustom)) {
             SongConfig config = songConfigService.getBySongAndTeam(id, teamId);
             if (config != null && config.isCustom()) {
                 songDTO = songDTO.toBuilder()
@@ -65,8 +65,8 @@ public class SongService {
         return songRepository.findById(id).orElseThrow(BadRequestException::songNotFound);
     }
 
-    public List<SongOverview> getAll(SongFilter songFilter) {
-        return songRepository.getAll(songFilter);
+    public List<SongOverview> getAll(SongFilter songFilter, String teamId) {
+        return songRepository.getAll(songFilter, teamId);
     }
 
     public SongDTO save(Song song) {
@@ -82,15 +82,13 @@ public class SongService {
     }
 
     private Song updateSongFromDTO(Song existingSong, CreateOrUpdateSongRequest request) {
-        return Song.builder()
-                .id(existingSong.id())
+        return existingSong.toBuilder()
                 .title(request.title() == null ? existingSong.title() : request.title())
                 .structure(request.structure() == null ? existingSong.structure() : request.structure())
                 .rawSections(request.rawSections() == null ? existingSong.rawSections() : request.rawSections())
                 .tempo(request.tempo() == null ? existingSong.tempo() : request.tempo())
                 .originalKey(request.originalKey() == null ? existingSong.originalKey() : request.originalKey())
                 .artistId(request.artistId() == null ? existingSong.artistId() : request.artistId())
-                .createdAt(existingSong.createdAt())
                 .updatedAt(LocalDateTime.now())
                 .build();
     }
