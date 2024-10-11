@@ -1,5 +1,6 @@
 package org.onstage.common.exceptions;
 
+import io.sentry.Sentry;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.exceptions.BaseException;
@@ -21,6 +22,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGeneralException(Exception ex, WebRequest request) {
         log.error("Unhandled exception occurred", ex);
+        Sentry.captureException(ex);
         return new ResponseEntity<>(
                 new BaseException(
                         HttpStatus.INTERNAL_SERVER_ERROR,
