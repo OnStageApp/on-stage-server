@@ -25,6 +25,7 @@ public class SongController {
     @GetMapping("/{id}")
     public ResponseEntity<SongDTO> getById(@PathVariable final String id, @RequestParam(required = false) Boolean isCustom) {
         String teamId = userSecurityContext.getCurrentTeamId();
+        System.out.println("test");
         return ResponseEntity.ok(songService.getSongCustom(id, teamId, isCustom));
     }
 
