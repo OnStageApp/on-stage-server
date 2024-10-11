@@ -14,6 +14,6 @@ public record EventOverview(
         LocalDateTime dateTime,
         String location,
         List<String> userIdsWithPhoto,
-        Integer stagerCount
+        Long stagerCount
 ) {
 }

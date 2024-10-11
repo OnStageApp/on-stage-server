@@ -7,6 +7,10 @@ import org.onstage.stager.service.StagerService;
 import org.onstage.user.service.UserService;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+
 @Component
 @RequiredArgsConstructor
 public class EventMapper {
@@ -32,22 +36,32 @@ public class EventMapper {
                 .build();
     }
 
+
     public GetAllEventsResponse toGetAllEventsResponse(PaginatedEventResponse paginatedResponse) {
+        List<EventOverview> eventOverviews = paginatedResponse.events().parallelStream()
+                .map(this::toOverview)
+                .collect(Collectors.toList());
+
         return GetAllEventsResponse.builder()
-                .events(paginatedResponse.events().stream().map(this::toOverview).toList())
+                .events(eventOverviews)
                 .hasMore(paginatedResponse.hasMore())
                 .build();
     }
 
     public EventOverview toOverview(Event event) {
+        CompletableFuture<List<String>> userIdsWithPhotoFuture = CompletableFuture.supplyAsync(() ->
+                userService.getStagersWithPhoto(event.id()));
+        CompletableFuture<Long> stagerCountFuture = CompletableFuture.supplyAsync(() ->
+                Long.valueOf(stagerService.countByEventId(event.id())));
+
         return EventOverview.builder()
                 .id(event.id())
                 .name(event.name())
                 .eventStatus(event.eventStatus())
                 .dateTime(event.dateTime())
                 .location(event.location())
-                .userIdsWithPhoto(userService.getStagersWithPhoto(event.id()))
-                .stagerCount(stagerService.countByEventId(event.id()))
+                .userIdsWithPhoto(userIdsWithPhotoFuture.join())
+                .stagerCount(stagerCountFuture.join())
                 .build();
     }
 }
