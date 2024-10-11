@@ -20,7 +20,7 @@ public class FavoriteSongRepository {
     }
 
     public List<String> getAllByUserId(String userId) {
-        Query query = new Query(Criteria.where("userId").is(userId));
+        Query query = new Query(Criteria.where(FavoriteSong.Fields.userId).is(userId));
 
         return mongoTemplate.find(query, FavoriteSong.class)
                 .stream()
@@ -35,7 +35,7 @@ public class FavoriteSongRepository {
     }
 
     public FavoriteSong findBySongIdAndUserId(String songId, String userId) {
-        Query query = new Query(Criteria.where("songId").is(songId).and("userId").is(userId));
+        Query query = new Query(Criteria.where(FavoriteSong.Fields.songId).is(songId).and(FavoriteSong.Fields.userId).is(userId));
         return mongoTemplate.findOne(query, FavoriteSong.class);
     }
 }
