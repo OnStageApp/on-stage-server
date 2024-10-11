@@ -9,6 +9,8 @@ import org.onstage.team.model.Team;
 import org.onstage.team.repository.TeamRepository;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
+import org.onstage.user.model.User;
+import org.onstage.user.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +23,7 @@ import static org.onstage.enums.MemberInviteStatus.CONFIRMED;
 public class TeamService {
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
+    private final UserService userService;
 
     public Team getById(String id) {
         return teamRepository.findById(id).orElseThrow(BadRequestException::teamNotFound);
@@ -28,10 +31,12 @@ public class TeamService {
 
     public Team save(Team team, String userId) {
         Team savedTeam = teamRepository.save(team);
+        User user = userService.getById(userId);
         log.info("Team {} has been saved", savedTeam.id());
         teamMemberRepository.save(TeamMember.builder()
                 .teamId(savedTeam.id())
                 .userId(userId)
+                .name(user.name() != null ? user.name() : user.email())
                 .role(MemberRole.LEADER)
                 .inviteStatus(CONFIRMED).build());
         return getById(savedTeam.id());

@@ -43,8 +43,8 @@ public class StagerRepository {
         stagerRepo.deleteById(stagerId);
     }
 
-    public Stager save(Stager rehearsal) {
-        return stagerRepo.save(rehearsal);
+    public Stager save(Stager stager) {
+        return stagerRepo.save(stager);
     }
 
     public Stager getByEventAndTeamMember(String eventId, String teamMemberId) {
