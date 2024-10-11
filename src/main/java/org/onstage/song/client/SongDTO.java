@@ -17,6 +17,7 @@ public record SongDTO(
         Integer tempo,
         SongKey key,
         SongKey originalKey,
-        ArtistDTO artist
+        ArtistDTO artist,
+        String teamId
 ) {
 }

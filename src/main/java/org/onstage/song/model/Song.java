@@ -22,7 +22,8 @@ public record Song(
         SongKey originalKey,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        String artistId
+        String artistId,
+        String teamId
 
 ) {
 
