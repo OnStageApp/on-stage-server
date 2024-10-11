@@ -30,19 +30,9 @@ public class SongRepository {
     public SongDTO findProjectionById(String id) {
         Criteria criteria = Criteria.where(Song.Fields.id).is(id);
 
-        Map<String, String> projectionFields = new LinkedHashMap<>();
-        projectionFields.put("_id", "id");
-        projectionFields.put("title", "title");
-        projectionFields.put("structure", "structure");
-        projectionFields.put("rawSections", "rawSections");
-        projectionFields.put("createdAt", "createdAt");
-        projectionFields.put("updatedAt", "updatedAt");
-        projectionFields.put("originalKey", "originalKey");
-        projectionFields.put("tempo", "tempo");
-        projectionFields.put("artist", "artist");
-        projectionFields.put("teamId", "teamId");
+        Map<String, String> projectionFields = getProjectionFieldsForSongDTO();
 
-        Aggregation aggregation = buildAggregation(criteria, null, projectionFields, null);
+        Aggregation aggregation = buildAggregation(criteria, projectionFields, null);
 
         return mongoTemplate.aggregate(aggregation, Song.class, SongDTO.class).getUniqueMappedResult();
     }
@@ -50,28 +40,30 @@ public class SongRepository {
     public Optional<SongOverview> findOverviewById(String id) {
         Criteria criteria = Criteria.where(Song.Fields.id).is(id);
 
-        Map<String, String> projectionFields = new LinkedHashMap<>();
-        projectionFields.put("_id", "id");
-        projectionFields.put("title", "title");
-        projectionFields.put("originalKey", "key");
-        projectionFields.put("tempo", "tempo");
-        projectionFields.put("artist", "artist");
-        projectionFields.put("teamId", "teamId");
+        Map<String, String> projectionFields = getProjectionFieldsForSongOverview();
 
-        Aggregation aggregation = buildAggregation(criteria, null, projectionFields, null);
+        Aggregation aggregation = buildAggregation(criteria, projectionFields, null);
 
         SongOverview result = mongoTemplate.aggregate(aggregation, Song.class, SongOverview.class).getUniqueMappedResult();
         return Optional.ofNullable(result);
     }
 
     public List<SongOverview> getAll(SongFilter songFilter, String teamId) {
-        Criteria preLookupCriteria = new Criteria();
+        Criteria criteria = new Criteria();
+
+        List<Criteria> preLookupCriteriaList = new ArrayList<>();
+
         if (songFilter.search() != null && !songFilter.search().isEmpty()) {
-            preLookupCriteria.and(Song.Fields.title).regex(songFilter.search(), "i");
+            preLookupCriteriaList.add(Criteria.where(Song.Fields.title).regex(songFilter.search(), "i"));
         }
-        Criteria teamCriteria = getTeamIdCriteria(teamId, songFilter.includeOnlyTeamSongs());
+
+        Criteria teamCriteria = getTeamCriteria(teamId, songFilter.includeOnlyTeamSongs());
         if (teamCriteria != null) {
-            preLookupCriteria.andOperator(teamCriteria);
+            preLookupCriteriaList.add(teamCriteria);
+        }
+
+        if (!preLookupCriteriaList.isEmpty()) {
+            criteria.andOperator(preLookupCriteriaList.toArray(new Criteria[0]));
         }
 
         Criteria postLookupCriteria = null;
@@ -79,17 +71,11 @@ public class SongRepository {
             postLookupCriteria = Criteria.where("artist._id").is(songFilter.artistId());
         }
 
-        Map<String, String> projectionFields = new LinkedHashMap<>();
-        projectionFields.put("_id", "id");
-        projectionFields.put("title", "title");
-        projectionFields.put("originalKey", "key");
-        projectionFields.put("tempo", "tempo");
-        projectionFields.put("artist", "artist");
-        projectionFields.put("teamId", "teamId");
+        Map<String, String> projectionFields = getProjectionFieldsForSongOverview();
 
         Sort sort = Sort.by(Sort.Order.asc(Song.Fields.title), Sort.Order.asc("artist.name"));
 
-        Aggregation aggregation = buildAggregation(preLookupCriteria, postLookupCriteria, projectionFields, sort);
+        Aggregation aggregation = buildAggregation(criteria, projectionFields, sort, postLookupCriteria);
 
         return mongoTemplate.aggregate(aggregation, Song.class, SongOverview.class).getMappedResults();
     }
@@ -98,11 +84,15 @@ public class SongRepository {
         return songRepo.save(song);
     }
 
-    private Aggregation buildAggregation(Criteria preLookupCriteria, Criteria postLookupCriteria, Map<String, String> projectionFields, Sort sort) {
+    private Aggregation buildAggregation(Criteria criteria, Map<String, String> projectionFields, Sort sort) {
+        return buildAggregation(criteria, projectionFields, sort, null);
+    }
+
+    private Aggregation buildAggregation(Criteria criteria, Map<String, String> projectionFields, Sort sort, Criteria postLookupCriteria) {
         List<AggregationOperation> operations = new ArrayList<>();
 
-        if (preLookupCriteria != null && !preLookupCriteria.getCriteriaObject().isEmpty()) {
-            operations.add(match(preLookupCriteria));
+        if (criteria != null && !criteria.getCriteriaObject().isEmpty()) {
+            operations.add(match(criteria));
         }
 
         operations.add(lookup("artists", "artistId", "_id", "artist"));
@@ -125,8 +115,8 @@ public class SongRepository {
         return newAggregation(operations);
     }
 
-    private Criteria getTeamIdCriteria(String teamId, Boolean includeOnlyTeamSongs) {
-        if (includeOnlyTeamSongs != null && includeOnlyTeamSongs) {
+    private Criteria getTeamCriteria(String teamId, Boolean includeOnlyTeamSongs) {
+        if (Boolean.TRUE.equals(includeOnlyTeamSongs)) {
             return Criteria.where(Song.Fields.teamId).is(teamId);
         } else {
             return new Criteria().orOperator(
@@ -134,5 +124,31 @@ public class SongRepository {
                     Criteria.where(Song.Fields.teamId).is(teamId)
             );
         }
+    }
+
+    private Map<String, String> getProjectionFieldsForSongDTO() {
+        Map<String, String> projectionFields = new LinkedHashMap<>();
+        projectionFields.put("_id", "id");
+        projectionFields.put("title", "title");
+        projectionFields.put("structure", "structure");
+        projectionFields.put("rawSections", "rawSections");
+        projectionFields.put("createdAt", "createdAt");
+        projectionFields.put("updatedAt", "updatedAt");
+        projectionFields.put("originalKey", "originalKey");
+        projectionFields.put("tempo", "tempo");
+        projectionFields.put("artist", "artist");
+        projectionFields.put("teamId", "teamId");
+        return projectionFields;
+    }
+
+    private Map<String, String> getProjectionFieldsForSongOverview() {
+        Map<String, String> projectionFields = new LinkedHashMap<>();
+        projectionFields.put("_id", "id");
+        projectionFields.put("title", "title");
+        projectionFields.put("originalKey", "key");
+        projectionFields.put("tempo", "tempo");
+        projectionFields.put("artist", "artist");
+        projectionFields.put("teamId", "teamId");
+        return projectionFields;
     }
 }

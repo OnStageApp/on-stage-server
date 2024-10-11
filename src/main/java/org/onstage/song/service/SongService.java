@@ -10,6 +10,7 @@ import org.onstage.song.client.SongDTO;
 import org.onstage.song.client.SongFilter;
 import org.onstage.song.client.SongOverview;
 import org.onstage.song.model.Song;
+import org.onstage.song.model.mapper.SongMapper;
 import org.onstage.song.repository.SongRepository;
 import org.onstage.songconfig.model.SongConfig;
 import org.onstage.songconfig.service.SongConfigService;
@@ -30,30 +31,27 @@ public class SongService {
     private final FavoriteSongRepository favoriteSongRepository;
     private final SongConfigService songConfigService;
 
-    public SongDTO getSongProjection(String id) {
-        SongDTO songDTO = songRepository.findProjectionById(id);
-        if (songDTO == null) {
-            throw songNotFound();
-        }
-        return songDTO;
-    }
-
     public SongDTO getSongCustom(String id, String teamId, Boolean isCustom) {
         SongDTO songDTO = songRepository.findProjectionById(id);
-        songDTO = songDTO.toBuilder().key(songDTO.originalKey()).build();
         if (songDTO == null) {
             throw songNotFound();
         }
+
+        var key = songDTO.originalKey();
+        var structure = songDTO.structure();
+
         if (songDTO.teamId() == null && (isCustom == null || isCustom)) {
             SongConfig config = songConfigService.getBySongAndTeam(id, teamId);
             if (config != null && config.isCustom()) {
-                songDTO = songDTO.toBuilder()
-                        .structure(config.structure() == null ? songDTO.structure() : config.structure())
-                        .key(config.key() == null ? songDTO.key() : config.key())
-                        .build();
+                key = config.key() != null ? config.key() : key;
+                structure = config.structure() != null ? config.structure() : structure;
             }
         }
-        return songDTO;
+
+        return songDTO.toBuilder()
+                .key(key)
+                .structure(structure)
+                .build();
     }
 
     public SongOverview getOverviewSong(String id) {
@@ -61,28 +59,23 @@ public class SongService {
                 .orElseThrow(BadRequestException::songNotFound);
     }
 
-    public Song getById(String id) {
-        return songRepository.findById(id).orElseThrow(BadRequestException::songNotFound);
-    }
-
     public List<SongOverview> getAll(SongFilter songFilter, String teamId) {
         return songRepository.getAll(songFilter, teamId);
     }
 
-    public SongDTO save(Song song) {
-        Song savedSong = songRepository.save(song);
-        log.info("Song {} has been saved", savedSong.id());
-        return getSongProjection(savedSong.id());
+    public SongDTO createSong(Song song) {
+        Song savedSong = songRepository.save(song.toBuilder()
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build());
+        log.info("Song {} has been created", savedSong.id());
+        return getSongCustom(savedSong.id(), null, null);
     }
 
-    public SongDTO update(Song existingSong, CreateOrUpdateSongRequest request) {
-        log.info("Updating song {} with request {}", existingSong.id(), request);
-        Song updatedSong = updateSongFromDTO(existingSong, request);
-        return save(updatedSong);
-    }
-
-    private Song updateSongFromDTO(Song existingSong, CreateOrUpdateSongRequest request) {
-        return existingSong.toBuilder()
+    public SongDTO updateSong(String id, CreateOrUpdateSongRequest request) {
+        Song existingSong = songRepository.findById(id)
+                .orElseThrow(BadRequestException::songNotFound);
+        existingSong = existingSong.toBuilder()
                 .title(request.title() == null ? existingSong.title() : request.title())
                 .structure(request.structure() == null ? existingSong.structure() : request.structure())
                 .rawSections(request.rawSections() == null ? existingSong.rawSections() : request.rawSections())
@@ -91,9 +84,12 @@ public class SongService {
                 .artistId(request.artistId() == null ? existingSong.artistId() : request.artistId())
                 .updatedAt(LocalDateTime.now())
                 .build();
+        Song updatedSong = songRepository.save(existingSong);
+        log.info("Song {} has been updated", updatedSong.id());
+        return getSongCustom(updatedSong.id(), updatedSong.teamId(), null);
     }
 
-    public void addSavedSong(String songId, String userId) {
+    public void addFavoriteSong(String songId, String userId) {
         Song song = songRepository.findById(songId).orElseThrow(BadRequestException::songNotFound);
         FavoriteSong favoriteSong = favoriteSongRepository.findBySongIdAndUserId(song.id(), userId);
         if (favoriteSong != null) {
@@ -112,7 +108,7 @@ public class SongService {
     }
 
     public void removeFavoriteSong(String songId, String userId) {
-        log.info("Removing song {} from favorites for user {}", songId, userId);
         favoriteSongRepository.removeFavoriteSong(songId, userId);
+        log.info("Song {} removed from favorites for user {}", songId, userId);
     }
 }

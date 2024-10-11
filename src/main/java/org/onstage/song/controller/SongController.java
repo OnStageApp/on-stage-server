@@ -6,7 +6,6 @@ import org.onstage.song.client.CreateOrUpdateSongRequest;
 import org.onstage.song.client.SongDTO;
 import org.onstage.song.client.SongFilter;
 import org.onstage.song.client.SongOverview;
-import org.onstage.song.model.Song;
 import org.onstage.song.model.mapper.SongMapper;
 import org.onstage.song.service.SongService;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("songs")
+@RequestMapping("/songs")
 @RequiredArgsConstructor
 public class SongController {
     private final SongService songService;
@@ -23,9 +22,8 @@ public class SongController {
     private final UserSecurityContext userSecurityContext;
 
     @GetMapping("/{id}")
-    public ResponseEntity<SongDTO> getById(@PathVariable final String id, @RequestParam(required = false) Boolean isCustom) {
+    public ResponseEntity<SongDTO> getById(@PathVariable String id, @RequestParam(required = false) Boolean isCustom) {
         String teamId = userSecurityContext.getCurrentTeamId();
-        System.out.println("test");
         return ResponseEntity.ok(songService.getSongCustom(id, teamId, isCustom));
     }
 
@@ -36,21 +34,20 @@ public class SongController {
     }
 
     @PostMapping
-    public ResponseEntity<SongDTO> create(@RequestBody CreateOrUpdateSongRequest song) {
+    public ResponseEntity<SongDTO> create(@RequestBody CreateOrUpdateSongRequest songRequest) {
         String teamId = userSecurityContext.getCurrentTeamId();
-        return ResponseEntity.ok(songService.save(songMapper.fromCreateRequest(song, teamId)));
+        return ResponseEntity.ok(songService.createSong(songMapper.fromCreateRequest(songRequest, teamId)));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<SongDTO> update(@PathVariable String id, @RequestBody CreateOrUpdateSongRequest request) {
-        Song song = songService.getById(id);
-        return ResponseEntity.ok(songService.update(song, request));
+        return ResponseEntity.ok(songService.updateSong(id, request));
     }
 
     @PostMapping("/favorites/{songId}")
     public ResponseEntity<Void> addFavoriteSong(@PathVariable String songId) {
         String userId = userSecurityContext.getUserId();
-        songService.addSavedSong(songId, userId);
+        songService.addFavoriteSong(songId, userId);
         return ResponseEntity.ok().build();
     }
 
