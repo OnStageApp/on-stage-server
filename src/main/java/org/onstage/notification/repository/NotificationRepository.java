@@ -26,6 +26,8 @@ public class NotificationRepository {
                             .ifPresent(status -> criteria.and("status").is(status));
                     ofNullable(filter.type())
                             .ifPresent(type -> criteria.and("type").is(type));
+                    ofNullable(filter.userId())
+                            .ifPresent(userId -> criteria.and("userId").is(userId));
                 });
 
         Query query = new Query().addCriteria(criteria);
