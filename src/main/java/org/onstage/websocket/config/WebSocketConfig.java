@@ -1,4 +1,4 @@
-package org.onstage.notification.config;
+package org.onstage.websocket.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

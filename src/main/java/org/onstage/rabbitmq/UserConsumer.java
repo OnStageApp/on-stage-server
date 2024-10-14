@@ -1,8 +1,8 @@
 package org.onstage.rabbitmq;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.notification.WebSocketMessageService;
-import org.onstage.notification.model.WebSocketMessage;
+import org.onstage.websocket.WebSocketMessageService;
+import org.onstage.websocket.model.WebSocketMessage;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 

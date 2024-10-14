@@ -1,6 +1,5 @@
-package org.onstage.notification;
+package org.onstage.websocket;
 
-import org.onstage.notification.model.WebSocketMessage;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +12,7 @@ public class WebSocketMessageService {
         this.messagingTemplate = messagingTemplate;
     }
 
-    public void sendMessage(String topic, WebSocketMessage webSocketMessage) {
+    public void sendMessage(String topic, Object webSocketMessage) {
         messagingTemplate.convertAndSend(topic, webSocketMessage);
     }
 

@@ -1,4 +1,4 @@
-package org.onstage.notification.model;
+package org.onstage.websocket.model;
 
 import lombok.Builder;
 

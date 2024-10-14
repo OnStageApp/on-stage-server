@@ -2,8 +2,11 @@ package org.onstage.teammember.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.onstage.common.beans.UserSecurityContext;
 import org.onstage.enums.MemberRole;
 import org.onstage.exceptions.BadRequestException;
+import org.onstage.notification.action.CreateNotificationAction;
+import org.onstage.notification.client.Notification;
 import org.onstage.sendgrid.SendGridService;
 import org.onstage.stager.model.Stager;
 import org.onstage.stager.service.StagerService;
@@ -20,6 +23,8 @@ import java.util.stream.Collectors;
 
 import static org.onstage.enums.MemberInviteStatus.CONFIRMED;
 import static org.onstage.enums.MemberInviteStatus.PENDING;
+import static org.onstage.notification.client.NotificationStatus.NEW;
+import static org.onstage.notification.client.NotificationType.INVITATION;
 
 @Service
 @Slf4j
@@ -30,6 +35,8 @@ public class TeamMemberService {
     private final StagerService stagerService;
     private final TeamService teamService;
     private final SendGridService sendGridService;
+    private final CreateNotificationAction createNotificationAction;
+    private final UserSecurityContext userSecurityContext;
 
     public TeamMember getById(String id) {
         return teamMemberRepository.findById(id).orElseThrow(BadRequestException::teamMemberNotFound);
@@ -94,6 +101,14 @@ public class TeamMemberService {
 
         Team team = teamService.getById(teamId);
         sendGridService.sendInviteToTeamEmail(user, team.name());
+
+        User currentUser = userService.getById(userSecurityContext.getUserId());
+        createNotificationAction.execute(Notification.builder()
+                .type(INVITATION)
+                .status(NEW)
+                .description("%s from the %s team is inviting you".formatted(currentUser.name(), team.name()))
+                .userId(user.id())
+                .build());
 
         return save(TeamMember.builder()
                 .teamId(teamId)

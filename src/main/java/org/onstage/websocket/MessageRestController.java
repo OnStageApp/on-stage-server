@@ -1,9 +1,9 @@
-package org.onstage.notification;
+package org.onstage.websocket;
 
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.notification.model.WebSocketMessage;
 import org.onstage.rabbitmq.UserProducer;
+import org.onstage.websocket.model.WebSocketMessage;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

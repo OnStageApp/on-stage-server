@@ -1,7 +1,7 @@
-package org.onstage.notification;
+package org.onstage.websocket;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.notification.model.WebSocketMessage;
+import org.onstage.websocket.model.WebSocketMessage;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
