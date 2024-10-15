@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import static org.onstage.enums.MemberInviteStatus.CONFIRMED;
 import static org.onstage.enums.MemberInviteStatus.PENDING;
 import static org.onstage.notification.client.NotificationStatus.NEW;
-import static org.onstage.notification.client.NotificationType.INVITATION;
+import static org.onstage.notification.client.NotificationType.TEAM_INVITATION_REQUEST;
 
 @Service
 @Slf4j
@@ -104,7 +104,7 @@ public class TeamMemberService {
 
         User currentUser = userService.getById(userSecurityContext.getUserId());
         createNotificationAction.execute(Notification.builder()
-                .type(INVITATION)
+                .type(TEAM_INVITATION_REQUEST)
                 .status(NEW)
                 .description("%s from the %s team is inviting you".formatted(currentUser.name(), team.name()))
                 .userId(user.id())
