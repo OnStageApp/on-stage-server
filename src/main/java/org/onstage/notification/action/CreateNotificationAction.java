@@ -21,7 +21,7 @@ public class CreateNotificationAction implements Action<Notification, Notificati
     @Override
     public NotificationEntity doExecute(Notification request) {
         NotificationEntity savedEntity = repository.save(mapper.toDb(request).withNotificationId(randomUUID().toString()));
-        webSocketMessageService.sendMessage("/user/%s".formatted(savedEntity.userId()), mapper.toApi(savedEntity));
+        webSocketMessageService.sendMessage("/user/%s/notifications".formatted(savedEntity.userId()), mapper.toApi(savedEntity));
         return savedEntity;
     }
 }

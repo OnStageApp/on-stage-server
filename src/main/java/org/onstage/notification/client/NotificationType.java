@@ -1,5 +1,7 @@
 package org.onstage.notification.client;
 
 public enum NotificationType {
-    INVITATION
+    TEAM_INVITATION_REQUEST,
+    TEAM_INVITATION_ACCEPTED,
+    TEAM_INVITATION_DECLINED,
 }
