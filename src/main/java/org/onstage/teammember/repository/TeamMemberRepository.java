@@ -76,7 +76,7 @@ public class TeamMemberRepository {
         Criteria userCriteria = Criteria.where(User.Fields.id).in(userIds)
                 .and(User.Fields.imageTimestamp).ne(null);
         return mongoTemplate.find(query(userCriteria).limit(2), User.class).stream()
-                .map(User::id)
+                .map(User::getId)
                 .toList();
     }
 }
