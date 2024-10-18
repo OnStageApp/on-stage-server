@@ -49,9 +49,9 @@ public class ServiceBeans implements WebMvcConfigurer {
                         .getBody();
                 User currentUser = userRepository.findByEmail(claim.get("sub", String.class))
                         .orElseThrow(() -> new RuntimeException("User not found"));
-                userSecurityContext.setUserId(currentUser.id());
-                userSecurityContext.setCurrentTeamId(currentUser.currentTeamId());
-                userSecurityContext.setCurrentTeamMemberId(teamMemberRepository.getByUserAndTeam(currentUser.id(), currentUser.currentTeamId()).id());
+                userSecurityContext.setUserId(currentUser.getId());
+                userSecurityContext.setCurrentTeamId(currentUser.getCurrentTeamId());
+                userSecurityContext.setCurrentTeamMemberId(teamMemberRepository.getByUserAndTeam(currentUser.getId(), currentUser.getCurrentTeamId()).id());
                 return true;
             }
         };

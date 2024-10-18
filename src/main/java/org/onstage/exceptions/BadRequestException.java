@@ -81,4 +81,16 @@ public class BadRequestException extends BaseException {
     public static BadRequestException eventItemNotFound() {
         return new BadRequestException(18, "EVENT_ITEM_NOT_FOUND", "Event item was not found");
     }
+
+    public static BadRequestException permissionDenied() {
+        return new BadRequestException(19, "PERMISSION_DENIED", "Team has no permission to use this functionality");
+    }
+
+    public static BadRequestException planNotFound() {
+        return new BadRequestException(20, "PLAN_NOT_FOUND", "Plan was not found");
+    }
+
+    public static BadRequestException subscriptionNotFound() {
+        return new BadRequestException(21, "SUBSCRIPTION_NOT_FOUND", "Subscription was not found");
+    }
 }

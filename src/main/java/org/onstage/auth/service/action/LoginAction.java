@@ -47,7 +47,7 @@ public class LoginAction implements Action<LoginRequest, String> {
                 .name(decodedToken.getName())
                 .email(decodedToken.getEmail())
                 .build());
-        Team team = teamService.save(Team.builder().name(SOLO_TEAM_NAME).build(), user.id());
+        Team team = teamService.save(Team.builder().name(SOLO_TEAM_NAME).build(), user.getId());
         return userRepository.save(user.toBuilder().currentTeamId(team.id()).build());
 
     }

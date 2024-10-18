@@ -81,4 +81,10 @@ public class UserRepository {
     public void deleteById(String userId) {
         userRepo.deleteById(userId);
     }
+
+    public User getByStripeCustomerId(String stripeCustomerId) {
+        Criteria criteria = Criteria.where(User.Fields.stripeCustomerId).is(stripeCustomerId);
+        Query query = new Query(criteria);
+        return mongoTemplate.findOne(query, User.class);
+    }
 }

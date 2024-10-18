@@ -23,8 +23,8 @@ public class JwtTokenProvider {
 
     public String generateToken(User userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userDetails.id());
-        return createToken(claims, userDetails.email());
+        claims.put("userId", userDetails.getId());
+        return createToken(claims, userDetails.getEmail());
     }
 
     private String createToken(Map<String, Object> claims, String subject) {

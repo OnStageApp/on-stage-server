@@ -36,7 +36,7 @@ public class TeamController {
 
         return ResponseEntity.ok(GetAllTeamsResponse.builder()
                 .teams(teams)
-                .currentTeamId(userService.getById(userId).currentTeamId())
+                .currentTeamId(userService.getById(userId).getCurrentTeamId())
                 .build());
 
     }

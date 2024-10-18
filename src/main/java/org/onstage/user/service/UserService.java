@@ -43,15 +43,19 @@ public class UserService {
     }
 
     public User create(User user) {
+        User savedUser = save(user);
+        userSettingsService.createDefaultSettings(savedUser.getId());
+        return savedUser;
+    }
+    public User save(User user) {
         User savedUser = userRepository.save(user);
-        log.info("User {} has been saved", savedUser.id());
-        userSettingsService.createDefaultSettings(savedUser.id());
+        log.info("User {} has been saved", savedUser.getId());
         return savedUser;
     }
 
     public User update(User existingUser, UserDTO request) {
         if (!Strings.isEmpty(request.name())) {
-            List<TeamMember> teamMembers = teamMemberRepository.getAllByUserId(existingUser.id());
+            List<TeamMember> teamMembers = teamMemberRepository.getAllByUserId(existingUser.getId());
             for (TeamMember teamMember : teamMembers) {
                 teamMemberRepository.save(teamMember.toBuilder().name(request.name()).build());
             }
@@ -62,9 +66,9 @@ public class UserService {
 
     private User updateUserFromDTO(User existingUser, UserDTO request) {
         return existingUser.toBuilder()
-                .email(request.email() == null ? existingUser.email() : request.email())
-                .name(request.name() == null ? existingUser.name() : request.name())
-                .role(request.role() == null ? existingUser.role() : request.role())
+                .email(request.email() == null ? existingUser.getEmail() : request.email())
+                .name(request.name() == null ? existingUser.getName() : request.name())
+                .role(request.role() == null ? existingUser.getRole() : request.role())
                 .build();
     }
 
@@ -76,7 +80,7 @@ public class UserService {
 
     public String getPresignedUrl(String userId, boolean isThumbnail) {
         User user = getById(userId);
-        if (user.imageTimestamp() == null) {
+        if (user.getImageTimestamp() == null) {
             return null;
         }
         if (isThumbnail)
@@ -113,5 +117,9 @@ public class UserService {
             log.error("Error deleting user", e);
             throw BadRequestException.invalidRequest();
         }
+    }
+
+    public User getByStripeCustomerId(String stripeCustomerId) {
+        return userRepository.getByStripeCustomerId(stripeCustomerId);
     }
 }
