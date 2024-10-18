@@ -36,7 +36,7 @@ public class TeamService {
         teamMemberRepository.save(TeamMember.builder()
                 .teamId(savedTeam.id())
                 .userId(userId)
-                .name(user.name() != null ? user.name() : user.email())
+                .name(user.getName() != null ? user.getName() : user.getEmail())
                 .role(MemberRole.LEADER)
                 .inviteStatus(CONFIRMED).build());
         return getById(savedTeam.id());

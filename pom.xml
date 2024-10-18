@@ -108,6 +108,11 @@
 			<artifactId>sentry-spring-boot-starter-jakarta</artifactId>
 			<version>6.27.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20240303</version>
+		</dependency>
 	</dependencies>
 
 	<build>

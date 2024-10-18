@@ -46,7 +46,7 @@ public class TeamMemberService {
             return existingTeamMember;
         }
         User user = userService.getById(teamMember.userId());
-        TeamMember savedTeamMember = teamMemberRepository.save(teamMember.toBuilder().name(user.name()).build());
+        TeamMember savedTeamMember = teamMemberRepository.save(teamMember.toBuilder().name(user.getName()).build());
         log.info("Team member {} has been saved", savedTeamMember.id());
         return savedTeamMember;
     }
@@ -87,7 +87,7 @@ public class TeamMemberService {
         if (user == null) {
             throw BadRequestException.userNotFound();
         }
-        TeamMember existingTeamMember = getByUserAndTeam(user.id(), teamId);
+        TeamMember existingTeamMember = getByUserAndTeam(user.getId(), teamId);
         if (existingTeamMember != null) {
             throw BadRequestException.userAlreadyInTeam();
         }
@@ -97,9 +97,9 @@ public class TeamMemberService {
 
         return save(TeamMember.builder()
                 .teamId(teamId)
-                .userId(user.id())
+                .userId(user.getId())
                 .role(memberRole)
-                .name(user.name())
+                .name(user.getName())
                 .inviteStatus(PENDING)
                 .build());
     }
