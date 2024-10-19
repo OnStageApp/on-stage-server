@@ -22,7 +22,7 @@ public class RevenueCatWebhookController {
     private static final String BASE_URL = "https://api.revenuecat.com/v1";
     private final SubscriptionService subscriptionService;
 
-    private String authorizationHeader = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0b255aXZpbnRlckBnbWFpbC5jb20iLCJleHAiOjE3MzAzMDcxMzIsInVzZXJJZCI6ImZOM1Q2V2pLUklOZHJBNWd3ZURzSXpTWWVGSzIiLCJpYXQiOjE3MjkwOTc1MzJ9.u7qOvqgHZEtG2jx03inoHt_BQBsp2yDQTpqKm858B8I";
+    private String authorizationHeader = "";
 
 
     @PostMapping
@@ -37,17 +37,21 @@ public class RevenueCatWebhookController {
         switch (event.getType()) {
             case TEST:
                 System.out.println("Test event received");
+                break;
             case INITIAL_PURCHASE:
-                subscriptionService.handleInitialPurchase();
+                subscriptionService.handleInitialPurchase(event);
                 break;
             case RENEWAL:
-                subscriptionService.handleSubscriptionRenewal();
+                subscriptionService.handleSubscriptionRenewal(event);
+                break;
+            case PRODUCT_CHANGE:
+                subscriptionService.handleSubscriptionProductChanged(event);
                 break;
             case CANCELLATION:
-                subscriptionService.handleSubscriptionCancellation();
+                subscriptionService.handleSubscriptionCancellation(event);
                 break;
             case EXPIRATION:
-                subscriptionService.handleSubscriptionExpiration();
+                subscriptionService.handleSubscriptionExpiration(event);
                 break;
         }
         return ResponseEntity.ok("Webhook processed");
