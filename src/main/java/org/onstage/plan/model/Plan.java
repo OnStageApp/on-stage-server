@@ -21,8 +21,7 @@ public class Plan extends BaseEntity {
     private boolean hasAddSong;
     private boolean hasScreensSync;
     private boolean hasReminders;
-    private String stripeProductId;
-    private String stripePriceId;
+    private String revenueCatProductId;
     private Long price;
     private String currency;
     private boolean isYearly;

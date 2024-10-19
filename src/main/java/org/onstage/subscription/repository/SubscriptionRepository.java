@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
 
+import static org.onstage.enums.SubscriptionStatus.ACTIVE;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Component
@@ -19,8 +20,8 @@ public class SubscriptionRepository {
         return subscriptionRepo.save(subscription);
     }
 
-    public Subscription findByStripeSubscriptionId(String stripeSubscriptionId) {
-        Criteria criteria = Criteria.where(Subscription.Fields.stripeSubscriptionId).is(stripeSubscriptionId);
+    public Subscription findLastByTeamAndActive(String teamId) {
+        Criteria criteria = Criteria.where(Subscription.Fields.teamId).is(teamId).and(Subscription.Fields.status).is(ACTIVE);
         return mongoTemplate.findOne(query(criteria), Subscription.class);
     }
 }

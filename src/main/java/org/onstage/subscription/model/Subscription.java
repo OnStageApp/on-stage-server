@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 import org.onstage.common.base.BaseEntity;
 import org.onstage.enums.SubscriptionStatus;
+import org.onstage.plan.model.Plan;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 import org.springframework.stereotype.Service;
@@ -23,12 +24,8 @@ public class Subscription extends BaseEntity {
     private String id;
     private String teamId;
     private String userId;
-    private String planId;
+    private Plan plan;
     private LocalDateTime purchaseDate;
     private LocalDateTime expirationDate;
-    private String stripeId;
-    private String stripeCustomerId;
-    private String stripeSubscriptionId;
-    private String stripePaymentIntentId;
     private SubscriptionStatus status;
 }
