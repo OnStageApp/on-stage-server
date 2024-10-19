@@ -12,8 +12,7 @@ public record PlanDTO(
         boolean hasAddSong,
         boolean hasScreensSync,
         boolean hasReminders,
-        String stripeProductId,
-        String stripePriceId,
+        String revenueCatId,
         Long price,
         String currency,
         boolean isYearly

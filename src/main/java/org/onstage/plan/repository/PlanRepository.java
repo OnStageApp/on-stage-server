@@ -3,6 +3,8 @@ package org.onstage.plan.repository;
 import lombok.RequiredArgsConstructor;
 import org.onstage.plan.model.Plan;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -19,5 +21,10 @@ public class PlanRepository {
 
     public Plan save(Plan entity) {
         return planRepo.save(entity);
+    }
+
+    public Plan findByRevenueCatProductId(String productId) {
+        Criteria criteria = Criteria.where(Plan.Fields.revenueCatProductId).is(productId);
+        return mongoTemplate.findOne(Query.query(criteria), Plan.class);
     }
 }

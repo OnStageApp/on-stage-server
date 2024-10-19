@@ -2,6 +2,8 @@ package org.onstage.song.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.common.beans.UserSecurityContext;
+import org.onstage.enums.PermissionType;
+import org.onstage.plan.service.PlanService;
 import org.onstage.song.client.CreateOrUpdateSongRequest;
 import org.onstage.song.client.SongDTO;
 import org.onstage.song.client.SongFilter;
@@ -22,7 +24,7 @@ public class SongController {
     private final SongMapper songMapper;
     private final UserSecurityContext userSecurityContext;
     private final SocketIOService socketIOService;
-
+    private final PlanService planService;
 
     @GetMapping("/{id}")
     public ResponseEntity<SongDTO> getById(@PathVariable String id, @RequestParam(required = false) Boolean isCustom) {
@@ -40,6 +42,7 @@ public class SongController {
     @PostMapping
     public ResponseEntity<SongDTO> create(@RequestBody CreateOrUpdateSongRequest songRequest) {
         String teamId = userSecurityContext.getCurrentTeamId();
+        planService.checkPermission(PermissionType.ADD_SONG, teamId);
         return ResponseEntity.ok(songService.createSong(songMapper.fromCreateRequest(songRequest, teamId)));
     }
 

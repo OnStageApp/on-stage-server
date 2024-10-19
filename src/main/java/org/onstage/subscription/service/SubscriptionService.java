@@ -3,15 +3,17 @@ package org.onstage.subscription.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.enums.SubscriptionStatus;
+import org.onstage.plan.model.Plan;
+import org.onstage.plan.service.PlanService;
+import org.onstage.revenuecat.model.RevenueCatWebhookEvent;
 import org.onstage.subscription.model.Subscription;
 import org.onstage.subscription.repository.SubscriptionRepository;
 import org.onstage.user.model.User;
 import org.onstage.user.service.UserService;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -19,35 +21,77 @@ import java.time.ZoneId;
 public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final UserService userService;
+    private final PlanService planService;
 
-    private SubscriptionStatus mapStripeStatusToSubscriptionStatus(String stripeStatus) {
-        switch (stripeStatus) {
-            case "active":
-                return SubscriptionStatus.ACTIVE;
-            case "past_due":
-                return SubscriptionStatus.PAST_DUE;
-            case "canceled":
-                return SubscriptionStatus.CANCELED;
-            case "unpaid":
-                return SubscriptionStatus.UNPAID;
-            default:
-                return SubscriptionStatus.UNKNOWN;
+    public void handleInitialPurchase(RevenueCatWebhookEvent event) {
+        log.info("Initial purchase event received {}", event);
+        LocalDateTime now = LocalDateTime.now();
+        Plan plan = planService.getByRevenueCatProductId(event.getProductId());
+        User user = userService.getByRevenueCatId(event.getAppUserId());
+        Subscription subscription = Subscription.builder()
+                .teamId(user.getCurrentTeamId())
+                .userId(user.getId())
+                .purchaseDate(now)
+                .expirationDate(plan.isYearly() ? now.plusYears(1) : now.plusMonths(1))
+                .status(SubscriptionStatus.ACTIVE)
+                .plan(plan)
+                .build();
+        subscriptionRepository.save(subscription);
+    }
+
+    public void handleSubscriptionRenewal(RevenueCatWebhookEvent event) {
+        log.info("Renewal event received {}", event);
+        LocalDateTime now = LocalDateTime.now();
+        Plan plan = planService.getByRevenueCatProductId(event.getProductId());
+        User user = userService.getByRevenueCatId(event.getAppUserId());
+        Subscription currentSubscription = subscriptionRepository.findLastByTeamAndActive(user.getCurrentTeamId());
+        if (currentSubscription != null && Objects.equals(currentSubscription.getPlan().getId(), plan.getId())) {
+            subscriptionRepository.save(currentSubscription.toBuilder()
+                    .expirationDate(plan.isYearly() ? now.plusYears(1) : now.plusMonths(1))
+                    .build());
+            log.info("Renewed subscription for team {}", user.getCurrentTeamId());
         }
     }
 
-    public void handleInitialPurchase() {
-        System.out.println("purchase event received");
+    public void handleSubscriptionProductChanged(RevenueCatWebhookEvent event) {
+        log.info("Product changed event received {}", event);
+        LocalDateTime now = LocalDateTime.now();
+        Plan plan = planService.getByRevenueCatProductId(event.getProductId());
+        User user = userService.getByRevenueCatId(event.getAppUserId());
+        Subscription currentSubscription = subscriptionRepository.findLastByTeamAndActive(user.getCurrentTeamId());
+        if (currentSubscription != null && !Objects.equals(currentSubscription.getPlan().getId(), plan.getId())) {
+            subscriptionRepository.save(currentSubscription.toBuilder().status(SubscriptionStatus.CANCELLED).build());
+            Subscription subscription = Subscription.builder()
+                    .teamId(user.getCurrentTeamId())
+                    .userId(user.getId())
+                    .purchaseDate(now)
+                    .expirationDate(plan.isYearly() ? now.plusYears(1) : now.plusMonths(1))
+                    .status(SubscriptionStatus.ACTIVE)
+                    .plan(plan)
+                    .build();
+            subscriptionRepository.save(subscription);
+        }
     }
 
-    public void handleSubscriptionRenewal() {
-        System.out.println("renewal event received");
+    public void handleSubscriptionCancellation(RevenueCatWebhookEvent event) {
+        log.info("Cancellation event received {}", event);
+        User user = userService.getByRevenueCatId(event.getAppUserId());
+        Subscription currentSubscription = subscriptionRepository.findLastByTeamAndActive(user.getCurrentTeamId());
+        subscriptionRepository.save(currentSubscription.toBuilder()
+                .status(SubscriptionStatus.CANCELLED)
+                .build());
     }
 
-    public void handleSubscriptionCancellation() {
-        System.out.println("cancellation event received");
+    public void handleSubscriptionExpiration(RevenueCatWebhookEvent event) {
+        log.info("Expiration event received {}", event);
+        User user = userService.getByRevenueCatId(event.getAppUserId());
+        Subscription currentSubscription = subscriptionRepository.findLastByTeamAndActive(user.getCurrentTeamId());
+        subscriptionRepository.save(currentSubscription.toBuilder()
+                .status(SubscriptionStatus.EXPIRED)
+                .build());
     }
 
-    public void handleSubscriptionExpiration() {
-        System.out.println("expiration event received");
+    public Subscription findLastByTeamAndActive(String teamId) {
+        return subscriptionRepository.findLastByTeamAndActive(teamId);
     }
 }

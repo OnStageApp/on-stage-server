@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 
 public enum SubscriptionStatus {
     ACTIVE(0, "active"),
-    PAST_DUE(1, "past_due"),
-    CANCELED(2, "canceled"),
+    EXPIRED(1, "expired"),
+    CANCELLED(2, "cancelled"),
     UNPAID(3, "unpaid"),
     UNKNOWN(4, "unknown");
 

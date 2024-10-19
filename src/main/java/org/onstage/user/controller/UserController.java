@@ -3,8 +3,8 @@ package org.onstage.user.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.common.beans.UserSecurityContext;
+import org.onstage.user.client.UpdateUserRequest;
 import org.onstage.user.client.UserDTO;
-import org.onstage.user.model.User;
 import org.onstage.user.model.mapper.UserMapper;
 import org.onstage.user.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -40,11 +40,6 @@ public class UserController {
         return ResponseEntity.ok(userMapper.toDto(userService.getById(userSecurityContext.getUserId())));
     }
 
-    @PostMapping
-    public ResponseEntity<UserDTO> create(@RequestBody UserDTO user) {
-        return ResponseEntity.ok(userMapper.toDto(userService.create(userMapper.toEntity(user))));
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable(name = "id") String id) {
         log.info("Deleting user {}", id);
@@ -76,11 +71,9 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> update(@PathVariable String id, @RequestBody UserDTO request) {
-        User user = userService.getById(id);
-        log.info("Updating user {} with request {}", id, request);
-        return ResponseEntity.ok(userMapper.toDto(userService.update(user, request)));
+    @PutMapping
+    public ResponseEntity<UserDTO> update(@RequestBody UpdateUserRequest request) {
+        return ResponseEntity.ok(userMapper.toDto(userService.update(userSecurityContext.getUserId(), request)));
     }
 
     @PostMapping("/team/{teamId}")

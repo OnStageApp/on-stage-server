@@ -12,7 +12,7 @@ import org.onstage.stager.repository.StagerRepository;
 import org.onstage.team.repository.TeamRepository;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
-import org.onstage.user.client.UserDTO;
+import org.onstage.user.client.UpdateUserRequest;
 import org.onstage.user.model.User;
 import org.onstage.user.repository.UserRepository;
 import org.onstage.usersettings.service.UserSettingsService;
@@ -47,13 +47,16 @@ public class UserService {
         userSettingsService.createDefaultSettings(savedUser.getId());
         return savedUser;
     }
+
     public User save(User user) {
         User savedUser = userRepository.save(user);
         log.info("User {} has been saved", savedUser.getId());
         return savedUser;
     }
 
-    public User update(User existingUser, UserDTO request) {
+    public User update(String existingUserId, UpdateUserRequest request) {
+        log.info("Updating user {} with request {}", existingUserId, request);
+        User existingUser = userRepository.getById(existingUserId);
         if (!Strings.isEmpty(request.name())) {
             List<TeamMember> teamMembers = teamMemberRepository.getAllByUserId(existingUser.getId());
             for (TeamMember teamMember : teamMembers) {
@@ -64,11 +67,11 @@ public class UserService {
         return userRepository.save(updatedUser);
     }
 
-    private User updateUserFromDTO(User existingUser, UserDTO request) {
+    private User updateUserFromDTO(User existingUser, UpdateUserRequest request) {
         return existingUser.toBuilder()
-                .email(request.email() == null ? existingUser.getEmail() : request.email())
                 .name(request.name() == null ? existingUser.getName() : request.name())
                 .role(request.role() == null ? existingUser.getRole() : request.role())
+                .revenueCatId(request.revenueCatId() == null ? existingUser.getRevenueCatId() : request.revenueCatId())
                 .build();
     }
 
@@ -119,7 +122,7 @@ public class UserService {
         }
     }
 
-    public User getByStripeCustomerId(String stripeCustomerId) {
-        return userRepository.getByStripeCustomerId(stripeCustomerId);
+    public User getByRevenueCatId(String revenueCatId) {
+        return userRepository.getByRevenueCatId(revenueCatId);
     }
 }
