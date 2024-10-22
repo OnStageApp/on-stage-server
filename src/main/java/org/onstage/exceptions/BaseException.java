@@ -13,4 +13,5 @@ public class BaseException extends RuntimeException {
     private final int errorCode;
     private final String errorName;
     private final String errorDescription;
+    private final String param;
 }

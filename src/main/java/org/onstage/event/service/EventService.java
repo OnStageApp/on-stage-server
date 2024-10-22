@@ -37,7 +37,7 @@ public class EventService {
     private final TeamMemberService teamMemberService;
 
     public Event getById(String id) {
-        return eventRepository.findById(id).orElseThrow(BadRequestException::eventNotFound);
+        return eventRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Event"));
     }
 
     public Event save(Event event, List<String> teamMembersIds, List<CreateRehearsalForEventRequest> rehearsals, String teamId, String eventLeaderId) {

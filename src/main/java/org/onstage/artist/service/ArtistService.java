@@ -18,7 +18,7 @@ public class ArtistService {
     private final ArtistRepository artistRepository;
 
     public Artist getById(String id) {
-        return artistRepository.findById(id).orElseThrow(BadRequestException::artistNotFound);
+        return artistRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Artist"));
     }
 
     public List<Artist> getAll() {
