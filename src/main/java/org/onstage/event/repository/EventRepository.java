@@ -112,4 +112,10 @@ public class EventRepository {
         repo.deleteById(id);
         return id;
     }
+
+    public int countAllCreatedInInterval(String teamId) {
+        Criteria criteria = Criteria.where(Event.Fields.teamId).is(teamId)
+                .and("createdAt").gte(LocalDateTime.now().minusMonths(1));
+        return (int) mongoTemplate.count(Query.query(criteria), Event.class);
+    }
 }

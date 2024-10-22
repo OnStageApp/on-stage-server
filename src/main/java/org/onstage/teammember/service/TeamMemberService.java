@@ -69,6 +69,10 @@ public class TeamMemberService {
         return teamMemberRepository.getAllByTeam(teamId, userId, includeCurrentUser);
     }
 
+    public List<TeamMember> getAllByTeam(String teamId) {
+        return teamMemberRepository.getAllByTeam(teamId);
+    }
+
     public TeamMember update(TeamMember existingTeamMember, TeamMember teamMember) {
         log.info("Updating team member {} with request {}", existingTeamMember.id(), teamMember);
 

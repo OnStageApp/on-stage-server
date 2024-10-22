@@ -1,7 +1,7 @@
 package org.onstage.common.base;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import lombok.experimental.FieldNameConstants;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document
+@FieldNameConstants
 public abstract class BaseEntity {
     @LastModifiedDate
     private LocalDateTime updatedAt;
