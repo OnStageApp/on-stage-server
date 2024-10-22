@@ -28,7 +28,8 @@ public class GlobalExceptionHandler {
                         HttpStatus.INTERNAL_SERVER_ERROR,
                         0,
                         "InternalServerError",
-                        ex.getMessage()
+                        ex.getMessage(),
+                        null
                 ),
                 HttpStatus.INTERNAL_SERVER_ERROR
         );

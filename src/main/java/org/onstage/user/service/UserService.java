@@ -39,7 +39,7 @@ public class UserService {
     }
 
     public User getById(String id) {
-        return userRepository.findById(id).orElseThrow(BadRequestException::userNotFound);
+        return userRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("User"));
     }
 
     public User create(User user) {

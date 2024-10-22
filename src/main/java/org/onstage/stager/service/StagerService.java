@@ -25,7 +25,7 @@ public class StagerService {
     private final EventItemService eventItemService;
 
     public Stager getById(String id) {
-        return stagerRepository.findById(id).orElseThrow(BadRequestException::stagerNotFound);
+        return stagerRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Stager"));
     }
 
     public Stager getByEventAndTeamMember(String eventId, String teamMemberId) {
@@ -47,7 +47,7 @@ public class StagerService {
     }
 
     public Stager create(String eventId, String teamMemberId) {
-        TeamMember teamMember = teamMemberRepository.findById(teamMemberId).orElseThrow(BadRequestException::teamMemberNotFound);
+        TeamMember teamMember = teamMemberRepository.findById(teamMemberId).orElseThrow(() -> BadRequestException.resourceNotFound("Team member"));
         checkStagerAlreadyExists(eventId, teamMemberId);
 
         log.info("Creating stager for event {} and team member {}", eventId, teamMemberId);
@@ -86,7 +86,7 @@ public class StagerService {
     }
 
     public void createEventLeader(String eventId, String teamMemberId) {
-        TeamMember teamMember = teamMemberRepository.findById(teamMemberId).orElseThrow(BadRequestException::teamMemberNotFound);
+        TeamMember teamMember = teamMemberRepository.findById(teamMemberId).orElseThrow(() -> BadRequestException.resourceNotFound("Team member"));
         checkStagerAlreadyExists(eventId, teamMemberId);
 
         log.info("Creating stager for event {} and team member {}", eventId, teamMemberId);

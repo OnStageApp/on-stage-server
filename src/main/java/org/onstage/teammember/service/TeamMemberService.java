@@ -39,7 +39,7 @@ public class TeamMemberService {
     private final UserSecurityContext userSecurityContext;
 
     public TeamMember getById(String id) {
-        return teamMemberRepository.findById(id).orElseThrow(BadRequestException::teamMemberNotFound);
+        return teamMemberRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Team member"));
     }
 
     public TeamMember getByUserAndTeam(String userId, String teamId) {
@@ -59,7 +59,7 @@ public class TeamMemberService {
     }
 
     public String delete(String id) {
-        TeamMember teamMember = teamMemberRepository.findById(id).orElseThrow(BadRequestException::teamMemberNotFound);
+        TeamMember teamMember = teamMemberRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Team member"));
         log.info("Deleting team member {}", id);
         teamMemberRepository.delete(id);
         return teamMember.id();
@@ -96,7 +96,7 @@ public class TeamMemberService {
     public TeamMember inviteMember(String email, MemberRole memberRole, String teamId) {
         User user = userService.getByEmail(email);
         if (user == null) {
-            throw BadRequestException.userNotFound();
+            throw BadRequestException.resourceNotFound("User");
         }
         TeamMember existingTeamMember = getByUserAndTeam(user.getId(), teamId);
         if (existingTeamMember != null) {

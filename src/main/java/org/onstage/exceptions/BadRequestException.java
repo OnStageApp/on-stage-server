@@ -4,7 +4,11 @@ import org.springframework.http.HttpStatus;
 
 public class BadRequestException extends BaseException {
     private BadRequestException(int errorCode, String errorName, String errorDescription) {
-        super(HttpStatus.BAD_REQUEST, errorCode, errorName, errorDescription);
+        super(HttpStatus.BAD_REQUEST, errorCode, errorName, errorDescription, null);
+    }
+
+    private BadRequestException(int errorCode, String errorName, String errorDescription, String param) {
+        super(HttpStatus.BAD_REQUEST, errorCode, errorName, errorDescription, param);
     }
 
     public static BadRequestException unknownError() {
@@ -27,44 +31,16 @@ public class BadRequestException extends BaseException {
         return new BadRequestException(5, "LOGIN_MISSING_TOKEN", "No token was found");
     }
 
+    public static BadRequestException resourceNotFound(String param) {
+        return new BadRequestException(6, "RESOURCE_NOT_FOUND", "Resource not found", param);
+    }
+
+    public static BadRequestException permissionDenied(String param) {
+        return new BadRequestException(7, "PERMISSION_DENIED", "Team has no permission to use this functionality", param);
+    }
+
     public static BadRequestException stagerAlreadyCreated() {
         return new BadRequestException(6, "STAGER_ALREADY_CREATED", "Stager already created for this event and user");
-    }
-
-    public static BadRequestException stagerNotFound() {
-        return new BadRequestException(7, "STAGER_NOT_FOUND", "Stager was not found");
-    }
-
-    public static BadRequestException songNotFound() {
-        return new BadRequestException(8, "SONG_NOT_FOUND", "Song was not found");
-    }
-
-    public static BadRequestException eventNotFound() {
-        return new BadRequestException(9, "EVENT_NOT_FOUND", "Event was not found");
-    }
-
-    public static BadRequestException teamNotFound() {
-        return new BadRequestException(10, "TEAM_NOT_FOUND", "Team was not found");
-    }
-
-    public static BadRequestException artistNotFound() {
-        return new BadRequestException(11, "ARTIST_NOT_FOUND", "Artist was not found");
-    }
-
-    public static BadRequestException teamMemberNotFound() {
-        return new BadRequestException(12, "TEAM_MEMBER_NOT_FOUND", "Team member was not found");
-    }
-
-    public static BadRequestException rehearsalNotFound() {
-        return new BadRequestException(13, "REHEARSAL_NOT_FOUND", "Rehearsal was not found");
-    }
-
-    public static BadRequestException userNotFound() {
-        return new BadRequestException(14, "USER_NOT_FOUND", "User was not found");
-    }
-
-    public static BadRequestException songConfigNotFound() {
-        return new BadRequestException(15, "SONG_CONFIG_NOT_FOUND", "Song config was not found");
     }
 
     public static BadRequestException userAlreadyInTeam() {
@@ -73,24 +49,5 @@ public class BadRequestException extends BaseException {
 
     public static BadRequestException emailNotSent() {
         return new BadRequestException(16, "EMAIL_NOT_SENT", "Email was not sent");
-    }
-
-    public static BadRequestException userSettingsAlreadyCreated() {
-        return new BadRequestException(17, "USER_SETTINGS_ALREADY_CREATED", "User settings already created for this user");
-    }
-    public static BadRequestException eventItemNotFound() {
-        return new BadRequestException(18, "EVENT_ITEM_NOT_FOUND", "Event item was not found");
-    }
-
-    public static BadRequestException permissionDenied() {
-        return new BadRequestException(19, "PERMISSION_DENIED", "Team has no permission to use this functionality");
-    }
-
-    public static BadRequestException planNotFound() {
-        return new BadRequestException(20, "PLAN_NOT_FOUND", "Plan was not found");
-    }
-
-    public static BadRequestException subscriptionNotFound() {
-        return new BadRequestException(21, "SUBSCRIPTION_NOT_FOUND", "Subscription was not found");
     }
 }

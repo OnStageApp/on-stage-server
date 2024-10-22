@@ -28,7 +28,7 @@ public class PlanService {
         var hasPermission = hasPermission(permission, teamId);
         if (!hasPermission) {
             log.info("Team {} doesn't have {} feature available", teamId, permission);
-            throw BadRequestException.permissionDenied();
+            throw BadRequestException.permissionDenied(permission.getValue());
         }
     }
 
