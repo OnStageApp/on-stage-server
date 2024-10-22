@@ -22,7 +22,7 @@ public class RevenueCatWebhookController {
     private static final String BASE_URL = "https://api.revenuecat.com/v1";
     private final SubscriptionService subscriptionService;
 
-    private String authorizationHeader = "";
+    private String authorizationHeader = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0b255aXZpbnRlckBnbWFpbC5jb20iLCJleHAiOjE3MzAzMDcxMzIsInVzZXJJZCI6ImZOM1Q2V2pLUklOZHJBNWd3ZURzSXpTWWVGSzIiLCJpYXQiOjE3MjkwOTc1MzJ9.u7qOvqgHZEtG2jx03inoHt_BQBsp2yDQTpqKm858B8I";
 
 
     @PostMapping

@@ -16,16 +16,19 @@ public class UserMapper {
                 .imageTimestamp(entity.getImageTimestamp())
                 .role(entity.getRole())
                 .currentTeamId(entity.getCurrentTeamId())
+                .revenueCatId(entity.getRevenueCatId())
                 .build();
     }
 
     public User toEntity(UserDTO request) {
         return User.builder()
+                .id(request.id())
                 .name(request.name())
                 .email(request.email())
                 .imageTimestamp(request.imageTimestamp())
                 .role(request.role())
                 .currentTeamId(request.currentTeamId())
+                .revenueCatId(request.revenueCatId())
                 .build();
     }
 

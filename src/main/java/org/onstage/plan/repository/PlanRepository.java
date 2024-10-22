@@ -23,8 +23,13 @@ public class PlanRepository {
         return planRepo.save(entity);
     }
 
-    public Plan findByRevenueCatProductId(String productId) {
+    public Plan getByRevenueCatProductId(String productId) {
         Criteria criteria = Criteria.where(Plan.Fields.revenueCatProductId).is(productId);
+        return mongoTemplate.findOne(Query.query(criteria), Plan.class);
+    }
+
+    public Plan getStarterPlan() {
+        Criteria criteria = Criteria.where(Plan.Fields.name).is("Starter");
         return mongoTemplate.findOne(Query.query(criteria), Plan.class);
     }
 }

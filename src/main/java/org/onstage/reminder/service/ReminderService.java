@@ -28,12 +28,12 @@ public class ReminderService {
 
     public Reminder save(Reminder reminder, Event event) {
         LocalDateTime sendingTime = event
-                .dateTime()
+                .getDateTime()
                 .minusDays(reminder.daysBefore())
                 .with(LocalTime.of(5, 0));
         reminder = reminder.toBuilder()
                 .sendingTime(sendingTime)
-                .text(String.format(REMINDER_TEXT_TEMPLATE, reminder.daysBefore(), event.name()))
+                .text(String.format(REMINDER_TEXT_TEMPLATE, reminder.daysBefore(), event.getName()))
                 .isSent(false)
                 .build();
 

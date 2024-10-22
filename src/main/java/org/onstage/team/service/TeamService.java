@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.enums.MemberRole;
 import org.onstage.exceptions.BadRequestException;
+import org.onstage.subscription.service.SubscriptionService;
 import org.onstage.team.client.TeamDTO;
 import org.onstage.team.model.Team;
 import org.onstage.team.repository.TeamRepository;
@@ -24,6 +25,7 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final UserService userService;
+    private final SubscriptionService subscriptionService;
 
     public Team getById(String id) {
         return teamRepository.findById(id).orElseThrow(BadRequestException::teamNotFound);
@@ -39,6 +41,7 @@ public class TeamService {
                 .name(user.getName() != null ? user.getName() : user.getEmail())
                 .role(MemberRole.LEADER)
                 .inviteStatus(CONFIRMED).build());
+        subscriptionService.createStarterSubscription(savedTeam.id());
         return getById(savedTeam.id());
     }
 

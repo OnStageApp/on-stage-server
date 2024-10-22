@@ -12,6 +12,7 @@ public record UserDTO(
         String email,
         UserRole role,
         LocalDateTime imageTimestamp,
-        String currentTeamId
+        String currentTeamId,
+        String revenueCatId
 ) {
 }

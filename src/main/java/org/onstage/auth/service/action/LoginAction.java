@@ -8,6 +8,7 @@ import org.onstage.auth.model.LoginRequest;
 import org.onstage.common.action.Action;
 import org.onstage.common.config.JwtTokenProvider;
 import org.onstage.exceptions.BadRequestException;
+import org.onstage.subscription.service.SubscriptionService;
 import org.onstage.team.model.Team;
 import org.onstage.team.service.TeamService;
 import org.onstage.user.model.User;
@@ -23,6 +24,7 @@ public class LoginAction implements Action<LoginRequest, String> {
     private final UserService userService;
     private final TeamService teamService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final SubscriptionService subscriptionService;
 
     @SneakyThrows
     @Override

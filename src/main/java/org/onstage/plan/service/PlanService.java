@@ -3,10 +3,12 @@ package org.onstage.plan.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.enums.PermissionType;
+import org.onstage.event.service.EventService;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.plan.model.Plan;
 import org.onstage.plan.repository.PlanRepository;
 import org.onstage.subscription.repository.SubscriptionRepository;
+import org.onstage.teammember.repository.TeamMemberRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,6 +17,8 @@ import org.springframework.stereotype.Service;
 public class PlanService {
     private final PlanRepository planRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final TeamMemberRepository teamMemberRepository;
+    private final EventService eventService;
 
     public Plan save(Plan plan) {
         return planRepository.save(plan);
@@ -37,6 +41,10 @@ public class PlanService {
             case ADD_SONG -> hasPermission = currentPlan.isHasAddSong();
             case SCREENS_SYNC -> hasPermission = currentPlan.isHasScreensSync();
             case REMINDERS -> hasPermission = currentPlan.isHasReminders();
+            case ADD_TEAM_MEMBERS ->
+                    hasPermission = teamMemberRepository.getAllByTeam(teamId).size() < currentPlan.getMaxMembers();
+            case ADD_EVENTS ->
+                    hasPermission = eventService.countAllCreatedInInterval(teamId) < currentPlan.getMaxEvents();
         }
 
         return hasPermission;
@@ -52,9 +60,5 @@ public class PlanService {
 //                currentPlan = trialPlan;
 ////        }
 //        return currentPlan;
-    }
-
-    public Plan getByRevenueCatProductId(String productId) {
-        return planRepository.findByRevenueCatProductId(productId);
     }
 }

@@ -2,10 +2,12 @@ package org.onstage.event.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.common.beans.UserSecurityContext;
+import org.onstage.enums.PermissionType;
 import org.onstage.event.client.*;
 import org.onstage.event.model.Event;
 import org.onstage.event.model.mapper.EventMapper;
 import org.onstage.event.service.EventService;
+import org.onstage.plan.service.PlanService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +18,7 @@ public class EventController {
     private final EventService eventService;
     private final EventMapper eventMapper;
     private final UserSecurityContext userSecurityContext;
+    private final PlanService planService;
 
     @GetMapping("/{id}")
     public ResponseEntity<EventDTO> getById(@PathVariable final String id) {
@@ -48,6 +51,8 @@ public class EventController {
     public ResponseEntity<EventDTO> create(@RequestBody CreateEventRequest event) {
         String teamId = userSecurityContext.getCurrentTeamId();
         String eventLeaderId = userSecurityContext.getCurrentTeamMemberId();
+
+        planService.checkPermission(PermissionType.ADD_EVENTS, teamId);
         return ResponseEntity.ok(eventMapper.toDto(eventService.save(eventMapper.fromCreateRequest(event), event.teamMemberIds(), event.rehearsals(), teamId, eventLeaderId)));
     }
 

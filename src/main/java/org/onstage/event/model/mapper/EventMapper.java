@@ -19,11 +19,11 @@ public class EventMapper {
 
     public EventDTO toDto(Event entity) {
         return EventDTO.builder()
-                .id(entity.id())
-                .name(entity.name())
-                .dateTime(entity.dateTime())
-                .location(entity.location())
-                .eventStatus(entity.eventStatus())
+                .id(entity.getId())
+                .name(entity.getName())
+                .dateTime(entity.getDateTime())
+                .location(entity.getLocation())
+                .eventStatus(entity.getEventStatus())
                 .build();
     }
 
@@ -50,16 +50,16 @@ public class EventMapper {
 
     public EventOverview toOverview(Event event) {
         CompletableFuture<List<String>> userIdsWithPhotoFuture = CompletableFuture.supplyAsync(() ->
-                userService.getStagersWithPhoto(event.id()));
+                userService.getStagersWithPhoto(event.getId()));
         CompletableFuture<Long> stagerCountFuture = CompletableFuture.supplyAsync(() ->
-                Long.valueOf(stagerService.countByEventId(event.id())));
+                Long.valueOf(stagerService.countByEventId(event.getId())));
 
         return EventOverview.builder()
-                .id(event.id())
-                .name(event.name())
-                .eventStatus(event.eventStatus())
-                .dateTime(event.dateTime())
-                .location(event.location())
+                .id(event.getId())
+                .name(event.getName())
+                .eventStatus(event.getEventStatus())
+                .dateTime(event.getDateTime())
+                .location(event.getLocation())
                 .userIdsWithPhoto(userIdsWithPhotoFuture.join())
                 .stagerCount(stagerCountFuture.join())
                 .build();
