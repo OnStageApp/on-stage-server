@@ -6,7 +6,7 @@ import org.onstage.notification.client.Notification;
 import org.onstage.notification.model.NotificationEntity;
 import org.onstage.notification.model.mapper.NotificationMapper;
 import org.onstage.notification.repository.NotificationRepository;
-import org.onstage.websocket.WebSocketMessageService;
+import org.onstage.websocket.SocketIOService;
 import org.springframework.stereotype.Component;
 
 import static java.util.UUID.randomUUID;
@@ -16,12 +16,12 @@ import static java.util.UUID.randomUUID;
 public class CreateNotificationAction implements Action<Notification, NotificationEntity> {
     private final NotificationRepository repository;
     private final NotificationMapper mapper;
-    private final WebSocketMessageService webSocketMessageService;
+    private final SocketIOService socketIOService;
 
     @Override
     public NotificationEntity doExecute(Notification request) {
         NotificationEntity savedEntity = repository.save(mapper.toDb(request).withNotificationId(randomUUID().toString()));
-        webSocketMessageService.sendMessage("/user/%s/notifications".formatted(savedEntity.userId()), mapper.toApi(savedEntity));
+        socketIOService.emitEvent("/user/%s/notifications".formatted(savedEntity.userId()), mapper.toApi(savedEntity));
         return savedEntity;
     }
 }
