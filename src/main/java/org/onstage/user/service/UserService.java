@@ -71,7 +71,6 @@ public class UserService {
         return existingUser.toBuilder()
                 .name(request.name() == null ? existingUser.getName() : request.name())
                 .role(request.role() == null ? existingUser.getRole() : request.role())
-                .revenueCatId(request.revenueCatId() == null ? existingUser.getRevenueCatId() : request.revenueCatId())
                 .build();
     }
 
@@ -79,6 +78,7 @@ public class UserService {
     public void setCurrentTeam(String teamId, String userId) {
         User user = getById(userId);
         userRepository.save(user.toBuilder().currentTeamId(teamId).build());
+        // send event to update user's team
     }
 
     public String getPresignedUrl(String userId, boolean isThumbnail) {
@@ -120,9 +120,5 @@ public class UserService {
             log.error("Error deleting user", e);
             throw BadRequestException.invalidRequest();
         }
-    }
-
-    public User getByRevenueCatId(String revenueCatId) {
-        return userRepository.getByRevenueCatId(revenueCatId);
     }
 }

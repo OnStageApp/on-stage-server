@@ -41,7 +41,7 @@ public class TeamService {
                 .name(user.getName() != null ? user.getName() : user.getEmail())
                 .role(MemberRole.LEADER)
                 .inviteStatus(CONFIRMED).build());
-        subscriptionService.createStarterSubscription(savedTeam.id());
+        subscriptionService.createStarterSubscription(savedTeam.id(), userId);
         return getById(savedTeam.id());
     }
 

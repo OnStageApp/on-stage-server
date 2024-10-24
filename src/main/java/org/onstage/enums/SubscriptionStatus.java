@@ -11,7 +11,8 @@ public enum SubscriptionStatus {
     EXPIRED(1, "expired"),
     CANCELLED(2, "cancelled"),
     UNPAID(3, "unpaid"),
-    UNKNOWN(4, "unknown");
+    PAST_DUE(4, "pastDue"),
+    DEFAULT(5, "default");
 
     private final static Map<Integer, SubscriptionStatus> map = Arrays.stream(SubscriptionStatus.values())
             .collect(Collectors.toMap(obj -> obj.index, obj -> obj));

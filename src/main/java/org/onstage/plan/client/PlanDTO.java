@@ -6,6 +6,7 @@ import lombok.Builder;
 public record PlanDTO(
         String id,
         String name,
+        String entitlementId,
         int maxEvents,
         int maxMembers,
         boolean hasSongsAccess,

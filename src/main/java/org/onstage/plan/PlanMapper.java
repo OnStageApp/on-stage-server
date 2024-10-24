@@ -11,6 +11,7 @@ public class PlanMapper {
         return PlanDTO.builder()
                 .id(entity.getId())
                 .name(entity.getName())
+                .entitlementId(entity.getEntitlementId())
                 .maxEvents(entity.getMaxEvents())
                 .maxMembers(entity.getMaxMembers())
                 .hasSongsAccess(entity.isHasSongsAccess())

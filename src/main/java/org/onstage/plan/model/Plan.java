@@ -15,6 +15,7 @@ public class Plan extends BaseEntity {
     @MongoId
     private String id;
     private String name;
+    private String entitlementId;
     private int maxEvents;
     private int maxMembers;
     private boolean hasSongsAccess;
