@@ -16,6 +16,8 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.List;
+
 import static org.onstage.auth.config.SecurityConfig.extractJwtFromRequest;
 
 @Configuration
@@ -37,8 +39,7 @@ public class ServiceBeans implements WebMvcConfigurer {
             @Override
             public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
                 String requestURI = request.getRequestURI();
-                if ("/auth/login".equals(requestURI)) {
-                    // Skip JWT parsing for the /auth/login endpoint
+                if (isPublicEndpoint(requestURI)) {
                     return true;
                 }
 
@@ -60,5 +61,12 @@ public class ServiceBeans implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(userSecurityInterceptor(userSecurityContext()));
+    }
+
+    private boolean isPublicEndpoint(String requestURI) {
+        List<String> publicEndpoints = List.of(
+                "/auth/login",
+                "/revenuecat/webhook");
+        return publicEndpoints.contains(requestURI);
     }
 }

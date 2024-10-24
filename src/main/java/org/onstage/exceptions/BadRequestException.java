@@ -39,15 +39,19 @@ public class BadRequestException extends BaseException {
         return new BadRequestException(7, "PERMISSION_DENIED", "Team has no permission to use this functionality", param);
     }
 
+    public static BadRequestException accessDenied() {
+        return new BadRequestException(8, "ACCESS_DENIED", "User is not a leader to perform this action");
+    }
+
     public static BadRequestException stagerAlreadyCreated() {
-        return new BadRequestException(6, "STAGER_ALREADY_CREATED", "Stager already created for this event and user");
+        return new BadRequestException(9, "STAGER_ALREADY_CREATED", "Stager already created for this event and user");
     }
 
     public static BadRequestException userAlreadyInTeam() {
-        return new BadRequestException(16, "USER_ALREADY_IN_TEAM", "User is already in the team");
+        return new BadRequestException(10, "USER_ALREADY_IN_TEAM", "User is already in the team");
     }
 
     public static BadRequestException emailNotSent() {
-        return new BadRequestException(16, "EMAIL_NOT_SENT", "Email was not sent");
+        return new BadRequestException(11, "EMAIL_NOT_SENT", "Email was not sent");
     }
 }

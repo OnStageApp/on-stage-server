@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 public enum SubscriptionStatus {
     ACTIVE(0, "active"),
     EXPIRED(1, "expired"),
-    CANCELLED(2, "cancelled"),
+    INACTIVE(2, "inactive"),
     UNPAID(3, "unpaid"),
-    UNKNOWN(4, "unknown");
+    PAST_DUE(4, "pastDue");
 
     private final static Map<Integer, SubscriptionStatus> map = Arrays.stream(SubscriptionStatus.values())
             .collect(Collectors.toMap(obj -> obj.index, obj -> obj));

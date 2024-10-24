@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.onstage.enums.MemberRole;
 import org.onstage.team.model.Team;
 import org.onstage.teammember.model.TeamMember;
+import org.onstage.user.model.User;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -50,5 +51,10 @@ public class TeamRepository {
         Criteria teamCriteria = Criteria.where(TeamMember.Fields.id).in(teamMembers.stream().map(TeamMember::teamId).toList());
         Query query = new Query(teamCriteria);
         mongoTemplate.remove(query, Team.class);
+    }
+
+    public Team findByLeader(User user) {
+        Criteria criteria = Criteria.where(Team.Fields.leaderId).is(user.getId());
+        return mongoTemplate.findOne(new Query(criteria), Team.class);
     }
 }

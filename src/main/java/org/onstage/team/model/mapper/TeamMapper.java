@@ -23,10 +23,11 @@ public class TeamMapper {
                 .build();
     }
 
-    public Team toEntity(TeamDTO request) {
+    public Team toEntity(TeamDTO request, String userId) {
         return Team.builder()
                 .id(request.id())
                 .name(request.name())
+                .leaderId(userId)
                 .build();
     }
 

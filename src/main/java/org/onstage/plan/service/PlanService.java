@@ -7,6 +7,7 @@ import org.onstage.event.service.EventService;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.plan.model.Plan;
 import org.onstage.plan.repository.PlanRepository;
+import org.onstage.subscription.model.Subscription;
 import org.onstage.subscription.repository.SubscriptionRepository;
 import org.onstage.teammember.repository.TeamMemberRepository;
 import org.springframework.stereotype.Service;
@@ -51,7 +52,8 @@ public class PlanService {
     }
 
     public Plan getActiveOrTrialPlan(String teamId) {
-        return subscriptionRepository.findLastByTeamAndActive(teamId).getPlan();
+        Subscription subscription = subscriptionRepository.findActiveByTeam(teamId);
+        return planRepository.getById(subscription.getPlanId()).orElseThrow(() -> BadRequestException.resourceNotFound("Plan"));
 
         //find trial
 //        if (subscriptionTrialConfigService.findBySourcePlan(currentPlan.getId()) != null) {

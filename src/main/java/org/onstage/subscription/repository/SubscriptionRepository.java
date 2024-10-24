@@ -2,8 +2,10 @@ package org.onstage.subscription.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.subscription.model.Subscription;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import static org.onstage.enums.SubscriptionStatus.ACTIVE;
@@ -20,7 +22,7 @@ public class SubscriptionRepository {
         return subscriptionRepo.save(subscription);
     }
 
-    public Subscription findLastByTeamAndActive(String teamId) {
+    public Subscription findActiveByTeam(String teamId) {
         Criteria criteria = Criteria.where(Subscription.Fields.teamId).is(teamId).and(Subscription.Fields.status).is(ACTIVE);
         return mongoTemplate.findOne(query(criteria), Subscription.class);
     }

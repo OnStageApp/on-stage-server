@@ -49,7 +49,7 @@ public class LoginAction implements Action<LoginRequest, String> {
                 .name(decodedToken.getName())
                 .email(decodedToken.getEmail())
                 .build());
-        Team team = teamService.save(Team.builder().name(SOLO_TEAM_NAME).build(), user.getId());
+        Team team = teamService.create(Team.builder().name(SOLO_TEAM_NAME).leaderId(user.getId()).build());
         return userRepository.save(user.toBuilder().currentTeamId(team.id()).build());
 
     }

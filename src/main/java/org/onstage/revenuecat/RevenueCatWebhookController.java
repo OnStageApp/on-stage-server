@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.onstage.revenuecat.model.RevenueCatWebhookEvent;
 import org.onstage.revenuecat.model.RevenueCatWebhookObject;
 import org.onstage.subscription.service.SubscriptionService;
-import org.springframework.http.ResponseEntity;
+import org.onstage.user.model.User;
+import org.onstage.user.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,43 +19,61 @@ import org.springframework.web.context.request.WebRequest;
 @RequestMapping("revenuecat/webhook")
 @RequiredArgsConstructor
 public class RevenueCatWebhookController {
-
-    private static final String API_KEY = "sk_GZUwnrZaKqoAjktBvGDSKEpSHnYiZ";
-    private static final String BASE_URL = "https://api.revenuecat.com/v1";
     private final SubscriptionService subscriptionService;
+    private final UserRepository userRepository;
 
-    private String authorizationHeader = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0b255aXZpbnRlckBnbWFpbC5jb20iLCJleHAiOjE3MzAzMDcxMzIsInVzZXJJZCI6ImZOM1Q2V2pLUklOZHJBNWd3ZURzSXpTWWVGSzIiLCJpYXQiOjE3MjkwOTc1MzJ9.u7qOvqgHZEtG2jx03inoHt_BQBsp2yDQTpqKm858B8I";
-
+    @Value("${revenuecat.webhook.authorization}")
+    private String authorizationHeader;
 
     @PostMapping
-    public ResponseEntity<String> handleWebhook(@RequestBody RevenueCatWebhookObject revenueCatWebhookObject, WebRequest webRequest) {
+    public void handleWebhook(@RequestBody RevenueCatWebhookObject revenueCatWebhookObject, WebRequest webRequest) {
         String authorization = webRequest.getHeader("Authorization");
         if (!authorizationHeader.equals(authorization)) {
             log.warn("Invalid authorization header");
-            return ResponseEntity.badRequest().build();
+            return;
         }
 
         RevenueCatWebhookEvent event = revenueCatWebhookObject.getEvent();
+        User user = userRepository.findByIdOrTeamId(event.getAppUserId());
+
+        if (user == null) {
+            log.warn("User not found with id: {}", event.getAppUserId());
+            return;
+        }
+
         switch (event.getType()) {
             case TEST:
                 System.out.println("Test event received");
                 break;
             case INITIAL_PURCHASE:
-                subscriptionService.handleInitialPurchase(event);
+                log.info("Handling initial purchase event with request: {}", event);
+                subscriptionService.handleInitialPurchase(event, user);
                 break;
             case RENEWAL:
-                subscriptionService.handleSubscriptionRenewal(event);
+                log.info("Handling renewal event with request: {}", event);
+                subscriptionService.handleSubscriptionRenewal(event, user);
                 break;
             case PRODUCT_CHANGE:
-                subscriptionService.handleSubscriptionProductChanged(event);
+                log.info("Handling product change event with request: {}", event);
+                subscriptionService.handleSubscriptionProductChanged(event, user);
                 break;
             case CANCELLATION:
-                subscriptionService.handleSubscriptionCancellation(event);
+                log.info("Handling cancellation event with request: {}", event);
+                subscriptionService.handleSubscriptionCancellation(event, user);
                 break;
             case EXPIRATION:
-                subscriptionService.handleSubscriptionExpiration(event);
+                log.info("Handling expiration event with request: {}", event);
+                subscriptionService.handleSubscriptionExpiration(event, user);
                 break;
+            case BILLING_ISSUE:
+                log.info("User {} had a billing issue event with request: {}", user.getId(), event);
+                break;
+            case UNCANCELLATION:
+                log.info("Handling uncancellation event with request: {}", event);
+                subscriptionService.handleUncancellation(event, user);
+                break;
+            default:
+                log.warn("Unknown event type: {}", event.getType());
         }
-        return ResponseEntity.ok("Webhook processed");
     }
 }

@@ -110,8 +110,8 @@ public class TeamMemberService {
         createNotificationAction.execute(Notification.builder()
                 .type(TEAM_INVITATION_REQUEST)
                 .status(NEW)
-                .description("%s from the %s team is inviting you".formatted(currentUser.name(), team.name()))
-                .userId(user.id())
+                .description("%s from the %s team is inviting you".formatted(currentUser.getName(), team.name()))
+                .userId(user.getId())
                 .build());
 
         return save(TeamMember.builder()

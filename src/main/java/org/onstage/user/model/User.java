@@ -25,5 +25,4 @@ public class User extends BaseEntity {
     private UserRole role;
     private LocalDateTime imageTimestamp;
     private String currentTeamId;
-    private String revenueCatId;
 }

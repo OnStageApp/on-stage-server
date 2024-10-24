@@ -31,17 +31,17 @@ public class TeamService {
         return teamRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Team"));
     }
 
-    public Team save(Team team, String userId) {
+    public Team create(Team team) {
         Team savedTeam = teamRepository.save(team);
-        User user = userService.getById(userId);
-        log.info("Team {} has been saved", savedTeam.id());
+        User user = userService.getById(savedTeam.leaderId());
+        log.info("Team {} has been created", savedTeam.id());
         teamMemberRepository.save(TeamMember.builder()
                 .teamId(savedTeam.id())
-                .userId(userId)
+                .userId(savedTeam.leaderId())
                 .name(user.getName() != null ? user.getName() : user.getEmail())
                 .role(MemberRole.LEADER)
                 .inviteStatus(CONFIRMED).build());
-        subscriptionService.createStarterSubscription(savedTeam.id());
+        subscriptionService.createStarterSubscription(savedTeam.id(), savedTeam.leaderId());
         return getById(savedTeam.id());
     }
 

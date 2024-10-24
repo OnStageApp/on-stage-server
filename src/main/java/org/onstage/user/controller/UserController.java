@@ -50,7 +50,6 @@ public class UserController {
     @GetMapping(value = "/photo")
     public ResponseEntity<String> generateGetPresignedUrl() {
         String userId = userSecurityContext.getUserId();
-        log.info("Get photo for user {}", userId);
         return ResponseEntity.ok(userService.getPresignedUrl(userId, false));
     }
 

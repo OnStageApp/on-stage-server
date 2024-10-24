@@ -24,6 +24,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)  // Updated CSRF configuration
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/revenuecat/webhook").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

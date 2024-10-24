@@ -2,17 +2,14 @@ package org.onstage.subscription.model;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 import org.onstage.common.base.BaseEntity;
 import org.onstage.enums.SubscriptionStatus;
-import org.onstage.plan.model.Plan;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
-import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @FieldNameConstants
 @Getter
@@ -24,8 +21,9 @@ public class Subscription extends BaseEntity {
     private String id;
     private String teamId;
     private String userId;
-    private Plan plan;
-    private LocalDateTime purchaseDate;
-    private LocalDateTime expirationDate;
+    private String planId;
+    private Date purchaseDate;
+    private Date expiryDate;
+    private Date cancellationDate;
     private SubscriptionStatus status;
 }
