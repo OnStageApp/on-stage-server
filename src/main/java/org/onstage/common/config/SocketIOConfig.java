@@ -23,7 +23,7 @@ public class SocketIOConfig {
         Configuration config = new Configuration();
         config.setHostname(host);
         config.setPort(port);
-        config.setContext("/socket");
+        config.setContext("/socket.io");  // Change to match Socket.IO standard
 
         server = new SocketIOServer(config);
         server.start();
