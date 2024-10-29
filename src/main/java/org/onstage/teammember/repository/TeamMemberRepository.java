@@ -43,6 +43,11 @@ public class TeamMemberRepository {
         return mongoTemplate.find(Query.query(criteria), TeamMember.class);
     }
 
+    public List<TeamMember> getAllByTeam(String teamId) {
+        Criteria criteria = Criteria.where(TeamMember.Fields.teamId).is(teamId);
+        return mongoTemplate.find(Query.query(criteria), TeamMember.class);
+    }
+
     public TeamMember getByUserAndTeam(String userId, String teamId) {
         Criteria criteria = Criteria.where(TeamMember.Fields.userId).is(userId)
                 .and(TeamMember.Fields.teamId).is(teamId);
@@ -76,7 +81,7 @@ public class TeamMemberRepository {
         Criteria userCriteria = Criteria.where(User.Fields.id).in(userIds)
                 .and(User.Fields.imageTimestamp).ne(null);
         return mongoTemplate.find(query(userCriteria).limit(2), User.class).stream()
-                .map(User::id)
+                .map(User::getId)
                 .toList();
     }
 }

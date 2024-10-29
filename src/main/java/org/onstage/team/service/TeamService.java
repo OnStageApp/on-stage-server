@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.enums.MemberRole;
 import org.onstage.exceptions.BadRequestException;
+import org.onstage.subscription.service.SubscriptionService;
 import org.onstage.team.client.TeamDTO;
 import org.onstage.team.model.Team;
 import org.onstage.team.repository.TeamRepository;
@@ -24,26 +25,28 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final UserService userService;
+    private final SubscriptionService subscriptionService;
 
     public Team getById(String id) {
-        return teamRepository.findById(id).orElseThrow(BadRequestException::teamNotFound);
+        return teamRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Team"));
     }
 
-    public Team save(Team team, String userId) {
+    public Team create(Team team) {
         Team savedTeam = teamRepository.save(team);
-        User user = userService.getById(userId);
-        log.info("Team {} has been saved", savedTeam.id());
+        User user = userService.getById(savedTeam.leaderId());
+        log.info("Team {} has been created", savedTeam.id());
         teamMemberRepository.save(TeamMember.builder()
                 .teamId(savedTeam.id())
-                .userId(userId)
-                .name(user.name() != null ? user.name() : user.email())
+                .userId(savedTeam.leaderId())
+                .name(user.getName() != null ? user.getName() : user.getEmail())
                 .role(MemberRole.LEADER)
                 .inviteStatus(CONFIRMED).build());
+        subscriptionService.createStarterSubscription(savedTeam.id(), savedTeam.leaderId());
         return getById(savedTeam.id());
     }
 
     public String delete(String id) {
-        teamRepository.findById(id).orElseThrow(BadRequestException::teamNotFound);
+        teamRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Team"));
         log.info("Deleting team {}", id);
         return teamRepository.delete(id);
     }

@@ -10,17 +10,18 @@ import java.util.List;
 public class UserMapper {
     public UserDTO toDto(User entity) {
         return UserDTO.builder()
-                .id(entity.id())
-                .name(entity.name())
-                .email(entity.email())
-                .imageTimestamp(entity.imageTimestamp())
-                .role(entity.role())
-                .currentTeamId(entity.currentTeamId())
+                .id(entity.getId())
+                .name(entity.getName())
+                .email(entity.getEmail())
+                .imageTimestamp(entity.getImageTimestamp())
+                .role(entity.getRole())
+                .currentTeamId(entity.getCurrentTeamId())
                 .build();
     }
 
     public User toEntity(UserDTO request) {
         return User.builder()
+                .id(request.id())
                 .name(request.name())
                 .email(request.email())
                 .imageTimestamp(request.imageTimestamp())

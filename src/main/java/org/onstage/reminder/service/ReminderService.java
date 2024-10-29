@@ -28,12 +28,12 @@ public class ReminderService {
 
     public Reminder save(Reminder reminder, Event event) {
         LocalDateTime sendingTime = event
-                .dateTime()
+                .getDateTime()
                 .minusDays(reminder.daysBefore())
                 .with(LocalTime.of(5, 0));
         reminder = reminder.toBuilder()
                 .sendingTime(sendingTime)
-                .text(String.format(REMINDER_TEXT_TEMPLATE, reminder.daysBefore(), event.name()))
+                .text(String.format(REMINDER_TEXT_TEMPLATE, reminder.daysBefore(), event.getName()))
                 .isSent(false)
                 .build();
 
@@ -46,7 +46,7 @@ public class ReminderService {
         if (daysBefore.isEmpty()) {
             return List.of();
         }
-        var event = eventRepository.findById(eventId).orElseThrow(BadRequestException::eventNotFound);
+        var event = eventRepository.findById(eventId).orElseThrow(() -> BadRequestException.resourceNotFound("Event"));
 
         reminderRepository.deleteAllByEventId(eventId);
         return daysBefore.stream().map(dayBefore ->
@@ -60,7 +60,7 @@ public class ReminderService {
     }
 
     public void deleteAllByEventId(String eventId) {
-        Event event = eventRepository.findById(eventId).orElseThrow(BadRequestException::eventNotFound);
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> BadRequestException.resourceNotFound("Event"));
         log.info("Deleting all reminders for event {}", eventId);
         reminderRepository.deleteAllByEventId(eventId);
     }

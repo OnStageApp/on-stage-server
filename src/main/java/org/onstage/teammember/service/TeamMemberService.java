@@ -39,7 +39,7 @@ public class TeamMemberService {
     private final UserSecurityContext userSecurityContext;
 
     public TeamMember getById(String id) {
-        return teamMemberRepository.findById(id).orElseThrow(BadRequestException::teamMemberNotFound);
+        return teamMemberRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Team member"));
     }
 
     public TeamMember getByUserAndTeam(String userId, String teamId) {
@@ -53,13 +53,13 @@ public class TeamMemberService {
             return existingTeamMember;
         }
         User user = userService.getById(teamMember.userId());
-        TeamMember savedTeamMember = teamMemberRepository.save(teamMember.toBuilder().name(user.name()).build());
+        TeamMember savedTeamMember = teamMemberRepository.save(teamMember.toBuilder().name(user.getName()).build());
         log.info("Team member {} has been saved", savedTeamMember.id());
         return savedTeamMember;
     }
 
     public String delete(String id) {
-        TeamMember teamMember = teamMemberRepository.findById(id).orElseThrow(BadRequestException::teamMemberNotFound);
+        TeamMember teamMember = teamMemberRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Team member"));
         log.info("Deleting team member {}", id);
         teamMemberRepository.delete(id);
         return teamMember.id();
@@ -67,6 +67,10 @@ public class TeamMemberService {
 
     public List<TeamMember> getAllByTeam(String teamId, String userId, boolean includeCurrentUser) {
         return teamMemberRepository.getAllByTeam(teamId, userId, includeCurrentUser);
+    }
+
+    public List<TeamMember> getAllByTeam(String teamId) {
+        return teamMemberRepository.getAllByTeam(teamId);
     }
 
     public TeamMember update(TeamMember existingTeamMember, TeamMember teamMember) {
@@ -92,9 +96,9 @@ public class TeamMemberService {
     public TeamMember inviteMember(String email, MemberRole memberRole, String teamId) {
         User user = userService.getByEmail(email);
         if (user == null) {
-            throw BadRequestException.userNotFound();
+            throw BadRequestException.resourceNotFound("User");
         }
-        TeamMember existingTeamMember = getByUserAndTeam(user.id(), teamId);
+        TeamMember existingTeamMember = getByUserAndTeam(user.getId(), teamId);
         if (existingTeamMember != null) {
             throw BadRequestException.userAlreadyInTeam();
         }
@@ -106,15 +110,15 @@ public class TeamMemberService {
         createNotificationAction.execute(Notification.builder()
                 .type(TEAM_INVITATION_REQUEST)
                 .status(NEW)
-                .description("%s from the %s team is inviting you".formatted(currentUser.name(), team.name()))
-                .userId(user.id())
+                .description("%s from the %s team is inviting you".formatted(currentUser.getName(), team.name()))
+                .userId(user.getId())
                 .build());
 
         return save(TeamMember.builder()
                 .teamId(teamId)
-                .userId(user.id())
+                .userId(user.getId())
                 .role(memberRole)
-                .name(user.name())
+                .name(user.getName())
                 .inviteStatus(PENDING)
                 .build());
     }

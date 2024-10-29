@@ -18,7 +18,7 @@ public class RehearsalService {
     private final RehearsalRepository rehearsalRepository;
 
     public Rehearsal getById(String id) {
-       return rehearsalRepository.findById(id).orElseThrow(BadRequestException::rehearsalNotFound);
+       return rehearsalRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Rehearsal"));
     }
 
     public List<Rehearsal> getAll(String eventId) {

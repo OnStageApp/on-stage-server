@@ -23,7 +23,7 @@ public class UserSettingsService {
     public void createDefaultSettings(String userId) {
         UserSettings existingUserSettings = getUserSettings(userId);
         if (existingUserSettings != null) {
-            throw BadRequestException.userSettingsAlreadyCreated();
+            return;
         }
         UserSettings savedUserSettings = userSettingsRepository.save(UserSettings.builder()
                 .isDarkMode(false)

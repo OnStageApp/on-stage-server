@@ -2,6 +2,8 @@ package org.onstage.teammember.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.common.beans.UserSecurityContext;
+import org.onstage.enums.PermissionType;
+import org.onstage.plan.service.PlanService;
 import org.onstage.teammember.client.GetTeamMemberPhoto;
 import org.onstage.teammember.client.GetTeamMembersResponse;
 import org.onstage.teammember.client.InviteMemberDTO;
@@ -23,6 +25,7 @@ public class TeamMemberController {
     private final TeamMemberMapper teamMemberMapper;
     private final UserSecurityContext userSecurityContext;
     private final UserService userService;
+    private final PlanService planService;
 
     @GetMapping("/{id}")
     public ResponseEntity<TeamMemberDTO> getById(@PathVariable(name = "id") String id) {
@@ -57,7 +60,10 @@ public class TeamMemberController {
 
     @PostMapping
     public ResponseEntity<TeamMemberDTO> create(@RequestBody TeamMemberDTO request) {
-        request = request.toBuilder().teamId(userSecurityContext.getCurrentTeamId()).build();
+        String teamId = userSecurityContext.getCurrentTeamId();
+
+        planService.checkPermission(PermissionType.ADD_TEAM_MEMBERS, teamId);
+        request = request.toBuilder().teamId(teamId).build();
         return ResponseEntity.ok(teamMemberMapper.toDto(teamMemberService.save(teamMemberMapper.toEntity(request))));
     }
 

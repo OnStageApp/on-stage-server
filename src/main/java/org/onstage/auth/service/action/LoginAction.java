@@ -8,6 +8,7 @@ import org.onstage.auth.model.LoginRequest;
 import org.onstage.common.action.Action;
 import org.onstage.common.config.JwtTokenProvider;
 import org.onstage.exceptions.BadRequestException;
+import org.onstage.subscription.service.SubscriptionService;
 import org.onstage.team.model.Team;
 import org.onstage.team.service.TeamService;
 import org.onstage.user.model.User;
@@ -23,6 +24,7 @@ public class LoginAction implements Action<LoginRequest, String> {
     private final UserService userService;
     private final TeamService teamService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final SubscriptionService subscriptionService;
 
     @SneakyThrows
     @Override
@@ -47,7 +49,7 @@ public class LoginAction implements Action<LoginRequest, String> {
                 .name(decodedToken.getName())
                 .email(decodedToken.getEmail())
                 .build());
-        Team team = teamService.save(Team.builder().name(SOLO_TEAM_NAME).build(), user.id());
+        Team team = teamService.create(Team.builder().name(SOLO_TEAM_NAME).leaderId(user.getId()).build());
         return userRepository.save(user.toBuilder().currentTeamId(team.id()).build());
 
     }

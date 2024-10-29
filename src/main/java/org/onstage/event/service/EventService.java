@@ -37,41 +37,41 @@ public class EventService {
     private final TeamMemberService teamMemberService;
 
     public Event getById(String id) {
-        return eventRepository.findById(id).orElseThrow(BadRequestException::eventNotFound);
+        return eventRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Event"));
     }
 
     public Event save(Event event, List<String> teamMembersIds, List<CreateRehearsalForEventRequest> rehearsals, String teamId, String eventLeaderId) {
         event = event.toBuilder().teamId(teamId).build();
         Event savedEvent = eventRepository.save(event);
-        stagerService.createStagersForEvent(savedEvent.id(), teamMembersIds, eventLeaderId);
-        rehearsalService.createRehearsalsForEvent(savedEvent.id(), rehearsals);
-        log.info("Event {} has been saved", savedEvent.id());
+        stagerService.createStagersForEvent(savedEvent.getId(), teamMembersIds, eventLeaderId);
+        rehearsalService.createRehearsalsForEvent(savedEvent.getId(), rehearsals);
+        log.info("Event {} has been saved", savedEvent.getId());
         return savedEvent;
     }
 
     public String delete(String id) {
         Event event = getById(id);
-        log.info("Deleting event {}", event.id());
-        stagerService.deleteAllByEventId(event.id());
-        rehearsalService.deleteAllByEventId(event.id());
-        reminderService.deleteAllByEventId(event.id());
-        return eventRepository.delete(event.id());
+        log.info("Deleting event {}", event.getId());
+        stagerService.deleteAllByEventId(event.getId());
+        rehearsalService.deleteAllByEventId(event.getId());
+        reminderService.deleteAllByEventId(event.getId());
+        return eventRepository.delete(event.getId());
     }
 
     public Event update(Event existingEvent, UpdateEventRequest request) {
-        log.info("Updating event {} with request {}", existingEvent.id(), request);
+        log.info("Updating event {} with request {}", existingEvent.getId(), request);
         Event updatedEvent = updateEventFromDTO(existingEvent, request);
         return eventRepository.save(updatedEvent);
     }
 
     private Event updateEventFromDTO(Event existingEvent, UpdateEventRequest request) {
         return Event.builder()
-                .id(existingEvent.id())
-                .name(request.name() == null ? existingEvent.name() : request.name())
-                .dateTime((existingEvent.eventStatus().equals(DRAFT) && request.dateTime() != null) ? request.dateTime() : existingEvent.dateTime())
-                .location(request.location() == null ? existingEvent.location() : request.location())
-                .eventStatus(request.eventStatus() == null ? existingEvent.eventStatus() : request.eventStatus())
-                .teamId(existingEvent.teamId())
+                .id(existingEvent.getId())
+                .name(request.name() == null ? existingEvent.getName() : request.name())
+                .dateTime((existingEvent.getEventStatus().equals(DRAFT) && request.dateTime() != null) ? request.dateTime() : existingEvent.getDateTime())
+                .location(request.location() == null ? existingEvent.getLocation() : request.location())
+                .eventStatus(request.eventStatus() == null ? existingEvent.getEventStatus() : request.eventStatus())
+                .teamId(existingEvent.getTeamId())
                 .build();
     }
 
@@ -87,23 +87,23 @@ public class EventService {
     public Event duplicate(Event event, LocalDateTime dateTime, String name, String eventLeaderId) {
         Event duplicatedEvent = Event.builder()
                 .name(name)
-                .location(event.location())
+                .location(event.getLocation())
                 .eventStatus(DRAFT)
                 .dateTime(dateTime)
-                .teamId(event.teamId())
+                .teamId(event.getTeamId())
                 .build();
         duplicatedEvent = eventRepository.save(duplicatedEvent);
 
-        List<Stager> stagers = stagerService.getAllByEventId(event.id());
-        stagerService.createStagersForEvent(duplicatedEvent.id(), stagers.stream().map(Stager::teamMemberId).toList(), eventLeaderId);
+        List<Stager> stagers = stagerService.getAllByEventId(event.getId());
+        stagerService.createStagersForEvent(duplicatedEvent.getId(), stagers.stream().map(Stager::teamMemberId).toList(), eventLeaderId);
 
-        List<Reminder> reminders = reminderService.getAllByEventId(event.id());
-        reminderService.createReminders(reminders.stream().map(Reminder::daysBefore).toList(), duplicatedEvent.id());
+        List<Reminder> reminders = reminderService.getAllByEventId(event.getId());
+        reminderService.createReminders(reminders.stream().map(Reminder::daysBefore).toList(), duplicatedEvent.getId());
 
-        List<EventItem> eventItems = eventItemRepository.getAll(event.id());
+        List<EventItem> eventItems = eventItemRepository.getAll(event.getId());
         for (EventItem eventItem : eventItems) {
             eventItemRepository.save(EventItem.builder()
-                    .eventId(duplicatedEvent.id())
+                    .eventId(duplicatedEvent.getId())
                     .eventType(eventItem.eventType())
                     .songId(eventItem.songId())
                     .index(eventItem.index())
@@ -112,5 +112,9 @@ public class EventService {
         }
 
         return duplicatedEvent;
+    }
+
+    public int countAllCreatedInInterval(String teamId) {
+        return eventRepository.countAllCreatedInInterval(teamId);
     }
 }

@@ -36,7 +36,7 @@ public class TeamController {
 
         return ResponseEntity.ok(GetAllTeamsResponse.builder()
                 .teams(teams)
-                .currentTeamId(userService.getById(userId).currentTeamId())
+                .currentTeamId(userService.getById(userId).getCurrentTeamId())
                 .build());
 
     }
@@ -50,7 +50,7 @@ public class TeamController {
     @PostMapping
     public ResponseEntity<TeamDTO> create(@RequestBody TeamDTO request) {
         String userId = userSecurityContext.getUserId();
-        return ResponseEntity.ok(teamMapper.toDto(teamService.save(teamMapper.toEntity(request), userId)));
+        return ResponseEntity.ok(teamMapper.toDto(teamService.create(teamMapper.toEntity(request, userId))));
     }
 
     @DeleteMapping("/{id}")

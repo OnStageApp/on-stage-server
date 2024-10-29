@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.onstage.exceptions.BadRequestException.songNotFound;
+import static org.onstage.exceptions.BadRequestException.resourceNotFound;
 
 @Service
 @Slf4j
@@ -33,7 +33,7 @@ public class SongService {
     public SongDTO getSongCustom(String id, String teamId, Boolean isCustom) {
         SongDTO songDTO = songRepository.findProjectionById(id);
         if (songDTO == null) {
-            throw songNotFound();
+            throw resourceNotFound("Song");
         }
 
         var key = songDTO.originalKey();
@@ -55,7 +55,7 @@ public class SongService {
 
     public SongOverview getOverviewSong(String id) {
         return songRepository.findOverviewById(id)
-                .orElseThrow(BadRequestException::songNotFound);
+                .orElseThrow(() -> BadRequestException.resourceNotFound("Song"));
     }
 
     public List<SongOverview> getAll(SongFilter songFilter, String teamId) {
@@ -73,7 +73,7 @@ public class SongService {
 
     public SongDTO updateSong(String id, CreateOrUpdateSongRequest request) {
         Song existingSong = songRepository.findById(id)
-                .orElseThrow(BadRequestException::songNotFound);
+                .orElseThrow(() -> BadRequestException.resourceNotFound("Song"));
         existingSong = existingSong.toBuilder()
                 .title(request.title() == null ? existingSong.title() : request.title())
                 .structure(request.structure() == null ? existingSong.structure() : request.structure())
@@ -89,7 +89,7 @@ public class SongService {
     }
 
     public void addFavoriteSong(String songId, String userId) {
-        Song song = songRepository.findById(songId).orElseThrow(BadRequestException::songNotFound);
+        Song song = songRepository.findById(songId).orElseThrow(() -> BadRequestException.resourceNotFound("Song"));
         FavoriteSong favoriteSong = favoriteSongRepository.findBySongIdAndUserId(song.id(), userId);
         if (favoriteSong != null) {
             log.info("Song {} is already saved by user {}", song.id(), userId);

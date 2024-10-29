@@ -22,6 +22,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with uid: " + username));
 
         return new org.springframework.security.core.userdetails.User(
-                user.id(), "", Collections.emptyList());
+                user.getId(), "", Collections.emptyList());
     }
 }

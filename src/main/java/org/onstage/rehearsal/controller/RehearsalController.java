@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static org.onstage.exceptions.BadRequestException.rehearsalNotFound;
-
 @RestController
 @RequestMapping("rehearsals")
 @RequiredArgsConstructor

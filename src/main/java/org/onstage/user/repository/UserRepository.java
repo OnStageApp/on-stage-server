@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.onstage.user.model.User.Fields.imageTimestamp;
 
 @Component
 @RequiredArgsConstructor
@@ -50,7 +49,7 @@ public class UserRepository {
 
     public void updateImageTimestamp(String id, LocalDateTime now) {
         Query query = new Query(Criteria.where("id").is(id));
-        Update update = new Update().set(imageTimestamp, now);
+        Update update = new Update().set(User.Fields.imageTimestamp, now);
         mongoTemplate.updateFirst(query, update, User.class);
     }
 
@@ -80,5 +79,14 @@ public class UserRepository {
 
     public void deleteById(String userId) {
         userRepo.deleteById(userId);
+    }
+
+    public User findByIdOrTeamId(String appUserId) {
+        Criteria criteria = new Criteria().orOperator(
+                Criteria.where(User.Fields.id).is(appUserId),
+                Criteria.where(User.Fields.currentTeamId).is(appUserId)
+        );
+        Query query = new Query(criteria);
+        return mongoTemplate.findOne(query, User.class);
     }
 }

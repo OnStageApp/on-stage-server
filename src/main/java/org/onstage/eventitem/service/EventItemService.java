@@ -55,7 +55,7 @@ public class EventItemService {
 
     public List<Stager> getLeadVocals(String id) {
         EventItem eventItem = eventItemRepository.getById(id)
-                .orElseThrow(BadRequestException::eventItemNotFound);
+                .orElseThrow(() -> BadRequestException.resourceNotFound("Event item"));
         List<String> leadVocalIds = eventItem.leadVocalIds();
         if (Objects.isNull(leadVocalIds) || leadVocalIds.isEmpty()) {
             return List.of();
@@ -100,7 +100,7 @@ public class EventItemService {
 
     public void updateEventItemLeadVocals(String eventItemId, List<String> stagerIds) {
         EventItem existingEventItem = eventItemRepository.getById(eventItemId)
-                .orElseThrow(BadRequestException::eventItemNotFound);
+                .orElseThrow(() -> BadRequestException.resourceNotFound("Event item"));
 
         eventItemRepository.save(existingEventItem.toBuilder().leadVocalIds(stagerIds.stream().distinct().toList()).build());
     }
