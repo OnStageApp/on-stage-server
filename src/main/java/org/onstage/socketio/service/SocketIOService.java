@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class SocketIOService {
     private final SocketIOServer server;
-    private final Map<String, SocketIOClient> userSessions = new ConcurrentHashMap<>();
+    private final Map<String, SocketIOClient> deviceSession = new ConcurrentHashMap<>();
     private boolean isRunning = false;
 
     public SocketIOService(SocketIOServer server) {
@@ -25,50 +25,50 @@ public class SocketIOService {
 
     private void setupEventListeners() {
         server.addConnectListener(client -> {
-            String userId = client.getHandshakeData().getSingleUrlParam("userId");
-            log.info("Connect attempt - UserID from handshake: {}", userId);
+            String deviceId = client.getHandshakeData().getSingleUrlParam("deviceId");
+            log.info("Connect attempt - deviceId from handshake: {}", deviceId);
 
-            if (userId != null) {
-                userSessions.put(userId, client);
-                log.info("User {} connected. Active sessions: {}", userId, userSessions.size());
-                SocketIOClient storedClient = userSessions.get(userId);
-                log.info("Stored client check - UserId: {}, Client stored: {}, Sessions size: {}",
-                        userId,
+            if (deviceId != null) {
+                deviceSession.put(deviceId, client);
+                log.info("Device {} connected. Active sessions: {}", deviceId, deviceSession.size());
+                SocketIOClient storedClient = deviceSession.get(deviceId);
+                log.info("Stored client check - DeviceId: {}, Client stored: {}, Sessions size: {}",
+                        deviceId,
                         storedClient != null,
-                        userSessions.size()
+                        deviceSession.size()
                 );
             } else {
-                log.warn("Client attempted to connect without userId");
+                log.warn("Client attempted to connect without deviceId");
                 client.disconnect();
             }
         });
 
         server.addDisconnectListener(client -> {
-            String userId = client.getHandshakeData().getSingleUrlParam("userId");
-            if (userId != null) {
-                userSessions.remove(userId);
-                log.info("User {} disconnected. Remaining sessions: {}", userId, userSessions.size());
+            String deviceId = client.getHandshakeData().getSingleUrlParam("deviceId");
+            if (deviceId != null) {
+                deviceSession.remove(deviceId);
+                log.info("Device {} disconnected. Remaining sessions: {}", deviceId, deviceSession.size());
             }
         });
 
     }
 
-    public void sendToUser(String userId, SocketEventType eventName, Object data) {
-        log.info("Attempting to send to user: {}. Active sessions: {}", userId, userSessions.size());
-        log.info("Active user sessions: {}", userSessions.keySet());
+    public void sendToUser(String userId, String deviceId, SocketEventType eventName, Object data) {
+        log.info("Attempting to send to user {} with device: {}. Active sessions: {}", userId, deviceId, deviceSession.size());
+        log.info("Active device sessions: {}", deviceSession.keySet());
 
-        SocketIOClient client = userSessions.get(userId);
+        SocketIOClient client = deviceSession.get(deviceId);
         if (client != null && client.isChannelOpen()) {
             try {
                 client.sendEvent(eventName.name(), data);
-                log.debug("Sent event '{}' to user {}", eventName, userId);
+                log.debug("Sent event '{}' to user {} with device {}", eventName, userId, deviceId);
             } catch (Exception e) {
-                log.error("Error sending event to user {}: {}", userId, e.getMessage(), e);
-                userSessions.remove(userId);  // Clean up failed connection
+                log.error("Error sending event to user {} with device {}: {}", userId, deviceId, e.getMessage(), e);
+                deviceSession.remove(deviceId);
             }
         } else {
-            log.warn("Cannot send to user {}. Client {} or channel not open",
-                    userId, client == null ? "not found" : "found");
+            log.warn("Cannot send to user {} with device {}. Client {} or channel not open",
+                    userId, deviceId, client == null ? "not found" : "found");
         }
     }
 
@@ -93,14 +93,14 @@ public class SocketIOService {
         try {
             if (isRunning) {
                 // Disconnect all clients first
-                userSessions.values().forEach(client -> {
+                deviceSession.values().forEach(client -> {
                     try {
                         client.disconnect();
                     } catch (Exception e) {
                         log.warn("Error disconnecting client: {}", e.getMessage());
                     }
                 });
-                userSessions.clear();
+                deviceSession.clear();
 
                 server.stop();
                 isRunning = false;

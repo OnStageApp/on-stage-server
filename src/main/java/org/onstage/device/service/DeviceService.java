@@ -8,6 +8,7 @@ import org.onstage.exceptions.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -47,5 +48,9 @@ public class DeviceService {
             log.info("Device logged out: {}", device);
         }
         deviceRepository.save(device);
+    }
+
+    public List<Device> getAllLoggedDevices(String userId) {
+        return deviceRepository.findAllByLogged(userId);
     }
 }

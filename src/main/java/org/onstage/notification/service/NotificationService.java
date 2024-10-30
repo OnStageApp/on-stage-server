@@ -2,6 +2,7 @@ package org.onstage.notification.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.onstage.device.service.DeviceService;
 import org.onstage.notification.action.GetNotificationsAction;
 import org.onstage.notification.client.NotificationFilter;
 import org.onstage.notification.client.NotificationStatus;
@@ -22,6 +23,7 @@ public class NotificationService {
     private final GetNotificationsAction getNotificationsAction;
     private final NotificationRepository notificationRepository;
     private final SocketIOService socketIOService;
+    private final DeviceService deviceService;
 
     public List<Notification> getAllNotifications(NotificationFilter filter) {
         return getNotificationsAction.execute(filter);
@@ -35,7 +37,7 @@ public class NotificationService {
                 .description(description)
                 .build();
         notificationRepository.save(notification);
-        socketIOService.sendToUser(notification.userId(), NOTIFICATION, null);
+        deviceService.getAllLoggedDevices(userId).forEach(device -> socketIOService.sendToUser(notification.userId(), device.getId(), NOTIFICATION, null));
         log.info("New notification {} has been sent to user {}", type, notification.userId());
     }
 }
