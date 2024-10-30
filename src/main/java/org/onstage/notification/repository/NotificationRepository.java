@@ -2,7 +2,7 @@ package org.onstage.notification.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.notification.client.NotificationFilter;
-import org.onstage.notification.model.NotificationEntity;
+import org.onstage.notification.model.Notification;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -18,7 +18,7 @@ public class NotificationRepository {
     private final MongoTemplate mongoTemplate;
     private final NotificationRepo repo;
 
-    public List<NotificationEntity> findNotifications(NotificationFilter filter) {
+    public List<Notification> findNotifications(NotificationFilter filter) {
         Criteria criteria = new Criteria();
         ofNullable(filter)
                 .ifPresent(currentFilter -> {
@@ -31,10 +31,10 @@ public class NotificationRepository {
                 });
 
         Query query = new Query().addCriteria(criteria);
-        return mongoTemplate.find(query, NotificationEntity.class);
+        return mongoTemplate.find(query, Notification.class);
     }
 
-    public NotificationEntity save(NotificationEntity entity) {
+    public Notification save(Notification entity) {
         return repo.save(entity);
     }
 }

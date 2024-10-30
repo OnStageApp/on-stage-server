@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @With
 @Builder
 @Document("notifications")
-public record NotificationEntity(
+public record Notification(
         @Id
         String notificationId,
         String description,

@@ -10,7 +10,6 @@ import org.onstage.song.client.SongFilter;
 import org.onstage.song.client.SongOverview;
 import org.onstage.song.model.mapper.SongMapper;
 import org.onstage.song.service.SongService;
-import org.onstage.websocket.SocketIOService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +22,6 @@ public class SongController {
     private final SongService songService;
     private final SongMapper songMapper;
     private final UserSecurityContext userSecurityContext;
-    private final SocketIOService socketIOService;
     private final PlanService planService;
 
     @GetMapping("/{id}")
@@ -34,7 +32,6 @@ public class SongController {
 
     @GetMapping
     public ResponseEntity<List<SongOverview>> getAll(@RequestBody SongFilter songFilter) {
-        socketIOService.emitEvent("song", "songasdasdas");
         String teamId = userSecurityContext.getCurrentTeamId();
         return ResponseEntity.ok(songService.getAll(songFilter, teamId));
     }

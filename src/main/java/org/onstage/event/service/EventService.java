@@ -10,6 +10,7 @@ import org.onstage.event.repository.EventRepository;
 import org.onstage.eventitem.model.EventItem;
 import org.onstage.eventitem.repository.EventItemRepository;
 import org.onstage.exceptions.BadRequestException;
+import org.onstage.notification.service.NotificationService;
 import org.onstage.rehearsal.client.CreateRehearsalForEventRequest;
 import org.onstage.rehearsal.service.RehearsalService;
 import org.onstage.reminder.model.Reminder;
@@ -18,6 +19,7 @@ import org.onstage.stager.model.Stager;
 import org.onstage.stager.service.StagerService;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.service.TeamMemberService;
+import org.onstage.user.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

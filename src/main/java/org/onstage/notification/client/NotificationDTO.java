@@ -3,7 +3,7 @@ package org.onstage.notification.client;
 import lombok.Builder;
 
 @Builder
-public record Notification(
+public record NotificationDTO(
         String notificationId,
         String description,
         NotificationType type,
