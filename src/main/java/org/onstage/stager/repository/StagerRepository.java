@@ -37,6 +37,7 @@ public class StagerRepository {
                 .name(teamMember.name())
                 .userId(teamMember.userId())
                 .participationStatus(PENDING).build());
+        // ask stagers to participate
     }
 
     public void removeStager(String stagerId) {

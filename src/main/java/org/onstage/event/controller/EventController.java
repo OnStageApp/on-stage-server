@@ -51,8 +51,8 @@ public class EventController {
     public ResponseEntity<EventDTO> create(@RequestBody CreateEventRequest event) {
         String teamId = userSecurityContext.getCurrentTeamId();
         String eventLeaderId = userSecurityContext.getCurrentTeamMemberId();
-
-        planService.checkPermission(PermissionType.ADD_EVENTS, teamId);
+//TODO: Uncomment this
+//        planService.checkPermission(PermissionType.ADD_EVENTS, teamId);
         return ResponseEntity.ok(eventMapper.toDto(eventService.save(eventMapper.fromCreateRequest(event), event.teamMemberIds(), event.rehearsals(), teamId, eventLeaderId)));
     }
 

@@ -5,6 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.onstage.enums.ParticipationStatus;
 import org.onstage.eventitem.service.EventItemService;
 import org.onstage.exceptions.BadRequestException;
+import org.onstage.notification.client.NotificationStatus;
+import org.onstage.notification.client.NotificationType;
+import org.onstage.notification.service.NotificationService;
 import org.onstage.stager.client.StagerDTO;
 import org.onstage.stager.model.Stager;
 import org.onstage.stager.repository.StagerRepository;
@@ -23,6 +26,7 @@ public class StagerService {
     private final StagerRepository stagerRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final EventItemService eventItemService;
+    private final NotificationService notificationService;
 
     public Stager getById(String id) {
         return stagerRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Stager"));
@@ -43,7 +47,9 @@ public class StagerService {
                     .filter(id -> !id.equals(eventLeaderId))
                     .toList();
         }
-        return teamMembersIds.stream().map(teamMemberId -> create(eventId, teamMemberId)).collect(toList());
+        List<Stager> stagers = teamMembersIds.stream().map(teamMemberId -> create(eventId, teamMemberId)).collect(toList());
+        stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_REQUEST, NotificationStatus.NEW, stager.userId(), "You have been invited to an event"));
+        return stagers;
     }
 
     public Stager create(String eventId, String teamMemberId) {

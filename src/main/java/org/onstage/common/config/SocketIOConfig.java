@@ -1,13 +1,14 @@
 package org.onstage.common.config;
 
 import com.corundumstudio.socketio.Configuration;
+import com.corundumstudio.socketio.SocketConfig;
 import com.corundumstudio.socketio.SocketIOServer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PreDestroy;
-
+@Slf4j
 @Component
 public class SocketIOConfig {
     @Value("${socket-server.host}")
@@ -16,24 +17,28 @@ public class SocketIOConfig {
     @Value("${socket-server.port}")
     private Integer port;
 
-    private SocketIOServer server;
-
     @Bean
     public SocketIOServer socketIOServer() {
         Configuration config = new Configuration();
         config.setHostname(host);
         config.setPort(port);
-        config.setContext("/socket.io");  // Change to match Socket.IO standard
 
-        server = new SocketIOServer(config);
-        server.start();
-        return server;
-    }
+        // Add socket configuration
+        SocketConfig socketConfig = new SocketConfig();
+        socketConfig.setReuseAddress(true);
+        config.setSocketConfig(socketConfig);
 
-    @PreDestroy
-    public void stopSocketIOServer() {
-        if (server != null) {
-            server.stop();
+        // Add other useful configurations
+        config.setAllowCustomRequests(true);
+        config.setPingTimeout(60000);
+        config.setPingInterval(25000);
+        config.setUpgradeTimeout(10000);
+
+        try {
+            return new SocketIOServer(config);
+        } catch (Exception e) {
+            log.error("Failed to create SocketIOServer: {}", e.getMessage(), e);
+            throw new RuntimeException("Could not create SocketIOServer", e);
         }
     }
 }
