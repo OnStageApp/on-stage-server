@@ -2,7 +2,6 @@ package org.onstage.artist.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.onstage.artist.client.ArtistDTO;
 import org.onstage.artist.model.Artist;
 import org.onstage.artist.repository.ArtistRepository;
 import org.onstage.exceptions.BadRequestException;
@@ -31,13 +30,13 @@ public class ArtistService {
         return savedArtist;
     }
 
-    public Artist update(Artist existingArtist, ArtistDTO request) {
+    public Artist update(Artist existingArtist, Artist request) {
         log.info("Updating artist {} with request {}", existingArtist.id(), request);
         Artist updatedArtist = updateArtistFromDTO(existingArtist, request);
         return save(updatedArtist);
     }
 
-    private Artist updateArtistFromDTO(Artist existingArtist, ArtistDTO request) {
+    private Artist updateArtistFromDTO(Artist existingArtist, Artist request) {
         return Artist.builder()
                 .id(existingArtist.id())
                 .name(request.name())

@@ -36,6 +36,6 @@ public class ArtistController {
     @PutMapping("/{id}")
     public ResponseEntity<ArtistDTO> update(@PathVariable String id, @RequestBody ArtistDTO request) {
         Artist artist = artistService.getById(id);
-        return ResponseEntity.ok(artistMapper.toDto(artistService.update(artist, request)));
+        return ResponseEntity.ok(artistMapper.toDto(artistService.update(artist, artistMapper.toEntity(request))));
     }
 }

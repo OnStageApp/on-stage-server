@@ -24,7 +24,6 @@ public class LoginAction implements Action<LoginRequest, String> {
     private final UserService userService;
     private final TeamService teamService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final SubscriptionService subscriptionService;
 
     @SneakyThrows
     @Override
