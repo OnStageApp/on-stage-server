@@ -2,11 +2,15 @@ package org.onstage.subscription.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.onstage.device.model.Device;
+import org.onstage.device.service.DeviceService;
 import org.onstage.enums.SubscriptionStatus;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.plan.model.Plan;
 import org.onstage.plan.repository.PlanRepository;
 import org.onstage.revenuecat.model.RevenueCatWebhookEvent;
+import org.onstage.socketio.SocketEventType;
+import org.onstage.socketio.service.SocketIOService;
 import org.onstage.subscription.model.Subscription;
 import org.onstage.subscription.repository.SubscriptionRepository;
 import org.onstage.team.model.Team;
@@ -15,6 +19,7 @@ import org.onstage.user.model.User;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -24,6 +29,8 @@ public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final PlanRepository planRepository;
     private final TeamRepository teamRepository;
+    private final SocketIOService socketIOService;
+    private final DeviceService deviceService;
 
 
     public void handleInitialPurchase(RevenueCatWebhookEvent event, User user) {
@@ -33,6 +40,9 @@ public class SubscriptionService {
         if (existingSubscription != null) {
             existingSubscription.setStatus(SubscriptionStatus.INACTIVE);
             subscriptionRepository.save(existingSubscription);
+            //TODO: See if this is ok
+            List<Device> devices = deviceService.getAllLoggedDevices(user.getId());
+            devices.forEach(device -> socketIOService.sendToUser(user.getId(), device.getId(), SocketEventType.SUBSCRIPTION_UPDATE, null));
             log.info("Deactivated existing subscription for team {}", team.id());
         }
 
@@ -83,6 +93,9 @@ public class SubscriptionService {
         if (!Objects.equals(existingPlan.getRevenueCatProductId(), event.getProductId())) {
             existingSubscription.setPlanId(newPlan.getId());
             existingSubscription.setPurchaseDate(new Date(event.getPurchasedAtMs()));
+            //TODO: See if this is ok
+            List<Device> devices = deviceService.getAllLoggedDevices(user.getId());
+            devices.forEach(device -> socketIOService.sendToUser(user.getId(), device.getId(), SocketEventType.SUBSCRIPTION_UPDATE, null));
         }
 
         existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
