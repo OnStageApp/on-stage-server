@@ -5,5 +5,5 @@ import lombok.Getter;
 @Getter
 public enum SocketEventType {
     NOTIFICATION,
-    SUBSCRIPTION_UPDATE,
+    SUBSCRIPTION,
 }

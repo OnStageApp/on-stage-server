@@ -42,7 +42,7 @@ public class SubscriptionService {
             subscriptionRepository.save(existingSubscription);
             //TODO: See if this is ok
             List<Device> devices = deviceService.getAllLoggedDevices(user.getId());
-            devices.forEach(device -> socketIOService.sendToUser(user.getId(), device.getId(), SocketEventType.SUBSCRIPTION_UPDATE, null));
+            devices.forEach(device -> socketIOService.sendToUser(user.getId(), device.getId(), SocketEventType.SUBSCRIPTION, null));
             log.info("Deactivated existing subscription for team {}", team.id());
         }
 
@@ -95,7 +95,7 @@ public class SubscriptionService {
             existingSubscription.setPurchaseDate(new Date(event.getPurchasedAtMs()));
             //TODO: See if this is ok
             List<Device> devices = deviceService.getAllLoggedDevices(user.getId());
-            devices.forEach(device -> socketIOService.sendToUser(user.getId(), device.getId(), SocketEventType.SUBSCRIPTION_UPDATE, null));
+            devices.forEach(device -> socketIOService.sendToUser(user.getId(), device.getId(), SocketEventType.SUBSCRIPTION, null));
         }
 
         existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
