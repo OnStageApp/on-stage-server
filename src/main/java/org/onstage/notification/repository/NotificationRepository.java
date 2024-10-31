@@ -3,6 +3,7 @@ package org.onstage.notification.repository;
 import lombok.RequiredArgsConstructor;
 import org.onstage.notification.client.NotificationFilter;
 import org.onstage.notification.model.Notification;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -30,7 +31,10 @@ public class NotificationRepository {
                             .ifPresent(userId -> criteria.and("userId").is(userId));
                 });
 
-        Query query = new Query().addCriteria(criteria);
+        Query query = new Query()
+                .addCriteria(criteria)
+                .with(Sort.by(Sort.Direction.DESC, "createdAt"));
+
         return mongoTemplate.find(query, Notification.class);
     }
 
