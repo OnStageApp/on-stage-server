@@ -29,11 +29,28 @@ public class DeviceService {
     }
 
     public Device updateDevice(Device existingDevice, Device device) {
-        log.info("Updating device {} with with new data: {}", existingDevice, device);
-        existingDevice.setId(device.getId());
-        existingDevice.setOsVersion(device.getOsVersion());
-        existingDevice.setAppVersion(device.getAppVersion());
-        existingDevice.setBuildVersion(device.getBuildVersion());
+        //TODO: refactor emima
+        log.info("Updating device {} with new data: {}", existingDevice, device);
+
+        if (device.getId() != null) {
+            existingDevice.setId(device.getId());
+        }
+
+        if (device.getOsVersion() != null) {
+            existingDevice.setOsVersion(device.getOsVersion());
+        }
+
+        if (device.getAppVersion() != null) {
+            existingDevice.setAppVersion(device.getAppVersion());
+        }
+
+        if (device.getBuildVersion() != null) {
+            existingDevice.setBuildVersion(device.getBuildVersion());
+        }
+
+        if (device.getPushToken() != null) {
+            existingDevice.setPushToken(device.getPushToken());
+        }
 
         return deviceRepository.save(existingDevice);
     }
