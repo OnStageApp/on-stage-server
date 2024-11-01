@@ -55,20 +55,18 @@ public class SocketIOService {
 
     public void sendSocketEvent(String userId, String deviceId, SocketEventType eventName, Object data) {
         log.info("Attempting to send to user {} with device: {}. Active sessions: {}", userId, deviceId, deviceSession.size());
-        log.info("Active device sessions: {}", deviceSession.keySet());
 
         SocketIOClient client = deviceSession.get(deviceId);
         if (client != null && client.isChannelOpen()) {
             try {
                 client.sendEvent(eventName.name(), data);
-                log.debug("Sent event '{}' to user {} with device {}", eventName, userId, deviceId);
+                log.info("Sent event '{}' to user {} with device {}", eventName, userId, deviceId);
             } catch (Exception e) {
                 log.error("Error sending event to user {} with device {}: {}", userId, deviceId, e.getMessage(), e);
                 deviceSession.remove(deviceId);
             }
         } else {
-            log.warn("Cannot send to user {} with device {}. Client {} or channel not open",
-                    userId, deviceId, client == null ? "not found" : "found");
+            log.warn("Cannot send to user {} with device {}. Client not found or channel not open", userId, deviceId);
         }
     }
 

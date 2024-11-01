@@ -45,8 +45,10 @@ public class EventService {
     public Event save(Event event, List<String> teamMembersIds, List<CreateRehearsalForEventRequest> rehearsals, String teamId, String eventLeaderId) {
         event = event.toBuilder().teamId(teamId).build();
         Event savedEvent = eventRepository.save(event);
+
         stagerService.createStagersForEvent(savedEvent.getId(), teamMembersIds, eventLeaderId);
         rehearsalService.createRehearsalsForEvent(savedEvent.getId(), rehearsals);
+
         log.info("Event {} has been saved", savedEvent.getId());
         return savedEvent;
     }

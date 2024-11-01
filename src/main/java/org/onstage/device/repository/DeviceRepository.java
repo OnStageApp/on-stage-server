@@ -22,8 +22,6 @@ public class DeviceRepository {
         return Optional.ofNullable(mongoTemplate.findOne(query(criteria), Device.class));
     }
 
-
-
     public Device save(Device device) {
         return deviceRepo.save(device);
     }

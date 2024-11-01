@@ -22,6 +22,7 @@ public class DeviceService {
 
     public Device loginDevice(Device device) {
         Device existingDevice = deviceRepository.findByDeviceId(device.getDeviceId()).orElse(device);
+        existingDevice.setUserId(device.getUserId());
         existingDevice.setLogged(true);
         existingDevice.setLastLogin(new Date());
         return deviceRepository.save(existingDevice);
