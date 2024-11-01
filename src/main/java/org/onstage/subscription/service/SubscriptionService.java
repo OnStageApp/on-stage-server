@@ -104,6 +104,8 @@ public class SubscriptionService {
         subscriptionRepository.save(existingSubscription);
         //TODO: See if this is ok
         List<Device> devices = deviceService.getAllLoggedDevices(user.getId());
+        log.info("Devices: {}", devices);
+        log.info("User: {}", user.getId());
         devices.forEach(device -> socketIOService.sendToUser(user.getId(), device.getId(), SocketEventType.SUBSCRIPTION, null));
         log.info("Renewed subscription for team {} with plan {}. New expiry date: {}", team.id(), newPlan.getName(), existingSubscription.getExpiryDate());
     }
