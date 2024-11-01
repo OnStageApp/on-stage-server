@@ -17,11 +17,11 @@ public class DeviceService {
     private final DeviceRepository deviceRepository;
 
     public Device getById(String id) {
-        return deviceRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Device"));
+        return deviceRepository.findByDeviceId(id).orElseThrow(() -> BadRequestException.resourceNotFound("Device"));
     }
 
     public Device loginDevice(Device device) {
-        Device existingDevice = deviceRepository.findById(device.getDeviceId()).orElse(device);
+        Device existingDevice = deviceRepository.findByDeviceId(device.getDeviceId()).orElse(device);
         existingDevice.setLogged(true);
         existingDevice.setLastLogin(new Date());
         return deviceRepository.save(existingDevice);

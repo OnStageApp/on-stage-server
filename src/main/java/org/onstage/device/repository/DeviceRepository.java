@@ -2,7 +2,6 @@ package org.onstage.device.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.device.model.Device;
-import org.onstage.event.repository.EventRepo;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
@@ -18,9 +17,12 @@ public class DeviceRepository {
     private final DeviceRepo deviceRepo;
     private final MongoTemplate mongoTemplate;
 
-    public Optional<Device> findById(String id) {
-        return deviceRepo.findById(id);
+    public Optional<Device> findByDeviceId(String deviceId) {
+        Criteria criteria = Criteria.where(Device.Fields.deviceId).is(deviceId);
+        return Optional.ofNullable(mongoTemplate.findOne(query(criteria), Device.class));
     }
+
+
 
     public Device save(Device device) {
         return deviceRepo.save(device);

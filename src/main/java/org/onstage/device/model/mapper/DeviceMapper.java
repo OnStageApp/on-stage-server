@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 public class DeviceMapper {
     public Device fromDTO(DeviceDTO deviceDTO, String userId) {
         return Device.builder()
-                .id(deviceDTO.id())
                 .deviceId(deviceDTO.deviceId())
                 .userId(userId)
                 .platformType(deviceDTO.platformType())
@@ -21,7 +20,6 @@ public class DeviceMapper {
 
     public DeviceDTO toDTO(Device device) {
         return DeviceDTO.builder()
-                .id(device.getId())
                 .deviceId(device.getDeviceId())
                 .userId(device.getUserId())
                 .platformType(device.getPlatformType())
