@@ -42,7 +42,7 @@ public class NotificationService {
         notificationRepository.save(notification);
 
         deviceService.getAllLoggedDevices(userId).forEach(device -> {
-            socketIOService.sendToUser(notification.userId(), device.getId(), NOTIFICATION, null);
+            socketIOService.sendToUser(notification.userId(), device.getDeviceId(), NOTIFICATION, null);
             firebaseService.sendNotification(Reminder.builder().text(description).build(), device.getPushToken());
 
         });

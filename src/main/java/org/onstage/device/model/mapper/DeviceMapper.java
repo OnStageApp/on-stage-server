@@ -9,6 +9,7 @@ public class DeviceMapper {
     public Device fromDTO(DeviceDTO deviceDTO, String userId) {
         return Device.builder()
                 .id(deviceDTO.id())
+                .deviceId(deviceDTO.deviceId())
                 .userId(userId)
                 .platformType(deviceDTO.platformType())
                 .osVersion(deviceDTO.osVersion())

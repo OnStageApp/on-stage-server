@@ -6,6 +6,7 @@ import org.onstage.enums.PlatformType;
 @Builder
 public record DeviceDTO(
         String id,
+        String deviceId,
         String userId,
         PlatformType platformType,
         String osVersion,

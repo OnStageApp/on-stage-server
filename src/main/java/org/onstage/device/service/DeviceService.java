@@ -21,7 +21,7 @@ public class DeviceService {
     }
 
     public Device loginDevice(Device device) {
-        Device existingDevice = deviceRepository.findById(device.getId()).orElse(device);
+        Device existingDevice = deviceRepository.findById(device.getDeviceId()).orElse(device);
         existingDevice.setLogged(true);
         existingDevice.setLastLogin(new Date());
 //        updateLoggedStatus(device.getId(), true);
@@ -32,8 +32,8 @@ public class DeviceService {
         //TODO: refactor emima
         log.info("Updating device {} with new data: {}", existingDevice, device);
 
-        if (device.getId() != null) {
-            existingDevice.setId(device.getId());
+        if (device.getDeviceId() != null) {
+            existingDevice.setDeviceId(device.getDeviceId());
         }
 
         if (device.getOsVersion() != null) {

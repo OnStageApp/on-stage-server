@@ -16,6 +16,7 @@ import java.util.Date;
 public class Device {
     @MongoId
     private String id;
+    private String deviceId;
     private String userId;
     private PlatformType platformType;
     private String osVersion;
