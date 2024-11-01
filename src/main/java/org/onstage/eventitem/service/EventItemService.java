@@ -8,6 +8,9 @@ import org.onstage.eventitem.model.EventItem;
 import org.onstage.eventitem.repository.EventItemRepository;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.exceptions.ResourceNotFoundException;
+import org.onstage.notification.client.NotificationStatus;
+import org.onstage.notification.client.NotificationType;
+import org.onstage.notification.service.NotificationService;
 import org.onstage.song.client.SongOverview;
 import org.onstage.song.service.SongService;
 import org.onstage.songconfig.model.SongConfig;
@@ -31,6 +34,7 @@ public class EventItemService {
     private final EventItemMapper eventItemMapper;
     private final StagerRepository stagerRepository;
     private final SongConfigService songConfigService;
+    private final NotificationService notificationService;
 
 
     public List<EventItemDTO> getAll(String eventId, String teamId) {
@@ -101,8 +105,15 @@ public class EventItemService {
     public void updateEventItemLeadVocals(String eventItemId, List<String> stagerIds) {
         EventItem existingEventItem = eventItemRepository.getById(eventItemId)
                 .orElseThrow(() -> BadRequestException.resourceNotFound("Event item"));
-
         eventItemRepository.save(existingEventItem.toBuilder().leadVocalIds(stagerIds.stream().distinct().toList()).build());
+
+        stagerIds.forEach(stagerId -> {
+                    Stager stager = stagerRepository.findById(stagerId).orElseThrow(() -> BadRequestException.resourceNotFound("Stager"));
+                    String description = String.format("You have been assigned as lead vocal for %s", existingEventItem.name());
+                    String title = "Lead vocal assigned";
+                    notificationService.sendNotificationToUser(NotificationType.LEAD_VOICE_ASSIGNED, stager.userId(), description, title);
+                }
+        );
     }
 
     public List<EventItemDTO> updateEventItemList(List<EventItem> eventItems, String eventId) {

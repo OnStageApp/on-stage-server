@@ -27,7 +27,7 @@ public class EventMapper {
                 .build();
     }
 
-    public Event fromCreateRequest(CreateEventRequest request) {
+    public Event fromCreateRequest(CreateOrUpdateEventRequest request) {
         return Event.builder()
                 .name(request.name())
                 .dateTime(request.dateTime())

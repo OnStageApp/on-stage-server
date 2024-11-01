@@ -56,12 +56,11 @@ public class SendGridService {
         }
     }
 
-    public void sendInviteToTeamEmail(User user, String teamName) {
+    public void sendInviteToTeamEmail(String email, String teamName) {
         Map<String, String> substitutions = Map.of(
-                "name", user.getName(),
                 "teamName", teamName
         );
-        sendEmail(user.getEmail(), "Test email", inviteToTeamTemplateId, substitutions);
+        sendEmail(email, "Test email", inviteToTeamTemplateId, substitutions);
     }
 
     public void sendTestEmail(String emailTo) {

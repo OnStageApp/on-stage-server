@@ -2,7 +2,9 @@ package org.onstage.stager.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.onstage.enums.MemberRole;
 import org.onstage.enums.ParticipationStatus;
+import org.onstage.event.model.Event;
 import org.onstage.eventitem.service.EventItemService;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.notification.client.NotificationStatus;
@@ -11,6 +13,8 @@ import org.onstage.notification.service.NotificationService;
 import org.onstage.stager.client.StagerDTO;
 import org.onstage.stager.model.Stager;
 import org.onstage.stager.repository.StagerRepository;
+import org.onstage.team.model.Team;
+import org.onstage.team.service.TeamService;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
 import org.springframework.stereotype.Service;
@@ -27,6 +31,7 @@ public class StagerService {
     private final TeamMemberRepository teamMemberRepository;
     private final EventItemService eventItemService;
     private final NotificationService notificationService;
+    private final TeamService teamService;
 
     public Stager getById(String id) {
         return stagerRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Stager"));
@@ -40,24 +45,26 @@ public class StagerService {
         return stagerRepository.getAllByEventId(eventId);
     }
 
-    public List<Stager> createStagersForEvent(String eventId, List<String> teamMembersIds, String eventLeaderId) {
+    public List<Stager> createStagersForEvent(Event event, List<String> teamMembersIds, String eventLeaderId) {
         if (eventLeaderId != null) {
-            createEventLeader(eventId, eventLeaderId);
-            teamMembersIds = teamMembersIds.stream()
-                    .filter(id -> !id.equals(eventLeaderId))
-                    .toList();
+            teamMembersIds = teamMembersIds.stream().filter(id -> !id.equals(eventLeaderId)).toList();
         }
-        List<Stager> stagers = teamMembersIds.stream().map(teamMemberId -> create(eventId, teamMemberId)).collect(toList());
-        stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_REQUEST, NotificationStatus.NEW, stager.userId(), "You have been invited to an event", "New event"));
-        return stagers;
+        return teamMembersIds.stream().map(teamMemberId -> create(event, teamMemberId)).collect(toList());
     }
 
-    public Stager create(String eventId, String teamMemberId) {
+    public Stager create(Event event, String teamMemberId) {
+        log.info("Creating stager for event {} and team member {}", event.getId(), teamMemberId);
         TeamMember teamMember = teamMemberRepository.findById(teamMemberId).orElseThrow(() -> BadRequestException.resourceNotFound("Team member"));
-        checkStagerAlreadyExists(eventId, teamMemberId);
+        checkStagerAlreadyExists(event.getId(), teamMemberId);
 
-        log.info("Creating stager for event {} and team member {}", eventId, teamMemberId);
-        return stagerRepository.createStager(eventId, teamMember);
+        Team team = teamService.getById(teamMember.teamId());
+        Stager stager = stagerRepository.createStager(event.getId(), teamMember);
+        if (teamMember.role() != MemberRole.LEADER) {
+            String description = String.format("You have been invited to %s event. Team %s", event.getName(), team.name());
+            String title = event.getName();
+            notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_REQUEST, stager.userId(), description, title);
+        }
+        return stager;
 
     }
 
@@ -89,14 +96,6 @@ public class StagerService {
     public void deleteAllByEventId(String eventId) {
         log.info("Deleting all stagers for event {}", eventId);
         stagerRepository.deleteAllByEventId(eventId);
-    }
-
-    public void createEventLeader(String eventId, String teamMemberId) {
-        TeamMember teamMember = teamMemberRepository.findById(teamMemberId).orElseThrow(() -> BadRequestException.resourceNotFound("Team member"));
-        checkStagerAlreadyExists(eventId, teamMemberId);
-
-        log.info("Creating stager for event {} and team member {}", eventId, teamMemberId);
-        stagerRepository.createEventLeader(eventId, teamMember);
     }
 
     public Integer countByEventId(String eventId) {

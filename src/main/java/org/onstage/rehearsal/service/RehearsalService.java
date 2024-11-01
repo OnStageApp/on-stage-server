@@ -2,11 +2,17 @@ package org.onstage.rehearsal.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.onstage.event.model.Event;
+import org.onstage.event.repository.EventRepository;
 import org.onstage.exceptions.BadRequestException;
+import org.onstage.notification.client.NotificationType;
+import org.onstage.notification.service.NotificationService;
 import org.onstage.rehearsal.client.CreateRehearsalForEventRequest;
 import org.onstage.rehearsal.client.RehearsalDTO;
 import org.onstage.rehearsal.model.Rehearsal;
 import org.onstage.rehearsal.repository.RehearsalRepository;
+import org.onstage.stager.model.Stager;
+import org.onstage.stager.service.StagerService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,9 +22,12 @@ import java.util.List;
 @Slf4j
 public class RehearsalService {
     private final RehearsalRepository rehearsalRepository;
+    private final StagerService stagerService;
+    private final NotificationService notificationService;
+    private final EventRepository eventRepository;
 
     public Rehearsal getById(String id) {
-       return rehearsalRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Rehearsal"));
+        return rehearsalRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Rehearsal"));
     }
 
     public List<Rehearsal> getAll(String eventId) {
@@ -28,6 +37,13 @@ public class RehearsalService {
     public Rehearsal save(Rehearsal rehearsal) {
         Rehearsal savedRehearsal = rehearsalRepository.save(rehearsal);
         log.info("Rehearsal {} has been saved", rehearsal.id());
+
+        List<Stager> stagers = stagerService.getAllByEventId(rehearsal.eventId());
+        Event event = eventRepository.findById(rehearsal.eventId()).orElseThrow(() -> BadRequestException.resourceNotFound("Event"));
+        String description = String.format("New rehearsal for %s has been created on %s", event.getName(), rehearsal.dateTime());
+        String title = "New Rehearsal";
+        stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.NEW_REHEARSAL, stager.userId(), description, title));
+
         return savedRehearsal;
     }
 

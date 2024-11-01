@@ -4,12 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.enums.EventSearchType;
 import org.onstage.event.client.PaginatedEventResponse;
-import org.onstage.event.client.UpdateEventRequest;
 import org.onstage.event.model.Event;
 import org.onstage.event.repository.EventRepository;
 import org.onstage.eventitem.model.EventItem;
 import org.onstage.eventitem.repository.EventItemRepository;
 import org.onstage.exceptions.BadRequestException;
+import org.onstage.notification.client.NotificationStatus;
+import org.onstage.notification.client.NotificationType;
 import org.onstage.notification.service.NotificationService;
 import org.onstage.rehearsal.client.CreateRehearsalForEventRequest;
 import org.onstage.rehearsal.service.RehearsalService;
@@ -19,12 +20,12 @@ import org.onstage.stager.model.Stager;
 import org.onstage.stager.service.StagerService;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.service.TeamMemberService;
-import org.onstage.user.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.onstage.enums.EventStatus.DELETED;
 import static org.onstage.enums.EventStatus.DRAFT;
 
 @Service
@@ -37,6 +38,7 @@ public class EventService {
     private final ReminderService reminderService;
     private final EventItemRepository eventItemRepository;
     private final TeamMemberService teamMemberService;
+    private final NotificationService notificationService;
 
     public Event getById(String id) {
         return eventRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Event"));
@@ -46,7 +48,7 @@ public class EventService {
         event = event.toBuilder().teamId(teamId).build();
         Event savedEvent = eventRepository.save(event);
 
-        stagerService.createStagersForEvent(savedEvent.getId(), teamMembersIds, eventLeaderId);
+        stagerService.createStagersForEvent(savedEvent, teamMembersIds, eventLeaderId);
         rehearsalService.createRehearsalsForEvent(savedEvent.getId(), rehearsals);
 
         log.info("Event {} has been saved", savedEvent.getId());
@@ -62,21 +64,24 @@ public class EventService {
         return eventRepository.delete(event.getId());
     }
 
-    public Event update(Event existingEvent, UpdateEventRequest request) {
-        log.info("Updating event {} with request {}", existingEvent.getId(), request);
-        Event updatedEvent = updateEventFromDTO(existingEvent, request);
-        return eventRepository.save(updatedEvent);
-    }
+    public Event update(String id, Event request) {
+        log.info("Updating event {} with request {}", id, request);
+        Event existingEvent = getById(id);
+        existingEvent.setName(request.getName() != null ? request.getName() : existingEvent.getName());
+        existingEvent.setDateTime(request.getDateTime() != null ? request.getDateTime() : existingEvent.getDateTime());
+        existingEvent.setLocation(request.getLocation() != null ? request.getLocation() : existingEvent.getLocation());
+        existingEvent.setEventStatus(request.getEventStatus() != null ? request.getEventStatus() : existingEvent.getEventStatus());
+        existingEvent = eventRepository.save(existingEvent);
 
-    private Event updateEventFromDTO(Event existingEvent, UpdateEventRequest request) {
-        return Event.builder()
-                .id(existingEvent.getId())
-                .name(request.name() == null ? existingEvent.getName() : request.name())
-                .dateTime((existingEvent.getEventStatus().equals(DRAFT) && request.dateTime() != null) ? request.dateTime() : existingEvent.getDateTime())
-                .location(request.location() == null ? existingEvent.getLocation() : request.location())
-                .eventStatus(request.eventStatus() == null ? existingEvent.getEventStatus() : request.eventStatus())
-                .teamId(existingEvent.getTeamId())
-                .build();
+        if (request.getEventStatus() == DELETED) {
+            String description = String.format("Event %s has been cancelled", existingEvent.getName());
+            String title = "Event cancelled";
+
+            stagerService.getAllByEventId(existingEvent.getId()).forEach(stager -> {
+                notificationService.sendNotificationToUser(NotificationType.EVENT_DELETED, stager.userId(), description, title);
+            });
+        }
+        return existingEvent;
     }
 
     public PaginatedEventResponse getAllByFilter(String teamMemberId, String teamId, EventSearchType eventSearchType, String searchValue, int offset, int limit) {
@@ -99,7 +104,7 @@ public class EventService {
         duplicatedEvent = eventRepository.save(duplicatedEvent);
 
         List<Stager> stagers = stagerService.getAllByEventId(event.getId());
-        stagerService.createStagersForEvent(duplicatedEvent.getId(), stagers.stream().map(Stager::teamMemberId).toList(), eventLeaderId);
+        stagerService.createStagersForEvent(event, stagers.stream().map(Stager::teamMemberId).toList(), eventLeaderId);
 
         List<Reminder> reminders = reminderService.getAllByEventId(event.getId());
         reminderService.createReminders(reminders.stream().map(Reminder::daysBefore).toList(), duplicatedEvent.getId());

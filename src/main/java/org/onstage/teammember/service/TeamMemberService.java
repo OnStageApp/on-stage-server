@@ -3,8 +3,12 @@ package org.onstage.teammember.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.common.beans.UserSecurityContext;
+import org.onstage.enums.MemberPosition;
 import org.onstage.enums.MemberRole;
 import org.onstage.exceptions.BadRequestException;
+import org.onstage.notification.client.NotificationStatus;
+import org.onstage.notification.client.NotificationType;
+import org.onstage.notification.service.NotificationService;
 import org.onstage.sendgrid.SendGridService;
 import org.onstage.stager.model.Stager;
 import org.onstage.stager.service.StagerService;
@@ -32,6 +36,7 @@ public class TeamMemberService {
     private final TeamService teamService;
     private final SendGridService sendGridService;
     private final UserSecurityContext userSecurityContext;
+    private final NotificationService notificationService;
 
     public TeamMember getById(String id) {
         return teamMemberRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Team member"));
@@ -90,6 +95,8 @@ public class TeamMemberService {
 
     public TeamMember inviteMember(String email, MemberRole memberRole, String teamId) {
         User user = userService.getByEmail(email);
+        //TODO if user does not exist send the email
+        //sendGridService.sendInviteToTeamEmail(user, team.name());
         if (user == null) {
             throw BadRequestException.resourceNotFound("User");
         }
@@ -99,15 +106,19 @@ public class TeamMemberService {
         }
 
         Team team = teamService.getById(teamId);
-        sendGridService.sendInviteToTeamEmail(user, team.name());
-
-        return save(TeamMember.builder()
+        TeamMember teamMember = save(TeamMember.builder()
                 .teamId(teamId)
                 .userId(user.getId())
                 .role(memberRole)
                 .name(user.getName())
                 .inviteStatus(PENDING)
                 .build());
+
+        User leader = userService.getById(team.leaderId());
+        String description = String.format("%s invited you to join %s team", leader.getName(), team.name());
+        String title = team.name();
+        notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_REQUEST, user.getId(), description, title);
+        return teamMember;
     }
 
     public Integer countByTeamId(String teamId) {

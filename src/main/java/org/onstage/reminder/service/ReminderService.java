@@ -5,8 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.onstage.event.model.Event;
 import org.onstage.event.repository.EventRepository;
 import org.onstage.exceptions.BadRequestException;
+import org.onstage.notification.service.NotificationService;
 import org.onstage.reminder.model.Reminder;
 import org.onstage.reminder.repository.ReminderRepository;
+import org.onstage.stager.service.StagerService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,6 +21,8 @@ import java.util.List;
 public class ReminderService {
     private final ReminderRepository reminderRepository;
     private final EventRepository eventRepository;
+    private final NotificationService notificationService;
+    private final StagerService stagerService;
 
     private static final String REMINDER_TEXT_TEMPLATE = "%d days left until  %s";
 
@@ -46,7 +50,7 @@ public class ReminderService {
         if (daysBefore.isEmpty()) {
             return List.of();
         }
-        var event = eventRepository.findById(eventId).orElseThrow(() -> BadRequestException.resourceNotFound("Event"));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> BadRequestException.resourceNotFound("Event"));
 
         reminderRepository.deleteAllByEventId(eventId);
         return daysBefore.stream().map(dayBefore ->

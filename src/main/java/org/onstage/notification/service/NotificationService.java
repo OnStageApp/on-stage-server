@@ -30,10 +30,10 @@ public class NotificationService {
         return getNotificationsAction.execute(filter);
     }
 
-    public void sendNotificationToUser(NotificationType type, NotificationStatus status, String userId, String description, String title) {
+    public void sendNotificationToUser(NotificationType type, String userId, String description, String title) {
         Notification notification = Notification.builder()
                 .type(type)
-                .status(status)
+                .status(NotificationStatus.NEW)
                 .userId(userId)
                 .description(description)
                 .build();

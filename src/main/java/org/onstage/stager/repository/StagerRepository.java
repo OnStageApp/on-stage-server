@@ -1,6 +1,7 @@
 package org.onstage.stager.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.onstage.enums.MemberRole;
 import org.onstage.stager.model.Stager;
 import org.onstage.teammember.model.TeamMember;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -36,8 +37,7 @@ public class StagerRepository {
                 .teamMemberId(teamMember.id())
                 .name(teamMember.name())
                 .userId(teamMember.userId())
-                .participationStatus(PENDING).build());
-        // ask stagers to participate
+                .participationStatus(teamMember.role() == MemberRole.LEADER ? CONFIRMED : PENDING).build());
     }
 
     public void removeStager(String stagerId) {
@@ -59,15 +59,6 @@ public class StagerRepository {
         Criteria criteria = Criteria.where(Stager.Fields.eventId).is(eventId);
         Query query = new Query(criteria);
         mongoTemplate.remove(query, Stager.class);
-    }
-
-    public void createEventLeader(String eventId, TeamMember teamMember) {
-        stagerRepo.save(Stager.builder()
-                .eventId(eventId)
-                .teamMemberId(teamMember.id())
-                .userId(teamMember.userId())
-                .name(teamMember.name())
-                .participationStatus(CONFIRMED).build());
     }
 
     public Integer countByEventId(String eventId) {

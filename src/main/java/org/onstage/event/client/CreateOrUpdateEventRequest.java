@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder(toBuilder = true)
-public record CreateEventRequest(
+public record CreateOrUpdateEventRequest(
         String name,
         LocalDateTime dateTime,
         String location,

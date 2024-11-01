@@ -3,11 +3,20 @@ package org.onstage.common.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.onstage.notification.service.PushNotificationService;
+import org.onstage.event.model.Event;
+import org.onstage.event.service.EventService;
+import org.onstage.notification.client.NotificationType;
+import org.onstage.notification.service.NotificationService;
+import org.onstage.reminder.model.Reminder;
 import org.onstage.reminder.repository.ReminderRepository;
+import org.onstage.stager.model.Stager;
+import org.onstage.stager.service.StagerService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -15,7 +24,9 @@ import org.springframework.stereotype.Component;
 public class SendRemindersScheduler {
 
     private final ReminderRepository reminderRepository;
-    private final PushNotificationService pushNotificationService;
+    private final NotificationService notificationService;
+    private final StagerService stagerService;
+    private final EventService eventService;
 
     @Value(("${cron.enabled}"))
     private Boolean cronEnabled;
@@ -27,17 +38,21 @@ public class SendRemindersScheduler {
             log.warn("Send reminders task didn't run. Cron is disabled!");
         }
 
-        //TODO fix this
-//        LocalDateTime now = LocalDateTime.now();
-//        List<Reminder> remindersToSend = reminderRepository.findRemindersToSend(now);
-//
-//        for (Reminder reminder : remindersToSend) {
-//            log.info("Sending reminder {}", reminder.id());
-//            //TODO getDeviceToken from user
-//            pushNotificationService.sendPush(reminder, "eLTv45H38UMdnE-9UzNnqm:APA91bFPHzaNmrdvYozG1eTUxjvtneFlIzLAxcJpEy7ZRQI1X4k_3iegpSXUVzhw_jFRGwUZ30hZbBqmf_v1j8nMVBbFxOLAb_RspYVojwG0Pyi6IKhe1ZChma3sp0XTRVAkWlE2KG4S");
-//            reminder.toBuilder().isSent(true);
-//            reminderRepository.save(reminder);
-//        }
+        LocalDateTime now = LocalDateTime.now();
+        List<Reminder> remindersToSend = reminderRepository.findRemindersToSend(now);
+
+        for (Reminder reminder : remindersToSend) {
+            log.info("Sending reminder {}", reminder.id());
+            List<Stager> stagers = stagerService.getAllByEventId(reminder.eventId());
+            Event event = eventService.getById(reminder.eventId());
+
+            String description = String.format("%d days left until %s", reminder.daysBefore(), event.getName());
+            String title = "Reminder";
+
+            stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.REMINDER, stager.userId(), description, title));
+            reminder.toBuilder().isSent(true);
+            reminderRepository.save(reminder);
+        }
 
     }
 }

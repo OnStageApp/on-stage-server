@@ -2,7 +2,6 @@ package org.onstage.event.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.common.beans.UserSecurityContext;
-import org.onstage.enums.PermissionType;
 import org.onstage.event.client.*;
 import org.onstage.event.model.Event;
 import org.onstage.event.model.mapper.EventMapper;
@@ -48,7 +47,7 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity<EventDTO> create(@RequestBody CreateEventRequest event) {
+    public ResponseEntity<EventDTO> create(@RequestBody CreateOrUpdateEventRequest event) {
         String teamId = userSecurityContext.getCurrentTeamId();
         String eventLeaderId = userSecurityContext.getCurrentTeamMemberId();
 //TODO: Uncomment this
@@ -62,9 +61,8 @@ public class EventController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EventDTO> update(@PathVariable String id, @RequestBody UpdateEventRequest request) {
-        Event event = eventService.getById(id);
-        return ResponseEntity.ok(eventMapper.toDto(eventService.update(event, request)));
+    public ResponseEntity<EventDTO> update(@PathVariable String id, @RequestBody CreateOrUpdateEventRequest request) {
+        return ResponseEntity.ok(eventMapper.toDto(eventService.update(id, eventMapper.fromCreateRequest(request))));
     }
 
     @PostMapping("/duplicate/{id}")

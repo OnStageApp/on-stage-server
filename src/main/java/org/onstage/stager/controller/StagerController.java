@@ -1,6 +1,7 @@
 package org.onstage.stager.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.onstage.event.model.Event;
 import org.onstage.event.service.EventService;
 import org.onstage.stager.client.CreateStagerRequest;
 import org.onstage.stager.client.StagerDTO;
@@ -29,7 +30,8 @@ public class StagerController {
     @PostMapping
     public ResponseEntity<List<StagerDTO>> create(@RequestBody CreateStagerRequest createStagerRequest) {
         eventService.getById(createStagerRequest.eventId());
-        return ResponseEntity.ok(stagerMapper.toDtoList(stagerService.createStagersForEvent(createStagerRequest.eventId(), createStagerRequest.teamMemberIds(), null)));
+        Event event = eventService.getById(createStagerRequest.eventId());
+        return ResponseEntity.ok(stagerMapper.toDtoList(stagerService.createStagersForEvent(event, createStagerRequest.teamMemberIds(), null)));
     }
 
     @DeleteMapping("/{id}")

@@ -19,8 +19,6 @@ import java.util.List;
 public class ReminderController {
     private final ReminderService reminderService;
     private final ReminderMapper reminderMapper;
-    private final PushNotificationService pushNotificationService;
-    private final EventService eventService;
 
     @GetMapping
     public ResponseEntity<List<ReminderDTO>> getAll(@RequestParam(name = "eventId") String eventId) {
@@ -37,10 +35,5 @@ public class ReminderController {
         return ResponseEntity.ok(reminderService.delete(id));
     }
 
-//    @PostMapping("/test-notification")
-//    public ResponseEntity<Void> testNotification() {
-//        pushNotificationService.sendPush(Reminder.builder().text("You were invited to join El Shaddai Organisation").build(), "eLTv45H38UMdnE-9UzNnqm:APA91bFPHzaNmrdvYozG1eTUxjvtneFlIzLAxcJpEy7ZRQI1X4k_3iegpSXUVzhw_jFRGwUZ30hZbBqmf_v1j8nMVBbFxOLAb_RspYVojwG0Pyi6IKhe1ZChma3sp0XTRVAkWlE2KG4S");
-//        return ResponseEntity.ok().build();
-//    }
 }
 

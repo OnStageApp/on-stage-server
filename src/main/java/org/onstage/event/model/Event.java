@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 public class Event extends BaseEntity {
     @MongoId
     String id;
-    @NonNull
     String name;
     LocalDateTime dateTime;
     String location;
