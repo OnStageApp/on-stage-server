@@ -53,7 +53,7 @@ public class SocketIOService {
 
     }
 
-    public void sendToUser(String userId, String deviceId, SocketEventType eventName, Object data) {
+    public void sendSocketEvent(String userId, String deviceId, SocketEventType eventName, Object data) {
         log.info("Attempting to send to user {} with device: {}. Active sessions: {}", userId, deviceId, deviceSession.size());
         log.info("Active device sessions: {}", deviceSession.keySet());
 

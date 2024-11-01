@@ -24,33 +24,16 @@ public class DeviceService {
         Device existingDevice = deviceRepository.findById(device.getDeviceId()).orElse(device);
         existingDevice.setLogged(true);
         existingDevice.setLastLogin(new Date());
-//        updateLoggedStatus(device.getId(), true);
         return deviceRepository.save(existingDevice);
     }
 
     public Device updateDevice(Device existingDevice, Device device) {
-        //TODO: refactor emima
         log.info("Updating device {} with new data: {}", existingDevice, device);
-
-        if (device.getDeviceId() != null) {
-            existingDevice.setDeviceId(device.getDeviceId());
-        }
-
-        if (device.getOsVersion() != null) {
-            existingDevice.setOsVersion(device.getOsVersion());
-        }
-
-        if (device.getAppVersion() != null) {
-            existingDevice.setAppVersion(device.getAppVersion());
-        }
-
-        if (device.getBuildVersion() != null) {
-            existingDevice.setBuildVersion(device.getBuildVersion());
-        }
-
-        if (device.getPushToken() != null) {
-            existingDevice.setPushToken(device.getPushToken());
-        }
+        existingDevice.setDeviceId(device.getDeviceId() != null ? device.getDeviceId() : existingDevice.getDeviceId());
+        existingDevice.setOsVersion(device.getOsVersion() != null ? device.getOsVersion() : existingDevice.getOsVersion());
+        existingDevice.setAppVersion(device.getAppVersion() != null ? device.getAppVersion() : existingDevice.getAppVersion());
+        existingDevice.setBuildVersion(device.getBuildVersion() != null ? device.getBuildVersion() : existingDevice.getBuildVersion());
+        existingDevice.setPushToken(device.getPushToken() != null ? device.getPushToken() : existingDevice.getPushToken());
 
         return deviceRepository.save(existingDevice);
     }

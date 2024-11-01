@@ -1,23 +1,26 @@
-package org.onstage.common.service;
+package org.onstage.notification.service;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
-import org.onstage.reminder.model.Reminder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class FirebaseService {
+public class PushNotificationService {
 
-    public void sendNotification(Reminder reminder, String userDeviceToken) {
-        Notification notification = Notification.builder()
-                .setTitle("On Stage")
-                .setBody(reminder.text())
+    public void sendPushNotification(String title, String body, String userDeviceToken) {
+        Notification pushNotification = Notification.builder()
+                .setTitle(title)
+                .setBody(body)
                 .build();
 
+        sendPush(pushNotification, userDeviceToken);
+    }
+
+    private void sendPush(Notification pushNotification, String userDeviceToken) {
         Message message = Message.builder()
-                .setNotification(notification)
+                .setNotification(pushNotification)
                 .setToken(userDeviceToken)
                 .build();
 

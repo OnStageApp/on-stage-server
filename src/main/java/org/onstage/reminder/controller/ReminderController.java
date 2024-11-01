@@ -1,8 +1,8 @@
 package org.onstage.reminder.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.common.service.FirebaseService;
 import org.onstage.event.service.EventService;
+import org.onstage.notification.service.PushNotificationService;
 import org.onstage.reminder.client.ReminderDTO;
 import org.onstage.reminder.client.ReminderListRequest;
 import org.onstage.reminder.model.Reminder;
@@ -19,7 +19,7 @@ import java.util.List;
 public class ReminderController {
     private final ReminderService reminderService;
     private final ReminderMapper reminderMapper;
-    private final FirebaseService firebaseService;
+    private final PushNotificationService pushNotificationService;
     private final EventService eventService;
 
     @GetMapping
@@ -37,10 +37,10 @@ public class ReminderController {
         return ResponseEntity.ok(reminderService.delete(id));
     }
 
-    @PostMapping("/test-notification")
-    public ResponseEntity<Void> testNotification() {
-        firebaseService.sendNotification(Reminder.builder().text("You were invited to join El Shaddai Organisation").build(), "eLTv45H38UMdnE-9UzNnqm:APA91bFPHzaNmrdvYozG1eTUxjvtneFlIzLAxcJpEy7ZRQI1X4k_3iegpSXUVzhw_jFRGwUZ30hZbBqmf_v1j8nMVBbFxOLAb_RspYVojwG0Pyi6IKhe1ZChma3sp0XTRVAkWlE2KG4S");
-        return ResponseEntity.ok().build();
-    }
+//    @PostMapping("/test-notification")
+//    public ResponseEntity<Void> testNotification() {
+//        pushNotificationService.sendPush(Reminder.builder().text("You were invited to join El Shaddai Organisation").build(), "eLTv45H38UMdnE-9UzNnqm:APA91bFPHzaNmrdvYozG1eTUxjvtneFlIzLAxcJpEy7ZRQI1X4k_3iegpSXUVzhw_jFRGwUZ30hZbBqmf_v1j8nMVBbFxOLAb_RspYVojwG0Pyi6IKhe1ZChma3sp0XTRVAkWlE2KG4S");
+//        return ResponseEntity.ok().build();
+//    }
 }
 

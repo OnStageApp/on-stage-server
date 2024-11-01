@@ -22,6 +22,7 @@ public class DeviceMapper {
     public DeviceDTO toDTO(Device device) {
         return DeviceDTO.builder()
                 .id(device.getId())
+                .deviceId(device.getDeviceId())
                 .userId(device.getUserId())
                 .platformType(device.getPlatformType())
                 .osVersion(device.getOsVersion())

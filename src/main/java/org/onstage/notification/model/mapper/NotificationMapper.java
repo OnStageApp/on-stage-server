@@ -21,11 +21,11 @@ public class NotificationMapper implements GenericMapper<Notification, Notificat
     @Override
     public NotificationDTO toApi(Notification source) {
         return NotificationDTO.builder()
-                .notificationId(source.notificationId())
-                .description(source.description())
-                .status(source.status())
-                .type(source.type())
-                .userId(source.userId())
+                .notificationId(source.getNotificationId())
+                .description(source.getDescription())
+                .status(source.getStatus())
+                .type(source.getType())
+                .userId(source.getUserId())
                 .build();
     }
 }

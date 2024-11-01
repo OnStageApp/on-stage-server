@@ -48,7 +48,7 @@ public class StagerService {
                     .toList();
         }
         List<Stager> stagers = teamMembersIds.stream().map(teamMemberId -> create(eventId, teamMemberId)).collect(toList());
-        stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_REQUEST, NotificationStatus.NEW, stager.userId(), "You have been invited to an event"));
+        stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_REQUEST, NotificationStatus.NEW, stager.userId(), "You have been invited to an event", "New event"));
         return stagers;
     }
 

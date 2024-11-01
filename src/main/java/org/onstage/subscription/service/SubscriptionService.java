@@ -2,7 +2,6 @@ package org.onstage.subscription.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.onstage.device.model.Device;
 import org.onstage.device.service.DeviceService;
 import org.onstage.enums.SubscriptionStatus;
 import org.onstage.exceptions.BadRequestException;
@@ -19,7 +18,6 @@ import org.onstage.user.model.User;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -40,9 +38,6 @@ public class SubscriptionService {
         if (existingSubscription != null) {
             existingSubscription.setStatus(SubscriptionStatus.INACTIVE);
             subscriptionRepository.save(existingSubscription);
-            //TODO: See if this is ok
-            List<Device> devices = deviceService.getAllLoggedDevices(user.getId());
-            devices.forEach(device -> socketIOService.sendToUser(user.getId(), device.getDeviceId(), SocketEventType.SUBSCRIPTION, null));
             log.info("Deactivated existing subscription for team {}", team.id());
         }
 
@@ -67,7 +62,7 @@ public class SubscriptionService {
                 .status(SubscriptionStatus.ACTIVE)
                 .build();
 
-        subscriptionRepository.save(newSubscription);
+        saveAndNotifyAllLogged(newSubscription, user.getId());
         log.info("Created new subscription for team {} with plan {}", team.id(), plan.getName());
     }
 
@@ -93,20 +88,11 @@ public class SubscriptionService {
         if (!Objects.equals(existingPlan.getRevenueCatProductId(), event.getProductId())) {
             existingSubscription.setPlanId(newPlan.getId());
             existingSubscription.setPurchaseDate(new Date(event.getPurchasedAtMs()));
-            //TODO: See if this is ok
-            List<Device> devices = deviceService.getAllLoggedDevices(user.getId());
-            devices.forEach(device -> socketIOService.sendToUser(user.getId(), device.getDeviceId(), SocketEventType.SUBSCRIPTION, null));
         }
 
         existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
 
-
-        subscriptionRepository.save(existingSubscription);
-        //TODO: See if this is ok
-        List<Device> devices = deviceService.getAllLoggedDevices(user.getId());
-        log.info("Devices: {}", devices);
-        log.info("User: {}", user.getId());
-        devices.forEach(device -> socketIOService.sendToUser(user.getId(), device.getDeviceId(), SocketEventType.SUBSCRIPTION, null));
+        saveAndNotifyAllLogged(existingSubscription, user.getId());
         log.info("Renewed subscription for team {} with plan {}. New expiry date: {}", team.id(), newPlan.getName(), existingSubscription.getExpiryDate());
     }
 
@@ -135,7 +121,7 @@ public class SubscriptionService {
         existingSubscription.setPurchaseDate(new Date(event.getPurchasedAtMs()));
         existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
 
-        subscriptionRepository.save(existingSubscription);
+        saveAndNotifyAllLogged(existingSubscription, user.getId());
         log.info("Updated subscription for team {} to new plan {}", team.id(), newPlan.getName());
     }
 
@@ -150,7 +136,7 @@ public class SubscriptionService {
 
         existingSubscription.setCancellationDate(new Date(event.getEventTimestampMs()));
 
-        subscriptionRepository.save(existingSubscription);
+        saveAndNotifyAllLogged(existingSubscription, user.getId());
         log.info("Cancelled subscription for team {}. Subscription will expire on {}", team.id(), existingSubscription.getExpiryDate());
     }
 
@@ -182,7 +168,7 @@ public class SubscriptionService {
                 .status(SubscriptionStatus.ACTIVE)
                 .build();
 
-        subscriptionRepository.save(freeSubscription);
+        saveAndNotifyAllLogged(freeSubscription, user.getId());
         log.info("Assigned Starter plan to team {}", team.id());
     }
 
@@ -197,7 +183,7 @@ public class SubscriptionService {
 
         existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
         existingSubscription.setCancellationDate(null);
-        subscriptionRepository.save(existingSubscription);
+        saveAndNotifyAllLogged(existingSubscription, user.getId());
         log.info("Uncancelled subscription for team {}. Subscription is now active until {}", team.id(), existingSubscription.getExpiryDate());
     }
 
@@ -216,7 +202,7 @@ public class SubscriptionService {
                 .status(SubscriptionStatus.ACTIVE)
                 .planId(starterPlan.getId())
                 .build();
-        subscriptionRepository.save(subscription);
+        saveAndNotifyAllLogged(subscription, userId);
         log.info("Starter subscription created for team {}", teamId);
     }
 
@@ -231,5 +217,10 @@ public class SubscriptionService {
             throw BadRequestException.accessDenied();
         }
         return team;
+    }
+
+    public void saveAndNotifyAllLogged(Subscription newSubscription, String userId) {
+        subscriptionRepository.save(newSubscription);
+        deviceService.getAllLoggedDevices(userId).forEach(device -> socketIOService.sendSocketEvent(userId, device.getDeviceId(), SocketEventType.SUBSCRIPTION, null));
     }
 }

@@ -24,11 +24,11 @@ public class NotificationRepository {
         ofNullable(filter)
                 .ifPresent(currentFilter -> {
                     ofNullable(filter.status())
-                            .ifPresent(status -> criteria.and("status").is(status));
+                            .ifPresent(status -> criteria.and(Notification.Fields.status).is(status));
                     ofNullable(filter.type())
-                            .ifPresent(type -> criteria.and("type").is(type));
+                            .ifPresent(type -> criteria.and(Notification.Fields.type).is(type));
                     ofNullable(filter.userId())
-                            .ifPresent(userId -> criteria.and("userId").is(userId));
+                            .ifPresent(userId -> criteria.and(Notification.Fields.userId).is(userId));
                 });
 
         Query query = new Query()
