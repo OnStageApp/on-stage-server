@@ -46,7 +46,7 @@ public class StagerController {
     }
 
 
-    @GetMapping
+    @GetMapping("/getByEventAndTeamMember")
     public ResponseEntity<StagerDTO> getByEventAndTeamMember(@RequestParam(name = "eventId") String eventId, @RequestParam(name = "teamMemberId") String teamMemberId) {
         return ResponseEntity.ok(stagerMapper.toDto(stagerService.getByEventAndTeamMember(eventId, teamMemberId)));
     }
