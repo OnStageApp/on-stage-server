@@ -5,6 +5,7 @@ import org.onstage.notification.client.NotificationDTO;
 import org.onstage.notification.client.NotificationFilter;
 import org.onstage.notification.model.mapper.NotificationMapper;
 import org.onstage.notification.service.NotificationService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,5 +27,10 @@ public class NotificationController {
     @PostMapping
     public List<NotificationDTO> getAllNotificationsPost(@RequestBody NotificationFilter filter) {
         return getAllNotifications(filter);
+    }
+
+    @PutMapping("/markAsViewed")
+    public void markNotificationsAsViewed() {
+        notificationService.markAllNotificationsAsViewed();
     }
 }

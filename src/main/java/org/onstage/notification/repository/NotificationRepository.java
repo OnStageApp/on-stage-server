@@ -2,6 +2,7 @@ package org.onstage.notification.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.notification.client.NotificationFilter;
+import org.onstage.notification.client.NotificationStatus;
 import org.onstage.notification.model.Notification;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -40,5 +41,17 @@ public class NotificationRepository {
 
     public Notification save(Notification entity) {
         return repo.save(entity);
+    }
+
+    public void markAllNotificationsAsViewed(String userId) {
+        Query query = new Query()
+                .addCriteria(Criteria.where(Notification.Fields.userId).is(userId))
+                .addCriteria(Criteria.where(Notification.Fields.status).is(NotificationStatus.NEW));
+
+        List<Notification> notifications = mongoTemplate.find(query, Notification.class);
+        notifications.forEach(notification -> {
+            notification.setStatus(NotificationStatus.VIEWED);
+            repo.save(notification);
+        });
     }
 }
