@@ -117,7 +117,7 @@ public class TeamMemberService {
         User leader = userService.getById(team.leaderId());
         String description = String.format("%s invited you to join %s team", leader.getName(), team.name());
         String title = team.name();
-        notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_REQUEST, user.getId(), description, title);
+        notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_REQUEST, user.getId(), description, title, null);
         return teamMember;
     }
 

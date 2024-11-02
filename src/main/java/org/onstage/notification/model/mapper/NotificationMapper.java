@@ -14,6 +14,8 @@ public class NotificationMapper implements GenericMapper<Notification, Notificat
                 .description(source.description())
                 .status(source.status())
                 .type(source.type())
+                .eventId(source.eventId())
+                .stagerId(source.stagerId())
                 .userId(source.userId())
                 .build();
     }
@@ -25,6 +27,8 @@ public class NotificationMapper implements GenericMapper<Notification, Notificat
                 .description(source.getDescription())
                 .status(source.getStatus())
                 .type(source.getType())
+                .eventId(source.getEventId())
+                .stagerId(source.getStagerId())
                 .userId(source.getUserId())
                 .build();
     }

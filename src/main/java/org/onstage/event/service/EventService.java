@@ -78,7 +78,7 @@ public class EventService {
             String title = "Event cancelled";
 
             stagerService.getAllByEventId(existingEvent.getId()).forEach(stager -> {
-                notificationService.sendNotificationToUser(NotificationType.EVENT_DELETED, stager.userId(), description, title);
+                notificationService.sendNotificationToUser(NotificationType.EVENT_DELETED, stager.userId(), description, title, null);
             });
         }
         return existingEvent;

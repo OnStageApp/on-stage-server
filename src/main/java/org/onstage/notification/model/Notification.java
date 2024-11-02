@@ -24,6 +24,8 @@ public class Notification extends BaseEntity {
     private String description;
     private String userId;
     private String teamId;
+    private String eventId;
+    private String stagerId;
     private NotificationType type;
     private NotificationStatus status;
 }

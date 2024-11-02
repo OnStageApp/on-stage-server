@@ -111,7 +111,7 @@ public class EventItemService {
                     Stager stager = stagerRepository.findById(stagerId).orElseThrow(() -> BadRequestException.resourceNotFound("Stager"));
                     String description = String.format("You have been assigned as lead vocal for %s", existingEventItem.name());
                     String title = "Lead vocal assigned";
-                    notificationService.sendNotificationToUser(NotificationType.LEAD_VOICE_ASSIGNED, stager.userId(), description, title);
+                    notificationService.sendNotificationToUser(NotificationType.LEAD_VOICE_ASSIGNED, stager.userId(), description, title, null);
                 }
         );
     }

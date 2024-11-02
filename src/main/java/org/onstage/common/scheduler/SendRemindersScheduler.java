@@ -49,7 +49,7 @@ public class SendRemindersScheduler {
             String description = String.format("%d days left until %s", reminder.daysBefore(), event.getName());
             String title = "Reminder";
 
-            stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.REMINDER, stager.userId(), description, title));
+            stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.REMINDER, stager.userId(), description, title, null));
             reminder.toBuilder().isSent(true);
             reminderRepository.save(reminder);
         }
