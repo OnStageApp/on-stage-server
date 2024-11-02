@@ -62,7 +62,7 @@ public class StagerService {
         if (teamMember.role() != MemberRole.LEADER) {
             String description = String.format("You have been invited to %s event. Team %s", event.getName(), team.name());
             String title = event.getName();
-            notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_REQUEST, stager.userId(), description, title, stager.id());
+            notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_REQUEST, stager.userId(), description, title, event.getId());
         }
         return stager;
 

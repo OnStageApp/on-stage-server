@@ -30,12 +30,12 @@ public class NotificationService {
         return getNotificationsAction.execute(filter);
     }
 
-    public void sendNotificationToUser(NotificationType type, String userId, String description, String title, String stagerId) {
+    public void sendNotificationToUser(NotificationType type, String userId, String description, String title, String eventId) {
         Notification notification = Notification.builder()
                 .type(type)
                 .status(NotificationStatus.NEW)
                 .userId(userId)
-                .stagerId(stagerId)
+                .eventId(eventId)
                 .description(description)
                 .build();
         notificationRepository.save(notification);
