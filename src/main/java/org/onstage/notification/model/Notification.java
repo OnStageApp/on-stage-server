@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.With;
 import lombok.experimental.FieldNameConstants;
 import org.onstage.common.base.BaseEntity;
+import org.onstage.notification.client.NotificationActionStatus;
 import org.onstage.notification.client.NotificationStatus;
 import org.onstage.notification.client.NotificationType;
 import org.springframework.data.annotation.Id;
@@ -24,6 +25,7 @@ public class Notification extends BaseEntity {
     private String description;
     private String userId;
     private String teamId;
+    private NotificationActionStatus actionStatus;
     private String eventId;
     private String stagerId;
     private NotificationType type;

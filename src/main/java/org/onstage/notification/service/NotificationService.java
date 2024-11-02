@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.device.service.DeviceService;
 import org.onstage.notification.action.GetNotificationsAction;
+import org.onstage.notification.client.NotificationActionStatus;
 import org.onstage.notification.client.NotificationFilter;
 import org.onstage.notification.client.NotificationStatus;
 import org.onstage.notification.client.NotificationType;
@@ -31,9 +32,11 @@ public class NotificationService {
     }
 
     public void sendNotificationToUser(NotificationType type, String userId, String description, String title, String eventId) {
+        NotificationActionStatus actionStatus = type == NotificationType.EVENT_INVITATION_REQUEST || type == NotificationType.TEAM_INVITATION_REQUEST ? NotificationActionStatus.PENDING : NotificationActionStatus.NONE;
         Notification notification = Notification.builder()
                 .type(type)
                 .status(NotificationStatus.NEW)
+                .actionStatus(actionStatus)
                 .userId(userId)
                 .eventId(eventId)
                 .description(description)

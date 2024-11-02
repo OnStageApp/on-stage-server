@@ -8,6 +8,7 @@ public record NotificationDTO(
         String description,
         NotificationType type,
         NotificationStatus status,
+        NotificationActionStatus actionStatus,
         String eventId,
         String userId,
         String stagerId
