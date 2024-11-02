@@ -4,11 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.common.beans.UserSecurityContext;
 import org.onstage.device.service.DeviceService;
+import org.onstage.exceptions.BadRequestException;
 import org.onstage.notification.action.GetNotificationsAction;
-import org.onstage.notification.client.NotificationActionStatus;
-import org.onstage.notification.client.NotificationFilter;
-import org.onstage.notification.client.NotificationStatus;
-import org.onstage.notification.client.NotificationType;
+import org.onstage.notification.client.*;
 import org.onstage.notification.model.Notification;
 import org.onstage.notification.repository.NotificationRepository;
 import org.onstage.socketio.service.SocketIOService;
@@ -57,5 +55,17 @@ public class NotificationService {
         final String userId = userSecurityContext.getUserId();
         notificationRepository.markAllNotificationsAsViewed(userId);
 
+    }
+
+    public void updateNotification(Notification existingNotification, NotificationDTO notificationDTO) {
+
+        Notification notification =
+                existingNotification
+                        .withActionStatus(notificationDTO.actionStatus());
+        notificationRepository.save(notification);
+    }
+
+    public Notification getById(String id) {
+        return notificationRepository.findById(id);
     }
 }

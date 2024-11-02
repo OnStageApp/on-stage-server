@@ -54,4 +54,8 @@ public class NotificationRepository {
             repo.save(notification);
         });
     }
+
+    public Notification findById(String id) {
+        return repo.findById(id).orElse(null);
+    }
 }

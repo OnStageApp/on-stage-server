@@ -3,6 +3,7 @@ package org.onstage.notification.controller;
 import lombok.RequiredArgsConstructor;
 import org.onstage.notification.client.NotificationDTO;
 import org.onstage.notification.client.NotificationFilter;
+import org.onstage.notification.model.Notification;
 import org.onstage.notification.model.mapper.NotificationMapper;
 import org.onstage.notification.service.NotificationService;
 import org.springframework.http.ResponseEntity;
@@ -32,5 +33,10 @@ public class NotificationController {
     @PutMapping("/markAsViewed")
     public void markNotificationsAsViewed() {
         notificationService.markAllNotificationsAsViewed();
+    }
+    @PutMapping("/{id}")
+    public void updateNotification(@PathVariable String id, @RequestBody NotificationDTO request) {
+        final Notification existingNotification = notificationService.getById(id);
+        notificationService.updateNotification(existingNotification, request);
     }
 }
