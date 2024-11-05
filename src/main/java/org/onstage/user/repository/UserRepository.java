@@ -54,7 +54,7 @@ public class UserRepository {
     }
 
 
-    public List<String> getStagersWithPhoto(String eventId) {
+    public List<String> getUserIdsWithPhoto(String eventId) {
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where(Stager.Fields.eventId).is(eventId)
                         .and(Stager.Fields.participationStatus).is(ParticipationStatus.CONFIRMED)),
@@ -65,7 +65,8 @@ public class UserRepository {
                 Aggregation.project("user._id")
         );
 
-        AggregationResults<Document> results = mongoTemplate.aggregate(aggregation, "stagers", Document.class);
+        // TODO : check if this still works
+        AggregationResults<Document> results = mongoTemplate.aggregate(aggregation, "users", Document.class);
         return results.getMappedResults().stream()
                 .map(doc -> doc.getString("_id"))
                 .collect(Collectors.toList());

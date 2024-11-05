@@ -30,7 +30,7 @@ public class RehearsalController {
 
     @PostMapping
     public ResponseEntity<RehearsalDTO> create(@RequestBody final RehearsalDTO request) {
-        return ResponseEntity.ok(rehearsalMapper.toDto(rehearsalService.save(rehearsalMapper.toEntity(request))));
+        return ResponseEntity.ok(rehearsalMapper.toDto(rehearsalService.save(rehearsalMapper.toEntity(request), true)));
     }
 
     @DeleteMapping("/{id}")

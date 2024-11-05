@@ -31,7 +31,7 @@ public class StagerController {
     public ResponseEntity<List<StagerDTO>> create(@RequestBody CreateStagerRequest createStagerRequest) {
         eventService.getById(createStagerRequest.eventId());
         Event event = eventService.getById(createStagerRequest.eventId());
-        return ResponseEntity.ok(stagerMapper.toDtoList(stagerService.createStagersForEvent(event, createStagerRequest.teamMemberIds(), null)));
+        return ResponseEntity.ok(stagerMapper.toDtoList(stagerService.createStagersForEvent(event, createStagerRequest.teamMemberIds())));
     }
 
     @DeleteMapping("/{id}")
@@ -41,13 +41,6 @@ public class StagerController {
 
     @PutMapping("/{id}")
     public ResponseEntity<StagerDTO> update(@PathVariable String id, @RequestBody StagerDTO request) {
-        Stager existingStager = stagerService.getById(id);
-        return ResponseEntity.ok(stagerMapper.toDto(stagerService.update(existingStager, request)));
-    }
-
-
-    @GetMapping("/getByEventAndTeamMember")
-    public ResponseEntity<StagerDTO> getByEventAndTeamMember(@RequestParam(name = "eventId") String eventId, @RequestParam(name = "teamMemberId") String teamMemberId) {
-        return ResponseEntity.ok(stagerMapper.toDto(stagerService.getByEventAndTeamMember(eventId, teamMemberId)));
+        return ResponseEntity.ok(stagerMapper.toDto(stagerService.update(id, stagerMapper.toEntity(request))));
     }
 }

@@ -50,7 +50,7 @@ public class ReminderService {
         if (daysBefore.isEmpty()) {
             return List.of();
         }
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> BadRequestException.resourceNotFound("Event"));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
 
         reminderRepository.deleteAllByEventId(eventId);
         return daysBefore.stream().map(dayBefore ->
@@ -64,7 +64,7 @@ public class ReminderService {
     }
 
     public void deleteAllByEventId(String eventId) {
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> BadRequestException.resourceNotFound("Event"));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
         log.info("Deleting all reminders for event {}", eventId);
         reminderRepository.deleteAllByEventId(eventId);
     }

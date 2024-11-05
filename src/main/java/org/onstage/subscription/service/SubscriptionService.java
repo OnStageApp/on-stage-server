@@ -82,7 +82,7 @@ public class SubscriptionService {
             return;
         }
 
-        Plan existingPlan = planRepository.getById(existingSubscription.getPlanId()).orElseThrow(() -> BadRequestException.resourceNotFound("Plan"));
+        Plan existingPlan = planRepository.getById(existingSubscription.getPlanId()).orElseThrow(() -> BadRequestException.resourceNotFound("plan"));
         Plan newPlan = planRepository.getByRevenueCatProductId(event.getProductId());
 
         if (!Objects.equals(existingPlan.getRevenueCatProductId(), event.getProductId())) {

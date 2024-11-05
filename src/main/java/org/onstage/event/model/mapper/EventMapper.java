@@ -50,7 +50,7 @@ public class EventMapper {
 
     public EventOverview toOverview(Event event) {
         CompletableFuture<List<String>> userIdsWithPhotoFuture = CompletableFuture.supplyAsync(() ->
-                userService.getStagersWithPhoto(event.getId()));
+                userService.getUserIdsWithPhoto(event.getId()));
         CompletableFuture<Long> stagerCountFuture = CompletableFuture.supplyAsync(() ->
                 Long.valueOf(stagerService.countByEventId(event.getId())));
 

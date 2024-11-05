@@ -2,10 +2,12 @@ package org.onstage.rehearsal.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.onstage.common.utils.DateUtils;
 import org.onstage.event.model.Event;
 import org.onstage.event.repository.EventRepository;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.notification.client.NotificationType;
+import org.onstage.notification.model.NotificationParams;
 import org.onstage.notification.service.NotificationService;
 import org.onstage.rehearsal.client.CreateRehearsalForEventRequest;
 import org.onstage.rehearsal.client.RehearsalDTO;
@@ -27,22 +29,18 @@ public class RehearsalService {
     private final EventRepository eventRepository;
 
     public Rehearsal getById(String id) {
-        return rehearsalRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Rehearsal"));
+        return rehearsalRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("rehearsal"));
     }
 
     public List<Rehearsal> getAll(String eventId) {
         return rehearsalRepository.getAllByEventId(eventId);
     }
 
-    public Rehearsal save(Rehearsal rehearsal) {
+    public Rehearsal save(Rehearsal rehearsal, boolean notifyStagers) {
         Rehearsal savedRehearsal = rehearsalRepository.save(rehearsal);
         log.info("Rehearsal {} has been saved", rehearsal.id());
 
-        List<Stager> stagers = stagerService.getAllByEventId(rehearsal.eventId());
-        Event event = eventRepository.findById(rehearsal.eventId()).orElseThrow(() -> BadRequestException.resourceNotFound("Event"));
-        String description = String.format("New rehearsal for %s has been created on %s", event.getName(), rehearsal.dateTime());
-        String title = "New Rehearsal";
-        stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.NEW_REHEARSAL, stager.userId(), description, title, null));
+        if (notifyStagers) notifyStagers(rehearsal);
 
         return savedRehearsal;
     }
@@ -75,11 +73,20 @@ public class RehearsalService {
                 .dateTime(rehearsal.dateTime())
                 .location(rehearsal.location())
                 .eventId(eventId)
-                .build()));
+                .build(), false));
     }
 
     public void deleteAllByEventId(String eventId) {
         log.info("Deleting all rehearsals for event {}", eventId);
         rehearsalRepository.deleteAllByEventId(eventId);
+    }
+
+    private void notifyStagers(Rehearsal rehearsal) {
+        List<Stager> stagers = stagerService.getAllByEventId(rehearsal.eventId());
+        Event event = eventRepository.findById(rehearsal.eventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
+        String description = String.format("New rehearsal for %s has been created on %s", event.getName(), DateUtils.formatDate(rehearsal.dateTime()));
+        String title = "New Rehearsal";
+        stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.NEW_REHEARSAL, stager.userId(), description, title, NotificationParams.builder().eventId(event.getId()).build()));
+
     }
 }

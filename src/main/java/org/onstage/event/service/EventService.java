@@ -9,24 +9,25 @@ import org.onstage.event.repository.EventRepository;
 import org.onstage.eventitem.model.EventItem;
 import org.onstage.eventitem.repository.EventItemRepository;
 import org.onstage.exceptions.BadRequestException;
-import org.onstage.notification.client.NotificationStatus;
 import org.onstage.notification.client.NotificationType;
+import org.onstage.notification.model.NotificationParams;
 import org.onstage.notification.service.NotificationService;
 import org.onstage.rehearsal.client.CreateRehearsalForEventRequest;
 import org.onstage.rehearsal.service.RehearsalService;
 import org.onstage.reminder.model.Reminder;
 import org.onstage.reminder.service.ReminderService;
-import org.onstage.stager.model.Stager;
 import org.onstage.stager.service.StagerService;
+import org.onstage.team.model.Team;
+import org.onstage.team.service.TeamService;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.service.TeamMemberService;
+import org.onstage.user.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.onstage.enums.EventStatus.DELETED;
-import static org.onstage.enums.EventStatus.DRAFT;
+import static org.onstage.enums.EventStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -39,16 +40,18 @@ public class EventService {
     private final EventItemRepository eventItemRepository;
     private final TeamMemberService teamMemberService;
     private final NotificationService notificationService;
+    private final TeamService teamService;
+    private final UserService userService;
 
     public Event getById(String id) {
-        return eventRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Event"));
+        return eventRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
     }
 
-    public Event save(Event event, List<String> teamMembersIds, List<CreateRehearsalForEventRequest> rehearsals, String teamId, String eventLeaderId) {
-        event = event.toBuilder().teamId(teamId).build();
+    public Event save(Event event, List<String> teamMembersIds, List<CreateRehearsalForEventRequest> rehearsals, String teamId, String createdBy) {
+        event = event.toBuilder().teamId(teamId).createdBy(createdBy).build();
         Event savedEvent = eventRepository.save(event);
 
-        stagerService.createStagersForEvent(savedEvent, teamMembersIds, eventLeaderId);
+        stagerService.createStagersForEvent(savedEvent, teamMembersIds);
         rehearsalService.createRehearsalsForEvent(savedEvent.getId(), rehearsals);
 
         log.info("Event {} has been saved", savedEvent.getId());
@@ -64,8 +67,8 @@ public class EventService {
         return eventRepository.delete(event.getId());
     }
 
-    public Event update(String id, Event request) {
-        log.info("Updating event {} with request {}", id, request);
+    public Event update(String id, Event request, String updatedBy) {
+        log.info("{} updated event {} with request {}", updatedBy, id, request);
         Event existingEvent = getById(id);
         existingEvent.setName(request.getName() != null ? request.getName() : existingEvent.getName());
         existingEvent.setDateTime(request.getDateTime() != null ? request.getDateTime() : existingEvent.getDateTime());
@@ -73,14 +76,8 @@ public class EventService {
         existingEvent.setEventStatus(request.getEventStatus() != null ? request.getEventStatus() : existingEvent.getEventStatus());
         existingEvent = eventRepository.save(existingEvent);
 
-        if (request.getEventStatus() == DELETED) {
-            String description = String.format("Event %s has been cancelled", existingEvent.getName());
-            String title = "Event cancelled";
+        notifyStagersAboutEvent(existingEvent, updatedBy);
 
-            stagerService.getAllByEventId(existingEvent.getId()).forEach(stager -> {
-                notificationService.sendNotificationToUser(NotificationType.EVENT_DELETED, stager.userId(), description, title, null);
-            });
-        }
         return existingEvent;
     }
 
@@ -93,18 +90,19 @@ public class EventService {
         return eventRepository.getUpcomingPublishedEvent(teamId);
     }
 
-    public Event duplicate(Event event, LocalDateTime dateTime, String name, String eventLeaderId) {
+    public Event duplicate(Event event, LocalDateTime dateTime, String name, String createdBy) {
         Event duplicatedEvent = Event.builder()
                 .name(name)
                 .location(event.getLocation())
                 .eventStatus(DRAFT)
                 .dateTime(dateTime)
                 .teamId(event.getTeamId())
+                .createdBy(createdBy)
                 .build();
         duplicatedEvent = eventRepository.save(duplicatedEvent);
 
-        List<Stager> stagers = stagerService.getAllByEventId(event.getId());
-        stagerService.createStagersForEvent(event, stagers.stream().map(Stager::teamMemberId).toList(), eventLeaderId);
+        TeamMember teamMember = teamMemberService.getByUserAndTeam(createdBy, event.getTeamId());
+        stagerService.create(event, teamMember.id());
 
         List<Reminder> reminders = reminderService.getAllByEventId(event.getId());
         reminderService.createReminders(reminders.stream().map(Reminder::daysBefore).toList(), duplicatedEvent.getId());
@@ -125,5 +123,28 @@ public class EventService {
 
     public int countAllCreatedInInterval(String teamId) {
         return eventRepository.countAllCreatedInInterval(teamId);
+    }
+
+    private void notifyStagersAboutEvent(Event event, String updatedBy) {
+        if (event.getEventStatus() == DELETED) {
+            String description = String.format("%s cancelled event %s", updatedBy, event.getName());
+            String title = "Event cancelled";
+
+            stagerService.getAllByEventId(event.getId()).forEach(stager -> {
+                notificationService.sendNotificationToUser(NotificationType.EVENT_DELETED, stager.userId(), description, title, NotificationParams.builder().userId(updatedBy).build());
+            });
+        }
+
+        if (event.getEventStatus() == PUBLISHED) {
+            Team team = teamService.getById(event.getTeamId());
+            String description = String.format("You have been invited to %s event. Team %s", event.getName(), team.name());
+            String title = event.getName();
+
+            List<String> usersWithPhoto = userService.getUserIdsWithPhoto(event.getId());
+            stagerService.getAllByEventId(event.getId()).forEach(stager -> {
+                notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_REQUEST, stager.userId(), description, title,
+                        NotificationParams.builder().stagerId(stager.id()).eventId(event.getId()).date(event.getDateTime()).usersWithPhoto(usersWithPhoto).build());
+            });
+        }
     }
 }

@@ -39,7 +39,7 @@ public class UserService {
     }
 
     public User getById(String id) {
-        return userRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("User"));
+        return userRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("user"));
     }
 
     public User create(User user) {
@@ -104,8 +104,8 @@ public class UserService {
         userRepository.updateImageTimestamp(userId, now);
     }
 
-    public List<String> getStagersWithPhoto(String eventId) {
-        return userRepository.getStagersWithPhoto(eventId);
+    public List<String> getUserIdsWithPhoto(String eventId) {
+        return userRepository.getUserIdsWithPhoto(eventId);
     }
 
     public void delete(String userId) {

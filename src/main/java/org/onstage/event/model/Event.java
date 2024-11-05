@@ -3,7 +3,6 @@ package org.onstage.event.model;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 import org.onstage.common.base.BaseEntity;
@@ -27,4 +26,5 @@ public class Event extends BaseEntity {
     @Builder.Default
     EventStatus eventStatus = EventStatus.DRAFT;
     String teamId;
+    String createdBy;
 }
