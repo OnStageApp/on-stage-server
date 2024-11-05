@@ -2,12 +2,10 @@ package org.onstage.teammember.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.onstage.common.beans.UserSecurityContext;
-import org.onstage.enums.MemberPosition;
 import org.onstage.enums.MemberRole;
 import org.onstage.exceptions.BadRequestException;
-import org.onstage.notification.client.NotificationStatus;
 import org.onstage.notification.client.NotificationType;
+import org.onstage.notification.model.NotificationParams;
 import org.onstage.notification.service.NotificationService;
 import org.onstage.sendgrid.SendGridService;
 import org.onstage.stager.model.Stager;
@@ -23,8 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.onstage.enums.MemberInviteStatus.CONFIRMED;
-import static org.onstage.enums.MemberInviteStatus.PENDING;
+import static org.onstage.enums.MemberInviteStatus.*;
 
 @Service
 @Slf4j
@@ -35,11 +32,10 @@ public class TeamMemberService {
     private final StagerService stagerService;
     private final TeamService teamService;
     private final SendGridService sendGridService;
-    private final UserSecurityContext userSecurityContext;
     private final NotificationService notificationService;
 
     public TeamMember getById(String id) {
-        return teamMemberRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Team member"));
+        return teamMemberRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("teamMember"));
     }
 
     public TeamMember getByUserAndTeam(String userId, String teamId) {
@@ -59,7 +55,7 @@ public class TeamMemberService {
     }
 
     public String delete(String id) {
-        TeamMember teamMember = teamMemberRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Team member"));
+        TeamMember teamMember = teamMemberRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("teamMember"));
         log.info("Deleting team member {}", id);
         teamMemberRepository.delete(id);
         return teamMember.id();
@@ -69,18 +65,18 @@ public class TeamMemberService {
         return teamMemberRepository.getAllByTeam(teamId, userId, includeCurrentUser);
     }
 
-    public List<TeamMember> getAllByTeam(String teamId) {
-        return teamMemberRepository.getAllByTeam(teamId);
-    }
-
-    public TeamMember update(TeamMember existingTeamMember, TeamMember teamMember) {
+    public TeamMember update(String id, TeamMember teamMember) {
+        TeamMember existingTeamMember = getById(id);
         log.info("Updating team member {} with request {}", existingTeamMember.id(), teamMember);
 
-        return teamMemberRepository.save(existingTeamMember.toBuilder()
+        existingTeamMember = teamMemberRepository.save(existingTeamMember.toBuilder()
                 .role(teamMember.role() != null ? teamMember.role() : existingTeamMember.role())
                 .inviteStatus(teamMember.inviteStatus() != null ? teamMember.inviteStatus() : existingTeamMember.inviteStatus())
                 .position(teamMember.position() != null ? teamMember.position() : existingTeamMember.position())
                 .build());
+
+        notifyLeader(existingTeamMember);
+        return existingTeamMember;
     }
 
     public List<TeamMember> getAllUninvitedMembers(String eventId, String userId, String teamId, boolean includeCurrentUser) {
@@ -98,7 +94,7 @@ public class TeamMemberService {
         //TODO if user does not exist send the email
         //sendGridService.sendInviteToTeamEmail(user, team.name());
         if (user == null) {
-            throw BadRequestException.resourceNotFound("User");
+            throw BadRequestException.resourceNotFound("user");
         }
         TeamMember existingTeamMember = getByUserAndTeam(user.getId(), teamId);
         if (existingTeamMember != null) {
@@ -117,7 +113,7 @@ public class TeamMemberService {
         User leader = userService.getById(team.leaderId());
         String description = String.format("%s invited you to join %s team", leader.getName(), team.name());
         String title = team.name();
-        notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_REQUEST, user.getId(), description, title, null);
+        notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_REQUEST, user.getId(), description, title, NotificationParams.builder().teamMemberId(teamMember.id()).build());
         return teamMember;
     }
 
@@ -131,5 +127,19 @@ public class TeamMemberService {
 
     public MemberRole getRole(Team team, String userId) {
         return teamMemberRepository.getByUserAndTeam(userId, team.id()).role();
+    }
+
+    private void notifyLeader(TeamMember teamMember) {
+        if (teamMember.inviteStatus() == CONFIRMED) {
+            Team team = teamService.getById(teamMember.teamId());
+            String description = String.format("%s accepted your invitation to join %s", teamMember.name(), team.name());
+            notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_ACCEPTED, team.leaderId(), description, null, NotificationParams.builder().teamMemberId(teamMember.id()).userId(teamMember.userId()).build());
+        }
+
+        if (teamMember.inviteStatus() == DECLINED) {
+            Team team = teamService.getById(teamMember.teamId());
+            String description = String.format("%s declined your invitation to join %s", teamMember.name(), team.name());
+            notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_DECLINED, team.leaderId(), description, null, NotificationParams.builder().teamMemberId(teamMember.id()).userId(teamMember.userId()).build());
+        }
     }
 }

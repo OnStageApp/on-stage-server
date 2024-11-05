@@ -33,7 +33,7 @@ public class SongService {
     public SongDTO getSongCustom(String id, String teamId, Boolean isCustom) {
         SongDTO songDTO = songRepository.findProjectionById(id);
         if (songDTO == null) {
-            throw resourceNotFound("Song");
+            throw resourceNotFound("song");
         }
 
         var key = songDTO.originalKey();
@@ -55,7 +55,7 @@ public class SongService {
 
     public SongOverview getOverviewSong(String id) {
         return songRepository.findOverviewById(id)
-                .orElseThrow(() -> BadRequestException.resourceNotFound("Song"));
+                .orElseThrow(() -> BadRequestException.resourceNotFound("song"));
     }
 
     public List<SongOverview> getAll(SongFilter songFilter, String teamId) {
@@ -73,7 +73,7 @@ public class SongService {
 
     public SongDTO updateSong(String id, CreateOrUpdateSongRequest request) {
         Song existingSong = songRepository.findById(id)
-                .orElseThrow(() -> BadRequestException.resourceNotFound("Song"));
+                .orElseThrow(() -> BadRequestException.resourceNotFound("song"));
         existingSong = existingSong.toBuilder()
                 .title(request.title() == null ? existingSong.title() : request.title())
                 .structure(request.structure() == null ? existingSong.structure() : request.structure())
@@ -89,7 +89,7 @@ public class SongService {
     }
 
     public void addFavoriteSong(String songId, String userId) {
-        Song song = songRepository.findById(songId).orElseThrow(() -> BadRequestException.resourceNotFound("Song"));
+        Song song = songRepository.findById(songId).orElseThrow(() -> BadRequestException.resourceNotFound("song"));
         FavoriteSong favoriteSong = favoriteSongRepository.findBySongIdAndUserId(song.id(), userId);
         if (favoriteSong != null) {
             log.info("Song {} is already saved by user {}", song.id(), userId);

@@ -2,19 +2,16 @@ package org.onstage.stager.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.onstage.enums.MemberRole;
 import org.onstage.enums.ParticipationStatus;
 import org.onstage.event.model.Event;
+import org.onstage.event.service.EventService;
 import org.onstage.eventitem.service.EventItemService;
 import org.onstage.exceptions.BadRequestException;
-import org.onstage.notification.client.NotificationStatus;
 import org.onstage.notification.client.NotificationType;
+import org.onstage.notification.model.NotificationParams;
 import org.onstage.notification.service.NotificationService;
-import org.onstage.stager.client.StagerDTO;
 import org.onstage.stager.model.Stager;
 import org.onstage.stager.repository.StagerRepository;
-import org.onstage.team.model.Team;
-import org.onstage.team.service.TeamService;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
 import org.springframework.stereotype.Service;
@@ -31,10 +28,10 @@ public class StagerService {
     private final TeamMemberRepository teamMemberRepository;
     private final EventItemService eventItemService;
     private final NotificationService notificationService;
-    private final TeamService teamService;
+    private final EventService eventService;
 
     public Stager getById(String id) {
-        return stagerRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Stager"));
+        return stagerRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("stager"));
     }
 
     public Stager getByEventAndTeamMember(String eventId, String teamMemberId) {
@@ -45,27 +42,15 @@ public class StagerService {
         return stagerRepository.getAllByEventId(eventId);
     }
 
-    public List<Stager> createStagersForEvent(Event event, List<String> teamMembersIds, String eventLeaderId) {
-        if (eventLeaderId != null) {
-            teamMembersIds = teamMembersIds.stream().filter(id -> !id.equals(eventLeaderId)).toList();
-        }
+    public List<Stager> createStagersForEvent(Event event, List<String> teamMembersIds) {
         return teamMembersIds.stream().map(teamMemberId -> create(event, teamMemberId)).collect(toList());
     }
 
     public Stager create(Event event, String teamMemberId) {
         log.info("Creating stager for event {} and team member {}", event.getId(), teamMemberId);
-        TeamMember teamMember = teamMemberRepository.findById(teamMemberId).orElseThrow(() -> BadRequestException.resourceNotFound("Team member"));
+        TeamMember teamMember = teamMemberRepository.findById(teamMemberId).orElseThrow(() -> BadRequestException.resourceNotFound("teamMember"));
         checkStagerAlreadyExists(event.getId(), teamMemberId);
-
-        Team team = teamService.getById(teamMember.teamId());
-        Stager stager = stagerRepository.createStager(event.getId(), teamMember);
-        if (teamMember.role() != MemberRole.LEADER) {
-            String description = String.format("You have been invited to %s event. Team %s", event.getName(), team.name());
-            String title = event.getName();
-            notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_REQUEST, stager.userId(), description, title, event.getId());
-        }
-        return stager;
-
+        return stagerRepository.createStager(event.getId(), teamMember);
     }
 
     public String remove(String stagerId) {
@@ -81,16 +66,16 @@ public class StagerService {
         }
     }
 
-    public Stager update(Stager existingStager, StagerDTO request) {
-        if (request.participationStatus() == ParticipationStatus.DECLINED) {
-            eventItemService.removeLeadVocalFromEvent(existingStager.id(), existingStager.eventId());
-        }
-        Stager updatedStager = existingStager
-                .toBuilder()
+    public Stager update(String id, Stager request) {
+        Stager existingStager = getById(id);
+
+        existingStager = existingStager.toBuilder()
                 .participationStatus(request.participationStatus() != null ? request.participationStatus() : existingStager.participationStatus())
                 .build();
 
-        return stagerRepository.save(updatedStager);
+        stagerRepository.save(existingStager);
+        notifyEventEditor(existingStager);
+        return existingStager;
     }
 
     public void deleteAllByEventId(String eventId) {
@@ -102,4 +87,19 @@ public class StagerService {
         return stagerRepository.countByEventId(eventId);
     }
 
+    private void notifyEventEditor(Stager stager) {
+        if (stager.participationStatus() == ParticipationStatus.DECLINED) {
+            eventItemService.removeLeadVocalFromEvent(stager.id(), stager.eventId());
+
+            Event event = eventService.getById(stager.eventId());
+            String description = String.format("%s declined your invitation to the event %s", stager.name(), event.getName());
+            notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_DECLINED, event.getCreatedBy(), description, null, NotificationParams.builder().eventId(event.getId()).userId(stager.userId()).build());
+        }
+
+        if (stager.participationStatus() == ParticipationStatus.CONFIRMED) {
+            Event event = eventService.getById(stager.eventId());
+            String description = String.format("%s accepted your invitation to the event %s", stager.name(), event.getName());
+            notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_ACCEPTED, event.getCreatedBy(), description, null, NotificationParams.builder().eventId(event.getId()).userId(stager.userId()).build());
+        }
+    }
 }

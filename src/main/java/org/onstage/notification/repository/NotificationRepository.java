@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 
@@ -29,7 +30,7 @@ public class NotificationRepository {
                     ofNullable(filter.type())
                             .ifPresent(type -> criteria.and(Notification.Fields.type).is(type));
                     ofNullable(filter.userId())
-                            .ifPresent(userId -> criteria.and(Notification.Fields.userId).is(userId));
+                            .ifPresent(userId -> criteria.and(Notification.Fields.userToNotify).is(userId));
                 });
 
         Query query = new Query()
@@ -45,7 +46,7 @@ public class NotificationRepository {
 
     public void markAllNotificationsAsViewed(String userId) {
         Query query = new Query()
-                .addCriteria(Criteria.where(Notification.Fields.userId).is(userId))
+                .addCriteria(Criteria.where(Notification.Fields.userToNotify).is(userId))
                 .addCriteria(Criteria.where(Notification.Fields.status).is(NotificationStatus.NEW));
 
         List<Notification> notifications = mongoTemplate.find(query, Notification.class);
@@ -55,7 +56,7 @@ public class NotificationRepository {
         });
     }
 
-    public Notification findById(String id) {
-        return repo.findById(id).orElse(null);
+    public Optional<Notification> findById(String id) {
+        return repo.findById(id);
     }
 }

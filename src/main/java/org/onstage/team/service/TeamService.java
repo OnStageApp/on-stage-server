@@ -28,7 +28,7 @@ public class TeamService {
     private final SubscriptionService subscriptionService;
 
     public Team getById(String id) {
-        return teamRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Team"));
+        return teamRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
     }
 
     public Team create(Team team) {
@@ -46,7 +46,7 @@ public class TeamService {
     }
 
     public String delete(String id) {
-        teamRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("Team"));
+        teamRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
         log.info("Deleting team {}", id);
         return teamRepository.delete(id);
     }

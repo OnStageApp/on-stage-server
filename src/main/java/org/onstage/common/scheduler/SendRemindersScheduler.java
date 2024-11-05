@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.onstage.event.model.Event;
 import org.onstage.event.service.EventService;
 import org.onstage.notification.client.NotificationType;
+import org.onstage.notification.model.NotificationParams;
 import org.onstage.notification.service.NotificationService;
 import org.onstage.reminder.model.Reminder;
 import org.onstage.reminder.repository.ReminderRepository;
@@ -49,7 +50,7 @@ public class SendRemindersScheduler {
             String description = String.format("%d days left until %s", reminder.daysBefore(), event.getName());
             String title = "Reminder";
 
-            stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.REMINDER, stager.userId(), description, title, null));
+            stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.REMINDER, stager.userId(), description, title, NotificationParams.builder().eventId(event.getId()).build()));
             reminder.toBuilder().isSent(true);
             reminderRepository.save(reminder);
         }

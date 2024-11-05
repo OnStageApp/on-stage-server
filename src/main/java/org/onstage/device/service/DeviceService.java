@@ -17,7 +17,7 @@ public class DeviceService {
     private final DeviceRepository deviceRepository;
 
     public Device getById(String id) {
-        return deviceRepository.findByDeviceId(id).orElseThrow(() -> BadRequestException.resourceNotFound("Device"));
+        return deviceRepository.findByDeviceId(id).orElseThrow(() -> BadRequestException.resourceNotFound("device"));
     }
 
     public Device loginDevice(Device device) {

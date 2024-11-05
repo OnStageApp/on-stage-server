@@ -44,11 +44,10 @@ public class EventItemController {
         return ResponseEntity.ok(stagerMapper.toDtoList(eventItemService.getLeadVocals(id)));
     }
 
-    //TODO: Just testing for jenkins
-
     @PutMapping("/{id}/lead-vocals")
     public ResponseEntity<Void> updateVocalLeads(@PathVariable String id, @RequestBody List<String> stagerIds) {
-        eventItemService.updateEventItemLeadVocals(id, stagerIds);
+        String userId = userSecurityContext.getUserId();
+        eventItemService.updateEventItemLeadVocals(id, stagerIds, userId);
         return ResponseEntity.ok().build();
     }
 

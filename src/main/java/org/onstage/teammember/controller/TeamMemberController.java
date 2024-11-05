@@ -73,8 +73,7 @@ public class TeamMemberController {
 
     @PutMapping("/{id}")
     public ResponseEntity<TeamMemberDTO> update(@PathVariable final String id, @RequestBody TeamMemberDTO request) {
-        TeamMember existingTeamMember = teamMemberService.getById(id);
-        return ResponseEntity.ok(teamMemberMapper.toDto(teamMemberService.update(existingTeamMember, teamMemberMapper.toEntity(request))));
+        return ResponseEntity.ok(teamMemberMapper.toDto(teamMemberService.update(id, teamMemberMapper.toEntity(request))));
     }
 
     @GetMapping("/uninvited")

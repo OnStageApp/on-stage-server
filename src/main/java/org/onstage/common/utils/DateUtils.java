@@ -1,7 +1,11 @@
 package org.onstage.common.utils;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import static java.lang.Math.toIntExact;
@@ -23,5 +27,19 @@ public class DateUtils {
         calendar.add(MINUTE, toIntExact(minutes));
 
         return calendar.getTime();
+    }
+
+    public static String formatDate(LocalDateTime date) {
+        if (date == null) {
+            return "";
+        }
+
+        Locale locale = Locale.getDefault();
+
+        DateTimeFormatter formatter = DateTimeFormatter
+                .ofLocalizedDateTime(FormatStyle.MEDIUM)
+                .withLocale(locale);
+
+        return date.format(formatter);
     }
 }

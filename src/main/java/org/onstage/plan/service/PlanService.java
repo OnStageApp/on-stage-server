@@ -53,14 +53,6 @@ public class PlanService {
 
     public Plan getActiveOrTrialPlan(String teamId) {
         Subscription subscription = subscriptionRepository.findActiveByTeam(teamId);
-        return planRepository.getById(subscription.getPlanId()).orElseThrow(() -> BadRequestException.resourceNotFound("Plan"));
-
-        //find trial
-//        if (subscriptionTrialConfigService.findBySourcePlan(currentPlan.getId()) != null) {
-//            Plan trialPlan = getTrialPlan(teamId);
-//            if (trialPlan != null)
-//                currentPlan = trialPlan;
-////        }
-//        return currentPlan;
+        return planRepository.getById(subscription.getPlanId()).orElseThrow(() -> BadRequestException.resourceNotFound("plan"));
     }
 }
