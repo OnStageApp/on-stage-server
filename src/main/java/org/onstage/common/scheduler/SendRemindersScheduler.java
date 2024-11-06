@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.event.model.Event;
 import org.onstage.event.service.EventService;
-import org.onstage.notification.client.NotificationType;
+import org.onstage.enums.NotificationType;
 import org.onstage.notification.model.NotificationParams;
 import org.onstage.notification.service.NotificationService;
 import org.onstage.reminder.model.Reminder;

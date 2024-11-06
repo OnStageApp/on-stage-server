@@ -3,21 +3,22 @@ package org.onstage.notification.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.device.service.DeviceService;
+import org.onstage.enums.NotificationActionStatus;
+import org.onstage.enums.NotificationStatus;
+import org.onstage.enums.NotificationType;
 import org.onstage.exceptions.BadRequestException;
-import org.onstage.notification.client.NotificationActionStatus;
 import org.onstage.notification.client.NotificationFilter;
-import org.onstage.notification.client.NotificationStatus;
-import org.onstage.notification.client.NotificationType;
 import org.onstage.notification.model.Notification;
 import org.onstage.notification.model.NotificationParams;
+import org.onstage.notification.model.PaginatedNotifications;
 import org.onstage.notification.repository.NotificationRepository;
 import org.onstage.socketio.service.SocketIOService;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static org.onstage.notification.client.NotificationType.EVENT_INVITATION_REQUEST;
-import static org.onstage.notification.client.NotificationType.TEAM_INVITATION_REQUEST;
+import static org.onstage.enums.NotificationType.EVENT_INVITATION_REQUEST;
+import static org.onstage.enums.NotificationType.TEAM_INVITATION_REQUEST;
 import static org.onstage.socketio.SocketEventType.NOTIFICATION;
 
 @Component
@@ -30,8 +31,8 @@ public class NotificationService {
     private final DeviceService deviceService;
     private final PushNotificationService pushNotificationService;
 
-    public List<Notification> getNotificationsForUser(String userId, NotificationFilter filter) {
-        return notificationRepository.findNotifications(filter, userId);
+    public PaginatedNotifications getNotificationsForUser(String userId, NotificationFilter filter, int offset, int limit) {
+        return notificationRepository.findNotifications(filter, userId, offset, limit);
     }
 
     public void sendNotificationToUser(NotificationType type, String userToNotify, String description, String title, NotificationParams params) {

@@ -2,9 +2,10 @@ package org.onstage.notification.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.common.base.BaseEntity;
+import org.onstage.enums.NotificationStatus;
 import org.onstage.notification.client.NotificationFilter;
-import org.onstage.notification.client.NotificationStatus;
 import org.onstage.notification.model.Notification;
+import org.onstage.notification.model.PaginatedNotifications;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -22,16 +23,26 @@ public class NotificationRepository {
     private final MongoTemplate mongoTemplate;
     private final NotificationRepo repo;
 
-    public List<Notification> findNotifications(NotificationFilter filter, String userId) {
+    public PaginatedNotifications findNotifications(NotificationFilter filter, String userId, int offset, int limit) {
         Criteria criteria = new Criteria();
-        ofNullable(filter).flatMap(currentFilter -> ofNullable(filter.status())).ifPresent(status -> criteria.and(Notification.Fields.status).is(status));
+        ofNullable(filter).flatMap(currentFilter -> ofNullable(filter.getStatus())).ifPresent(status -> criteria.and(Notification.Fields.status).is(status));
         ofNullable(userId).ifPresent(currentUserId -> criteria.and(Notification.Fields.userToNotify).is(currentUserId));
 
         Query query = new Query()
                 .addCriteria(criteria)
-                .with(Sort.by(Sort.Direction.DESC, BaseEntity.Fields.createdAt));
+                .with(Sort.by(Sort.Direction.DESC, BaseEntity.Fields.createdAt))
+                .skip(offset)
+                .limit(limit);
 
-        return mongoTemplate.find(query, Notification.class);
+        List<Notification> notifications = mongoTemplate.find(query, Notification.class);
+
+        boolean hasMore = notifications.size() > limit;
+
+        if (hasMore) {
+            notifications = notifications.subList(0, limit);
+        }
+
+        return new PaginatedNotifications(notifications, hasMore);
     }
 
     public Notification save(Notification entity) {

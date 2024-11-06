@@ -1,6 +1,11 @@
 package org.onstage.notification.client;
 
-public record NotificationFilter(
-        NotificationStatus status
-) {
+import lombok.*;
+import org.onstage.enums.NotificationStatus;
+
+@Getter
+@Setter
+@RequiredArgsConstructor
+public class NotificationFilter {
+    private NotificationStatus status;
 }

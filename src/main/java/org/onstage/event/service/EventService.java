@@ -3,13 +3,13 @@ package org.onstage.event.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.enums.EventSearchType;
+import org.onstage.enums.NotificationType;
 import org.onstage.event.client.PaginatedEventResponse;
 import org.onstage.event.model.Event;
 import org.onstage.event.repository.EventRepository;
 import org.onstage.eventitem.model.EventItem;
 import org.onstage.eventitem.repository.EventItemRepository;
 import org.onstage.exceptions.BadRequestException;
-import org.onstage.notification.client.NotificationType;
 import org.onstage.notification.model.NotificationParams;
 import org.onstage.notification.service.NotificationService;
 import org.onstage.rehearsal.client.CreateRehearsalForEventRequest;
@@ -130,7 +130,7 @@ public class EventService {
             String description = String.format("%s cancelled event %s", updatedBy, event.getName());
             String title = "Event cancelled";
 
-            stagerService.getAllByEventId(event.getId()).forEach(stager -> {
+            stagerService.getStagersToNotify(event.getId(), updatedBy).forEach(stager -> {
                 notificationService.sendNotificationToUser(NotificationType.EVENT_DELETED, stager.userId(), description, title, NotificationParams.builder().userId(updatedBy).build());
             });
         }
@@ -141,7 +141,7 @@ public class EventService {
             String title = event.getName();
 
             List<String> usersWithPhoto = userService.getUserIdsWithPhoto(event.getId());
-            stagerService.getAllByEventId(event.getId()).forEach(stager -> {
+            stagerService.getStagersToNotify(event.getId(), updatedBy).forEach(stager -> {
                 notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_REQUEST, stager.userId(), description, title,
                         NotificationParams.builder().stagerId(stager.id()).eventId(event.getId()).date(event.getDateTime()).usersWithPhoto(usersWithPhoto).build());
             });
