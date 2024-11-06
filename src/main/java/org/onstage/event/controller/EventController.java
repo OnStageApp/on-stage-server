@@ -7,8 +7,11 @@ import org.onstage.event.model.Event;
 import org.onstage.event.model.mapper.EventMapper;
 import org.onstage.event.service.EventService;
 import org.onstage.plan.service.PlanService;
+import org.onstage.teammember.model.TeamMember;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("events")
@@ -50,9 +53,12 @@ public class EventController {
     public ResponseEntity<EventDTO> create(@RequestBody CreateOrUpdateEventRequest event) {
         String teamId = userSecurityContext.getCurrentTeamId();
         String createdBy = userSecurityContext.getUserId();
+        String createdByTeamMember = userSecurityContext.getCurrentTeamMemberId();
+        List<String> membersToAdd = event.teamMemberIds();
+        membersToAdd.add(createdByTeamMember);
 //TODO: Uncomment this
 //        planService.checkPermission(PermissionType.ADD_EVENTS, teamId);
-        return ResponseEntity.ok(eventMapper.toDto(eventService.save(eventMapper.fromCreateRequest(event), event.teamMemberIds(), event.rehearsals(), teamId, createdBy)));
+        return ResponseEntity.ok(eventMapper.toDto(eventService.save(eventMapper.fromCreateRequest(event), membersToAdd, event.rehearsals(), teamId, createdBy)));
     }
 
     @DeleteMapping("/{id}")
