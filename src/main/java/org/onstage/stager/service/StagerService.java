@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.enums.ParticipationStatus;
 import org.onstage.event.model.Event;
+import org.onstage.event.repository.EventRepository;
 import org.onstage.event.service.EventService;
 import org.onstage.eventitem.service.EventItemService;
 import org.onstage.exceptions.BadRequestException;
@@ -28,7 +29,7 @@ public class StagerService {
     private final TeamMemberRepository teamMemberRepository;
     private final EventItemService eventItemService;
     private final NotificationService notificationService;
-    private final EventService eventService;
+    private final EventRepository eventRepository;
 
     public Stager getById(String id) {
         return stagerRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("stager"));
@@ -91,13 +92,13 @@ public class StagerService {
         if (stager.participationStatus() == ParticipationStatus.DECLINED) {
             eventItemService.removeLeadVocalFromEvent(stager.id(), stager.eventId());
 
-            Event event = eventService.getById(stager.eventId());
+            Event event = eventRepository.findById(stager.eventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
             String description = String.format("%s declined your invitation to the event %s", stager.name(), event.getName());
             notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_DECLINED, event.getCreatedBy(), description, null, NotificationParams.builder().eventId(event.getId()).userId(stager.userId()).build());
         }
 
         if (stager.participationStatus() == ParticipationStatus.CONFIRMED) {
-            Event event = eventService.getById(stager.eventId());
+            Event event = eventRepository.findById(stager.eventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
             String description = String.format("%s accepted your invitation to the event %s", stager.name(), event.getName());
             notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_ACCEPTED, event.getCreatedBy(), description, null, NotificationParams.builder().eventId(event.getId()).userId(stager.userId()).build());
         }
