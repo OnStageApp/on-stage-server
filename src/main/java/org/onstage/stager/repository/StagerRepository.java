@@ -2,6 +2,7 @@ package org.onstage.stager.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.enums.MemberRole;
+import org.onstage.enums.ParticipationStatus;
 import org.onstage.stager.model.Stager;
 import org.onstage.teammember.model.TeamMember;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -79,9 +80,9 @@ public class StagerRepository {
         return mongoTemplate.find(query, Stager.class);
     }
 
-    public List<Stager> getStagersToNotify(String eventId, String createdBy) {
+    public List<Stager> getStagersToNotify(String eventId, String createdBy, ParticipationStatus participationStatus) {
         Criteria criteria = Criteria.where(Stager.Fields.eventId).is(eventId)
-                .and(Stager.Fields.participationStatus).is(CONFIRMED)
+                .and(Stager.Fields.participationStatus).is(participationStatus)
                 .and(Stager.Fields.teamMemberId).ne(createdBy);
         Query query = new Query(criteria);
         return mongoTemplate.find(query, Stager.class);
