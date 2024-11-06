@@ -1,4 +1,4 @@
-package org.onstage.notification.client;
+package org.onstage.enums;
 
 public enum NotificationStatus {
     NEW,

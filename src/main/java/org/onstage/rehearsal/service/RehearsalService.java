@@ -3,10 +3,10 @@ package org.onstage.rehearsal.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.common.utils.DateUtils;
+import org.onstage.enums.NotificationType;
 import org.onstage.event.model.Event;
 import org.onstage.event.repository.EventRepository;
 import org.onstage.exceptions.BadRequestException;
-import org.onstage.notification.client.NotificationType;
 import org.onstage.notification.model.NotificationParams;
 import org.onstage.notification.service.NotificationService;
 import org.onstage.rehearsal.client.CreateRehearsalForEventRequest;
@@ -36,11 +36,11 @@ public class RehearsalService {
         return rehearsalRepository.getAllByEventId(eventId);
     }
 
-    public Rehearsal save(Rehearsal rehearsal, boolean notifyStagers) {
+    public Rehearsal save(Rehearsal rehearsal, String createdBy, boolean notifyStagers) {
         Rehearsal savedRehearsal = rehearsalRepository.save(rehearsal);
         log.info("Rehearsal {} has been saved", rehearsal.id());
 
-        if (notifyStagers) notifyStagers(rehearsal);
+        if (notifyStagers) notifyStagers(rehearsal, createdBy);
 
         return savedRehearsal;
     }
@@ -73,7 +73,7 @@ public class RehearsalService {
                 .dateTime(rehearsal.dateTime())
                 .location(rehearsal.location())
                 .eventId(eventId)
-                .build(), false));
+                .build(), null, false));
     }
 
     public void deleteAllByEventId(String eventId) {
@@ -81,8 +81,8 @@ public class RehearsalService {
         rehearsalRepository.deleteAllByEventId(eventId);
     }
 
-    private void notifyStagers(Rehearsal rehearsal) {
-        List<Stager> stagers = stagerService.getAllByEventId(rehearsal.eventId());
+    private void notifyStagers(Rehearsal rehearsal, String createdBy) {
+        List<Stager> stagers = stagerService.getStagersToNotify(rehearsal.eventId(), createdBy);
         Event event = eventRepository.findById(rehearsal.eventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
         String description = String.format("You have a new rehearsal on %s for %s", DateUtils.formatDate(rehearsal.dateTime()), event.getName());
         String title = event.getName();

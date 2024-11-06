@@ -1,6 +1,7 @@
 package org.onstage.rehearsal.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.onstage.common.beans.UserSecurityContext;
 import org.onstage.rehearsal.client.RehearsalDTO;
 import org.onstage.rehearsal.model.Rehearsal;
 import org.onstage.rehearsal.model.mapper.RehearsalMapper;
@@ -16,6 +17,7 @@ import java.util.List;
 public class RehearsalController {
     private final RehearsalService rehearsalService;
     private final RehearsalMapper rehearsalMapper;
+    private final UserSecurityContext userSecurityContext;
 
     @GetMapping
     public ResponseEntity<List<RehearsalDTO>> getAll(@RequestParam(name = "eventId") String eventId) {
@@ -30,7 +32,8 @@ public class RehearsalController {
 
     @PostMapping
     public ResponseEntity<RehearsalDTO> create(@RequestBody final RehearsalDTO request) {
-        return ResponseEntity.ok(rehearsalMapper.toDto(rehearsalService.save(rehearsalMapper.toEntity(request), true)));
+        String createdBy = userSecurityContext.getCurrentTeamMemberId();
+        return ResponseEntity.ok(rehearsalMapper.toDto(rehearsalService.save(rehearsalMapper.toEntity(request), createdBy, true)));
     }
 
     @DeleteMapping("/{id}")

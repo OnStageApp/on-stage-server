@@ -2,13 +2,12 @@ package org.onstage.stager.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.onstage.enums.NotificationType;
 import org.onstage.enums.ParticipationStatus;
 import org.onstage.event.model.Event;
 import org.onstage.event.repository.EventRepository;
-import org.onstage.event.service.EventService;
 import org.onstage.eventitem.service.EventItemService;
 import org.onstage.exceptions.BadRequestException;
-import org.onstage.notification.client.NotificationType;
 import org.onstage.notification.model.NotificationParams;
 import org.onstage.notification.service.NotificationService;
 import org.onstage.stager.model.Stager;
@@ -41,6 +40,10 @@ public class StagerService {
 
     public List<Stager> getAllByEventId(String eventId) {
         return stagerRepository.getAllByEventId(eventId);
+    }
+
+    public List<Stager> getStagersToNotify(String eventId, String createdBy) {
+        return stagerRepository.getStagersToNotify(eventId, createdBy);
     }
 
     public List<Stager> createStagersForEvent(Event event, List<String> teamMembersIds) {

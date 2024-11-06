@@ -78,4 +78,12 @@ public class StagerRepository {
         Query query = new Query(criteria);
         return mongoTemplate.find(query, Stager.class);
     }
+
+    public List<Stager> getStagersToNotify(String eventId, String createdBy) {
+        Criteria criteria = Criteria.where(Stager.Fields.eventId).is(eventId)
+                .and(Stager.Fields.participationStatus).is(CONFIRMED)
+                .and(Stager.Fields.teamMemberId).ne(createdBy);
+        Query query = new Query(criteria);
+        return mongoTemplate.find(query, Stager.class);
+    }
 }
