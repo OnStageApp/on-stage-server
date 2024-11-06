@@ -21,7 +21,8 @@ public class NotificationController {
 
     @GetMapping
     public ResponseEntity<List<NotificationDTO>> getAllNotifications(@RequestBody NotificationFilter filter) {
-        return ResponseEntity.ok(notificationService.getAllNotifications(filter).stream()
+        String userId = userSecurityContext.getUserId();
+        return ResponseEntity.ok(notificationService.getNotificationsForUser(userId, filter).stream()
                 .map(mapper::toDTO)
                 .toList());
     }

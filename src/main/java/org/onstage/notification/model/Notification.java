@@ -11,6 +11,7 @@ import org.onstage.notification.client.NotificationStatus;
 import org.onstage.notification.client.NotificationType;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 @Builder
 @FieldNameConstants
@@ -18,7 +19,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @Document("notifications")
 public class Notification extends BaseEntity {
-    @Id
+    @MongoId
     private String notificationId;
     private String title;
     private String description;

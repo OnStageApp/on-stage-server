@@ -9,13 +9,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
-@RequiredArgsConstructor
-public class GetNotificationsAction implements Action<NotificationFilter, List<Notification>> {
-    private final NotificationRepository repository;
-
-    @Override
-    public List<Notification> doExecute(NotificationFilter filter) {
-        return repository.findNotifications(filter);
-    }
-}
+//@Component
+//@RequiredArgsConstructor
+//public class GetNotificationsAction implements Action<NotificationFilter, List<Notification>> {
+//    private final NotificationRepository repository;
+//
+//    @Override
+//    public List<Notification> doExecute(NotificationFilter filter) {
+//        return repository.findNotifications(filter);
+//    }
+//}

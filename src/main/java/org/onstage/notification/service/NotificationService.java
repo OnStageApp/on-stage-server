@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.device.service.DeviceService;
 import org.onstage.exceptions.BadRequestException;
-import org.onstage.notification.action.GetNotificationsAction;
 import org.onstage.notification.client.NotificationActionStatus;
 import org.onstage.notification.client.NotificationFilter;
 import org.onstage.notification.client.NotificationStatus;
@@ -26,14 +25,13 @@ import static org.onstage.socketio.SocketEventType.NOTIFICATION;
 @RequiredArgsConstructor
 public class NotificationService {
     public final static List<NotificationType> ACTION_NOTIFICATIONS = List.of(EVENT_INVITATION_REQUEST, TEAM_INVITATION_REQUEST);
-    private final GetNotificationsAction getNotificationsAction;
     private final NotificationRepository notificationRepository;
     private final SocketIOService socketIOService;
     private final DeviceService deviceService;
     private final PushNotificationService pushNotificationService;
 
-    public List<Notification> getAllNotifications(NotificationFilter filter) {
-        return getNotificationsAction.execute(filter);
+    public List<Notification> getNotificationsForUser(String userId, NotificationFilter filter) {
+        return notificationRepository.findNotifications(filter, userId);
     }
 
     public void sendNotificationToUser(NotificationType type, String userToNotify, String description, String title, NotificationParams params) {
