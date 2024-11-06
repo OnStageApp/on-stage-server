@@ -1,6 +1,7 @@
 package org.onstage.notification.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.onstage.common.base.BaseEntity;
 import org.onstage.notification.client.NotificationFilter;
 import org.onstage.notification.client.NotificationStatus;
 import org.onstage.notification.model.Notification;
@@ -21,21 +22,14 @@ public class NotificationRepository {
     private final MongoTemplate mongoTemplate;
     private final NotificationRepo repo;
 
-    public List<Notification> findNotifications(NotificationFilter filter) {
+    public List<Notification> findNotifications(NotificationFilter filter, String userId) {
         Criteria criteria = new Criteria();
-        ofNullable(filter)
-                .ifPresent(currentFilter -> {
-                    ofNullable(filter.status())
-                            .ifPresent(status -> criteria.and(Notification.Fields.status).is(status));
-                    ofNullable(filter.type())
-                            .ifPresent(type -> criteria.and(Notification.Fields.type).is(type));
-                    ofNullable(filter.userId())
-                            .ifPresent(userId -> criteria.and(Notification.Fields.userToNotify).is(userId));
-                });
+        ofNullable(filter).flatMap(currentFilter -> ofNullable(filter.status())).ifPresent(status -> criteria.and(Notification.Fields.status).is(status));
+        ofNullable(userId).ifPresent(currentUserId -> criteria.and(Notification.Fields.userToNotify).is(currentUserId));
 
         Query query = new Query()
                 .addCriteria(criteria)
-                .with(Sort.by(Sort.Direction.DESC, "createdAt"));
+                .with(Sort.by(Sort.Direction.DESC, BaseEntity.Fields.createdAt));
 
         return mongoTemplate.find(query, Notification.class);
     }

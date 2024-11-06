@@ -33,13 +33,7 @@ public class DateUtils {
         if (date == null) {
             return "";
         }
-
-        Locale locale = Locale.getDefault();
-
-        DateTimeFormatter formatter = DateTimeFormatter
-                .ofLocalizedDateTime(FormatStyle.MEDIUM)
-                .withLocale(locale);
-
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM, HH:mm");
         return date.format(formatter);
     }
 }
