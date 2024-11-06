@@ -42,8 +42,8 @@ public class StagerService {
         return stagerRepository.getAllByEventId(eventId);
     }
 
-    public List<Stager> getStagersToNotify(String eventId, String createdBy) {
-        return stagerRepository.getStagersToNotify(eventId, createdBy);
+    public List<Stager> getStagersToNotify(String eventId, String createdBy, ParticipationStatus participationStatus) {
+        return stagerRepository.getStagersToNotify(eventId, createdBy, participationStatus);
     }
 
     public List<Stager> createStagersForEvent(Event event, List<String> teamMembersIds) {
@@ -53,7 +53,6 @@ public class StagerService {
     public Stager create(Event event, String teamMemberId) {
         log.info("Creating stager for event {} and team member {}", event.getId(), teamMemberId);
         TeamMember teamMember = teamMemberRepository.findById(teamMemberId).orElseThrow(() -> BadRequestException.resourceNotFound("teamMember"));
-        checkStagerAlreadyExists(event.getId(), teamMemberId);
         return stagerRepository.createStager(event.getId(), teamMember);
     }
 

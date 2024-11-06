@@ -18,6 +18,8 @@ import org.onstage.songconfig.model.SongConfig;
 import org.onstage.songconfig.service.SongConfigService;
 import org.onstage.stager.model.Stager;
 import org.onstage.stager.repository.StagerRepository;
+import org.onstage.user.model.User;
+import org.onstage.user.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,6 +39,7 @@ public class EventItemService {
     private final SongConfigService songConfigService;
     private final NotificationService notificationService;
     private final EventRepository eventRepository;
+    private final UserService userService;
 
 
     public List<EventItemDTO> getAll(String eventId, String teamId) {
@@ -109,7 +112,7 @@ public class EventItemService {
                 .orElseThrow(() -> BadRequestException.resourceNotFound("eventItem"));
         eventItemRepository.save(existingEventItem.toBuilder().leadVocalIds(stagerIds.stream().distinct().toList()).build());
 
-        stagerIds.forEach(stagerId -> notifyStager(stagerId, eventItemId, updatedBy, existingEventItem));
+        stagerIds.forEach(stagerId -> notifyLeadVocal(stagerId, eventItemId, updatedBy, existingEventItem));
     }
 
     public List<EventItemDTO> updateEventItemList(List<EventItem> eventItems, String eventId) {
@@ -131,10 +134,11 @@ public class EventItemService {
 
     }
 
-    private void notifyStager(String stagerId, String eventItemId, String updatedBy, EventItem existingEventItem) {
+    private void notifyLeadVocal(String stagerId, String eventItemId, String updatedBy, EventItem existingEventItem) {
         Stager stager = stagerRepository.findById(stagerId).orElseThrow(() -> BadRequestException.resourceNotFound("stager"));
         Event event = eventRepository.findById(stager.eventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
-        String description = String.format("%s assigned you as a lead voice for the song %s", updatedBy, existingEventItem.name());
+        User user = userService.getById(updatedBy);
+        String description = String.format("%s assigned you as a lead voice for the song %s", user.getName(), existingEventItem.name());
         String title = "Lead vocal assigned";
         notificationService.sendNotificationToUser(NotificationType.LEAD_VOICE_ASSIGNED, stager.userId(), description, title,
                 NotificationParams.builder().eventId(event.getId()).eventItemId(eventItemId).userId(updatedBy).build());

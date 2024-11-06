@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.common.utils.DateUtils;
 import org.onstage.enums.NotificationType;
+import org.onstage.enums.ParticipationStatus;
 import org.onstage.event.model.Event;
 import org.onstage.event.repository.EventRepository;
 import org.onstage.exceptions.BadRequestException;
@@ -38,7 +39,7 @@ public class RehearsalService {
 
     public Rehearsal save(Rehearsal rehearsal, String createdBy, boolean notifyStagers) {
         Rehearsal savedRehearsal = rehearsalRepository.save(rehearsal);
-        log.info("Rehearsal {} has been saved", rehearsal.id());
+        log.info("Rehearsal {} has been saved", savedRehearsal.id());
 
         if (notifyStagers) notifyStagers(rehearsal, createdBy);
 
@@ -82,7 +83,7 @@ public class RehearsalService {
     }
 
     private void notifyStagers(Rehearsal rehearsal, String createdBy) {
-        List<Stager> stagers = stagerService.getStagersToNotify(rehearsal.eventId(), createdBy);
+        List<Stager> stagers = stagerService.getStagersToNotify(rehearsal.eventId(), createdBy, ParticipationStatus.CONFIRMED);
         Event event = eventRepository.findById(rehearsal.eventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
         String description = String.format("You have a new rehearsal on %s for %s", DateUtils.formatDate(rehearsal.dateTime()), event.getName());
         String title = event.getName();
