@@ -3,6 +3,7 @@ package org.onstage.eventitem.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.event.model.Event;
+import org.onstage.event.repository.EventRepository;
 import org.onstage.event.service.EventService;
 import org.onstage.eventitem.client.EventItemDTO;
 import org.onstage.eventitem.mapper.EventItemMapper;
@@ -36,7 +37,7 @@ public class EventItemService {
     private final StagerRepository stagerRepository;
     private final SongConfigService songConfigService;
     private final NotificationService notificationService;
-    private final EventService eventService;
+    private final EventRepository eventRepository;
 
 
     public List<EventItemDTO> getAll(String eventId, String teamId) {
@@ -133,7 +134,7 @@ public class EventItemService {
 
     private void notifyStager(String stagerId, String eventItemId, String updatedBy, EventItem existingEventItem) {
         Stager stager = stagerRepository.findById(stagerId).orElseThrow(() -> BadRequestException.resourceNotFound("stager"));
-        Event event = eventService.getById(stager.eventId());
+        Event event = eventRepository.findById(stager.eventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
         String description = String.format("%s assigned you as a lead voice for the song %s", updatedBy, existingEventItem.name());
         String title = "Lead vocal assigned";
         notificationService.sendNotificationToUser(NotificationType.LEAD_VOICE_ASSIGNED, stager.userId(), description, title,

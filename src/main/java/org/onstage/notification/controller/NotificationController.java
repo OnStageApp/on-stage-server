@@ -22,7 +22,7 @@ public class NotificationController {
     @GetMapping
     public ResponseEntity<List<NotificationDTO>> getAllNotifications(@RequestBody NotificationFilter filter) {
         return ResponseEntity.ok(notificationService.getAllNotifications(filter).stream()
-                .map(mapper::toApi)
+                .map(mapper::toDTO)
                 .toList());
     }
 
@@ -35,7 +35,7 @@ public class NotificationController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateNotification(@PathVariable String id, @RequestBody NotificationDTO request) {
-        notificationService.updateNotification(id, mapper.toDb(request));
+        notificationService.updateNotification(id, mapper.toEntity(request));
         return ResponseEntity.ok().build();
     }
 }

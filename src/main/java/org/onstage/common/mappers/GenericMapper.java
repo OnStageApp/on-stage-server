@@ -1,7 +1,7 @@
 package org.onstage.common.mappers;
 
 public interface GenericMapper<T, S> {
-    T toDb(S source);
+    T toEntity(S source);
 
-    S toApi(T source);
+    S toDTO(T source);
 }
