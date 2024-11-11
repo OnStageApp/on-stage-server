@@ -53,7 +53,7 @@ public class StagerService {
     public Stager create(Event event, String teamMemberId) {
         log.info("Creating stager for event {} and team member {}", event.getId(), teamMemberId);
         TeamMember teamMember = teamMemberRepository.findById(teamMemberId).orElseThrow(() -> BadRequestException.resourceNotFound("teamMember"));
-        return stagerRepository.createStager(event.getId(), teamMember);
+        return stagerRepository.createStager(event.getId(), teamMember, event.getCreatedBy());
     }
 
     public String remove(String stagerId) {

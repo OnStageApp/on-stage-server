@@ -124,7 +124,7 @@ public class TeamMemberService {
             throw BadRequestException.resourceNotFound("user");
         }
 
-        notifyInvitedUser(team.name(), invitedBy, invitedUser, teamMember.id());
+        notifyInvitedUser(team, invitedBy, invitedUser, teamMember.id());
         return teamMember;
     }
 
@@ -154,9 +154,9 @@ public class TeamMemberService {
         }
     }
 
-    private void notifyInvitedUser(String teamName, String invitedBy, User invitedUser, String teamMemberId) {
+    private void notifyInvitedUser(Team team, String invitedBy, User invitedUser, String teamMemberId) {
         User invitedByUser = userService.getById(invitedBy);
-        String description = String.format("%s invited you to join %s team", invitedByUser.getName(), teamName);
-        notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_REQUEST, invitedUser.getId(), description, teamName, NotificationParams.builder().teamMemberId(teamMemberId).build());
+        String description = String.format("%s invited you to join %s team", invitedByUser.getName(), team.name());
+        notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_REQUEST, invitedUser.getId(), description, team.name(), NotificationParams.builder().teamMemberId(teamMemberId).teamId(team.id()).build());
     }
 }

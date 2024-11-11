@@ -116,10 +116,10 @@ public class EventItemService {
     }
 
     public List<EventItemDTO> updateEventItemList(List<EventItem> eventItems, String eventId) {
+        eventItemRepository.deleteAllByEventId(eventId);
         if (eventItems.isEmpty()) {
             return List.of();
         }
-        eventItemRepository.deleteAllByEventId(eventId);
         return eventItems.stream().map(this::save).toList();
     }
 

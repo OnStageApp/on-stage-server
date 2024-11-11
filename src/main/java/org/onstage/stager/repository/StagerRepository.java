@@ -1,7 +1,6 @@
 package org.onstage.stager.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.enums.MemberRole;
 import org.onstage.enums.ParticipationStatus;
 import org.onstage.stager.model.Stager;
 import org.onstage.teammember.model.TeamMember;
@@ -11,6 +10,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.onstage.enums.ParticipationStatus.CONFIRMED;
@@ -32,13 +32,13 @@ public class StagerRepository {
         return mongoTemplate.find(query, Stager.class);
     }
 
-    public Stager createStager(String eventId, TeamMember teamMember) {
+    public Stager createStager(String eventId, TeamMember teamMember, String createdBy) {
         return stagerRepo.save(Stager.builder()
                 .eventId(eventId)
                 .teamMemberId(teamMember.id())
                 .name(teamMember.name())
                 .userId(teamMember.userId())
-                .participationStatus(teamMember.role() == MemberRole.LEADER ? CONFIRMED : PENDING).build());
+                .participationStatus(Objects.equals(teamMember.userId(), createdBy) ? CONFIRMED : PENDING).build());
     }
 
     public void removeStager(String stagerId) {
