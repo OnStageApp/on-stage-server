@@ -78,17 +78,19 @@ public class TeamMemberService {
         return teamMemberRepository.getAllByTeam(teamId, userId, includeCurrentUser);
     }
 
-    public TeamMember update(String id, TeamMember teamMember) {
+    public TeamMember update(String id, TeamMember request) {
         TeamMember existingTeamMember = getById(id);
-        log.info("Updating team member {} with request {}", existingTeamMember.id(), teamMember);
+        log.info("Updating team member {} with request {}", existingTeamMember.id(), request);
 
         existingTeamMember = teamMemberRepository.save(existingTeamMember.toBuilder()
-                .role(teamMember.role() != null ? teamMember.role() : existingTeamMember.role())
-                .inviteStatus(teamMember.inviteStatus() != null ? teamMember.inviteStatus() : existingTeamMember.inviteStatus())
-                .position(teamMember.position() != null ? teamMember.position() : existingTeamMember.position())
+                .role(request.role() != null ? request.role() : existingTeamMember.role())
+                .inviteStatus(request.inviteStatus() != null ? request.inviteStatus() : existingTeamMember.inviteStatus())
+                .position(request.position() != null ? request.position() : existingTeamMember.position())
                 .build());
 
-        notifyLeader(existingTeamMember);
+        if (request.inviteStatus() != PENDING) {
+            notifyLeader(existingTeamMember);
+        }
         return existingTeamMember;
     }
 

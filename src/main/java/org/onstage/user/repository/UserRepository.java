@@ -3,7 +3,6 @@ package org.onstage.user.repository;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.onstage.enums.ParticipationStatus;
-import org.onstage.stager.model.Stager;
 import org.onstage.user.model.User;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
