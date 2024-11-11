@@ -90,8 +90,7 @@ public class TeamMemberService {
                 .collect(Collectors.toList());
     }
 
-    public TeamMember inviteMember(String email, MemberRole memberRole, String teamMemberInvited, String teamId, String invitedBy
-    ) {
+    public TeamMember inviteMember(String email, MemberRole memberRole, String teamMemberInvited, String teamId, String invitedBy) {
         User invitedUser;
         TeamMember teamMember;
         Team team = teamService.getById(teamId);
@@ -104,15 +103,18 @@ public class TeamMemberService {
                 return null;
             }
 
-            teamMember = teamMemberRepository.save(
-                    TeamMember.builder()
-                            .teamId(teamId)
-                            .userId(invitedUser.getId())
-                            .role(memberRole)
-                            .name(invitedUser.getName())
-                            .inviteStatus(PENDING)
-                            .build()
-            );
+            teamMember = teamMemberRepository.getByUserAndTeam(invitedUser.getId(), teamId);
+            if (teamMember == null) {
+                teamMember = teamMemberRepository.save(
+                        TeamMember.builder()
+                                .teamId(teamId)
+                                .userId(invitedUser.getId())
+                                .role(memberRole)
+                                .name(invitedUser.getName())
+                                .inviteStatus(PENDING)
+                                .build()
+                );
+            }
         } else if (Strings.isNotEmpty(teamMemberInvited)) {
             teamMember = getById(teamMemberInvited);
             invitedUser = userService.getById(teamMember.userId());
