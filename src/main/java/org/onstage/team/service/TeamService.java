@@ -66,4 +66,8 @@ public class TeamService {
     public List<Team> getAll(String userId) {
         return teamRepository.getAll(userId);
     }
+
+    public Team getStarterTeam(String id) {
+        return teamRepository.getStarterTeam(id);
+    }
 }

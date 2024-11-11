@@ -57,4 +57,10 @@ public class TeamRepository {
         Criteria criteria = Criteria.where(Team.Fields.leaderId).is(user.getId());
         return mongoTemplate.findOne(new Query(criteria), Team.class);
     }
+
+    public Team getStarterTeam(String id) {
+        Criteria criteria = Criteria.where(Team.Fields.leaderId).is(id);
+        Query query = new Query(criteria);
+        return mongoTemplate.findOne(query, Team.class);
+    }
 }

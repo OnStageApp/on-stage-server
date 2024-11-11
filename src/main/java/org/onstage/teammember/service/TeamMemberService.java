@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.onstage.enums.MemberRole;
 import org.onstage.enums.NotificationType;
+import org.onstage.eventitem.service.EventItemService;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.notification.model.NotificationParams;
 import org.onstage.notification.service.NotificationService;
@@ -34,6 +35,7 @@ public class TeamMemberService {
     private final TeamService teamService;
     private final SendGridService sendGridService;
     private final NotificationService notificationService;
+    private final EventItemService eventItemService;
 
     public TeamMember getById(String id) {
         return teamMemberRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("teamMember"));
@@ -55,10 +57,20 @@ public class TeamMemberService {
         return savedTeamMember;
     }
 
-    public String delete(String id) {
-        TeamMember teamMember = teamMemberRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("teamMember"));
-        log.info("Deleting team member {}", id);
-        teamMemberRepository.delete(id);
+    public String delete(String teamId) {
+        log.info("Removing team member {}", teamId);
+        TeamMember teamMember = teamMemberRepository.findById(teamId).orElseThrow(() -> BadRequestException.resourceNotFound("teamMember"));
+        if (teamMember.role() == MemberRole.LEADER) {
+            log.error("Member {} is the team leader and cannot be removed", teamMember.id());
+            throw BadRequestException.invalidRequest();
+        }
+
+        User user = userService.getById(teamMember.userId());
+        user.setCurrentTeamId(teamService.getStarterTeam(user.getId()).id());
+        stagerService.removeAllByTeamMemberId(teamId);
+
+        notifyRemovedUser(teamMember);
+        teamMemberRepository.delete(teamId);
         return teamMember.id();
     }
 
@@ -159,6 +171,14 @@ public class TeamMemberService {
     private void notifyInvitedUser(Team team, String invitedBy, User invitedUser, String teamMemberId) {
         User invitedByUser = userService.getById(invitedBy);
         String description = String.format("%s invited you to join %s team", invitedByUser.getName(), team.name());
-        notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_REQUEST, invitedUser.getId(), description, team.name(), NotificationParams.builder().teamMemberId(teamMemberId).teamId(team.id()).build());
+        NotificationParams params = NotificationParams.builder().teamMemberId(teamMemberId).teamId(team.id()).build();
+        notificationService.deleteNotification(NotificationType.TEAM_INVITATION_REQUEST, params);
+        notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_REQUEST, invitedUser.getId(), description, team.name(), params);
+    }
+
+    private void notifyRemovedUser(TeamMember teamMember) {
+        Team team = teamService.getById(teamMember.teamId());
+        String description = String.format("You have been removed from %s team", team.name());
+        notificationService.sendNotificationToUser(NotificationType.TEAM_MEMBER_REMOVED, teamMember.userId(), description, null, NotificationParams.builder().build());
     }
 }

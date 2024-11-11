@@ -87,4 +87,10 @@ public class StagerRepository {
         Query query = new Query(criteria);
         return mongoTemplate.find(query, Stager.class);
     }
+
+    public List<Stager> getAllByTeamMemberId(String teamMemberId) {
+        Criteria criteria = Criteria.where(Stager.Fields.teamMemberId).is(teamMemberId);
+        Query query = new Query(criteria);
+        return mongoTemplate.find(query, Stager.class);
+    }
 }

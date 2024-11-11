@@ -42,4 +42,10 @@ public class EventItemRepository {
         Query query = new Query(criteria);
         return mongoTemplate.findOne(query, EventItem.class);
     }
+
+    public List<EventItem> getAllByLeadVocalId(String teamMemberId) {
+        Criteria criteria = Criteria.where(EventItem.Fields.leadVocalIds).is(teamMemberId);
+        Query query = new Query(criteria);
+        return mongoTemplate.find(query, EventItem.class);
+    }
 }

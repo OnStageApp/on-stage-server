@@ -69,4 +69,8 @@ public class NotificationService {
     public Notification getById(String id) {
         return notificationRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("notification"));
     }
+
+    public void deleteNotification(NotificationType notificationType, NotificationParams params) {
+        notificationRepository.deleteNotification(notificationType, params);
+    }
 }

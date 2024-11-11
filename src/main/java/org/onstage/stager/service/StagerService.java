@@ -105,4 +105,13 @@ public class StagerService {
             notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_ACCEPTED, event.getCreatedBy(), description, null, NotificationParams.builder().eventId(event.getId()).userId(stager.userId()).build());
         }
     }
+
+    public void removeAllByTeamMemberId(String teamMemberId) {
+        log.info("Removing all stagers for team member {}", teamMemberId);
+        List<Stager> stagers = stagerRepository.getAllByTeamMemberId(teamMemberId);
+        stagers.forEach(stager -> {
+            eventItemService.removeLeadVocalFromEvent(stager.id(), stager.eventId());
+            stagerRepository.removeStager(stager.id());
+        });
+    }
 }

@@ -3,8 +3,10 @@ package org.onstage.notification.repository;
 import lombok.RequiredArgsConstructor;
 import org.onstage.common.base.BaseEntity;
 import org.onstage.enums.NotificationStatus;
+import org.onstage.enums.NotificationType;
 import org.onstage.notification.client.NotificationFilter;
 import org.onstage.notification.model.Notification;
+import org.onstage.notification.model.NotificationParams;
 import org.onstage.notification.model.PaginatedNotifications;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -63,5 +65,13 @@ public class NotificationRepository {
 
     public Optional<Notification> findById(String id) {
         return repo.findById(id);
+    }
+
+    public void deleteNotification(NotificationType notificationType, NotificationParams params) {
+        Query query = new Query()
+                .addCriteria(Criteria.where(Notification.Fields.type).is(notificationType))
+                .addCriteria(Criteria.where(Notification.Fields.params).is(params));
+
+        mongoTemplate.remove(query, Notification.class);
     }
 }
