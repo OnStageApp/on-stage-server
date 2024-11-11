@@ -124,7 +124,7 @@ public class TeamMemberService {
             throw BadRequestException.resourceNotFound("user");
         }
 
-        notifyInvitedUser(teamId, invitedBy, invitedUser, teamMember.id());
+        notifyInvitedUser(team.name(), invitedBy, invitedUser, teamMember.id());
         return teamMember;
     }
 
