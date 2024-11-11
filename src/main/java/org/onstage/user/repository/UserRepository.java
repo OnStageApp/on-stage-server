@@ -56,16 +56,15 @@ public class UserRepository {
 
     public List<String> getUserIdsWithPhoto(String eventId) {
         Aggregation aggregation = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where(Stager.Fields.eventId).is(eventId)
-                        .and(Stager.Fields.participationStatus).is(ParticipationStatus.CONFIRMED)),
-                Aggregation.lookup("users", Stager.Fields.userId, "_id", "user"),
-                Aggregation.unwind("user"),
-                Aggregation.match(Criteria.where("user.imageTimestamp").ne(null)),
+                Aggregation.match(Criteria.where("imageTimestamp").ne(null)),
+                Aggregation.lookup("stagers", "_id", "userId", "stagers"),
+                Aggregation.unwind("stagers"),
+                Aggregation.match(Criteria.where("stagers.eventId").is(eventId)
+                        .and("stagers.participationStatus").is(ParticipationStatus.CONFIRMED)),
                 Aggregation.limit(2),
-                Aggregation.project("user._id")
+                Aggregation.project("_id")
         );
 
-        // TODO : check if this still works
         AggregationResults<Document> results = mongoTemplate.aggregate(aggregation, "users", Document.class);
         return results.getMappedResults().stream()
                 .map(doc -> doc.getString("_id"))
