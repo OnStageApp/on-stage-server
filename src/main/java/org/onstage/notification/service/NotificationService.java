@@ -13,6 +13,8 @@ import org.onstage.notification.model.NotificationParams;
 import org.onstage.notification.model.PaginatedNotifications;
 import org.onstage.notification.repository.NotificationRepository;
 import org.onstage.socketio.service.SocketIOService;
+import org.onstage.usersettings.model.UserSettings;
+import org.onstage.usersettings.service.UserSettingsService;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -30,6 +32,7 @@ public class NotificationService {
     private final SocketIOService socketIOService;
     private final DeviceService deviceService;
     private final PushNotificationService pushNotificationService;
+    private final UserSettingsService userSettingsService;
 
     public PaginatedNotifications getNotificationsForUser(String userId, NotificationFilter filter, int offset, int limit) {
         return notificationRepository.findNotifications(filter, userId, offset, limit);
@@ -49,8 +52,10 @@ public class NotificationService {
 
         deviceService.getAllLoggedDevices(userToNotify).forEach(device -> {
             socketIOService.sendSocketEvent(notification.getUserToNotify(), device.getDeviceId(), NOTIFICATION, null);
-            pushNotificationService.sendPushNotification(title, description, device.getPushToken());
-
+            UserSettings userSettings = userSettingsService.getUserSettings(notification.getUserToNotify());
+            if (userSettings != null && userSettings.isNotificationsEnabled()) {
+                pushNotificationService.sendPushNotification(title, description, device.getPushToken());
+            }
         });
         log.info("New notification {} has been sent to user {}", type, notification.getUserToNotify());
     }

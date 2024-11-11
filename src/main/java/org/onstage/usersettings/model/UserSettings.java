@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 @Builder(toBuilder = true)
-@Document("user-settings")
+@Document("userSettings")
 @FieldNameConstants
 public record UserSettings(
         @MongoId
