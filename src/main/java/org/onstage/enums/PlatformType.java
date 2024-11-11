@@ -8,7 +8,8 @@ import java.util.stream.Collectors;
 
 public enum PlatformType {
     ANDROID(0, "android"),
-    IOS(1, "ios");
+    IOS(1, "ios"),
+    IPAD(2, "ipad");
 
     private final static Map<Integer, PlatformType> map = Arrays.stream(PlatformType.values())
             .collect(Collectors.toMap(obj -> obj.index, obj -> obj));
