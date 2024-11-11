@@ -86,7 +86,8 @@ public class TeamMemberController {
     @PostMapping("/invite")
     public ResponseEntity<TeamMemberDTO> inviteMember(@RequestBody InviteMemberDTO request) {
         String teamId = userSecurityContext.getCurrentTeamId();
-        TeamMember invitedTeamMember = teamMemberService.inviteMember(request.email(), request.newMemberRole(), teamId);
+        String invitedBy = userSecurityContext.getUserId();
+        TeamMember invitedTeamMember = teamMemberService.inviteMember(request.email(), request.newMemberRole(), request.teamMemberInvited(), teamId, invitedBy);
         return ResponseEntity.ok(teamMemberMapper.toDto(invitedTeamMember));
     }
 }
