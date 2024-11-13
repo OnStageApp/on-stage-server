@@ -221,6 +221,9 @@ public class SubscriptionService {
 
     public void saveAndNotifyAllLogged(Subscription newSubscription, String userId) {
         subscriptionRepository.save(newSubscription);
-        deviceService.getAllLoggedDevices(userId).forEach(device -> socketIOService.sendSocketEvent(userId, device.getDeviceId(), SocketEventType.SUBSCRIPTION, null));
+        deviceService.getAllLoggedDevices(userId).forEach(device -> {
+            log.info("Sending subscription event to device {}", device);
+            socketIOService.sendSocketEvent(userId, device.getDeviceId(), SocketEventType.SUBSCRIPTION, null);
+        });
     }
 }
