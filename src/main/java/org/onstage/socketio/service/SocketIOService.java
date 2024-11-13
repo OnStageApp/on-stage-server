@@ -57,6 +57,11 @@ public class SocketIOService {
         log.info("Attempting to send to user {} with device: {}. Active sessions: {}", userId, deviceId, deviceSession.size());
 
         SocketIOClient client = deviceSession.get(deviceId);
+        if (client != null) {
+            log.info("Client found: {} : {}", client.isChannelOpen(), client.toString());
+        } else {
+            log.info("Client not found");
+        }
         if (client != null && client.isChannelOpen()) {
             try {
                 client.sendEvent(eventName.name(), data);
