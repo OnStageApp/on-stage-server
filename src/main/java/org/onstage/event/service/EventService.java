@@ -87,8 +87,8 @@ public class EventService {
         return eventRepository.getPaginatedEvents(teamMember, teamId, eventSearchType, searchValue, offset, limit);
     }
 
-    public Event getUpcomingPublishedEvent(String teamId) {
-        return eventRepository.getUpcomingPublishedEvent(teamId);
+    public Event getUpcomingPublishedEvent(String teamId, String userId) {
+        return eventRepository.getUpcomingPublishedEvent(teamId, userId);
     }
 
     public Event duplicate(Event event, LocalDateTime dateTime, String name, String createdBy) {

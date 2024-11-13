@@ -32,18 +32,28 @@ public class EventRepository {
         return repo.findById(id);
     }
 
-    public Event getUpcomingPublishedEvent(String teamId) {
-        Criteria criteria = Criteria.where(Event.Fields.dateTime).gte(LocalDateTime.now())
-                .and(Event.Fields.eventStatus).is(EventStatus.PUBLISHED)
-                .and(Event.Fields.teamId).is(teamId);
+    public Event getUpcomingPublishedEvent(String teamId, String userId) {
+        List<AggregationOperation> operations = new ArrayList<>();
 
-        Query query = new Query(criteria);
-        query.with(Sort.by(Sort.Direction.ASC, Event.Fields.dateTime));
-        query.limit(1);
+        operations.add(Aggregation.match(
+                Criteria.where(Event.Fields.dateTime).gte(LocalDateTime.now())
+                        .and(Event.Fields.eventStatus).is(EventStatus.PUBLISHED)
+                        .and(Event.Fields.teamId).is(teamId)
+        ));
 
-        return mongoTemplate.findOne(query, Event.class);
+        operations.add(Aggregation.lookup("stagers", "_id", "eventId", "stagers"));
+        operations.add(Aggregation.match(
+                Criteria.where("stagers.userId").is(userId)
+                        .and("stagers.participationStatus").is(ParticipationStatus.CONFIRMED)
+        ));
+        operations.add(Aggregation.sort(Sort.Direction.ASC, Event.Fields.dateTime));
+        operations.add(Aggregation.limit(1));
+
+        Aggregation aggregation = Aggregation.newAggregation(operations);
+        AggregationResults<Event> results = mongoTemplate.aggregate(aggregation, "events", Event.class);
+
+        return results.getUniqueMappedResult();
     }
-
     public PaginatedEventResponse getPaginatedEvents(TeamMember teamMember, String teamId, EventSearchType eventSearchType, String searchValue, int offset, int limit) {
 
         Aggregation aggregation = createEventAggregation(teamMember, teamId, eventSearchType, searchValue, offset, limit);
