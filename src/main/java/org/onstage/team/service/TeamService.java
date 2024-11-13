@@ -53,14 +53,11 @@ public class TeamService {
 
     public Team update(Team existingTeam, TeamDTO request) {
         log.info("Updating team {} with request {}", existingTeam.id(), request);
-        Team updatedTeam = updateTeamFromDTO(existingTeam, request);
-        return teamRepository.save(updatedTeam);
-    }
-
-    private Team updateTeamFromDTO(Team existingTeam, TeamDTO request) {
-        return Team.builder()
-                .name(request.name() == null ? existingTeam.name() : request.name())
-                .build();
+        existingTeam = Team.builder()
+                .id(existingTeam.id())
+                .leaderId(existingTeam.leaderId())
+                .name(request.name() != null? request.name() : existingTeam.name()).build();
+        return teamRepository.save(existingTeam);
     }
 
     public List<Team> getAll(String userId) {
