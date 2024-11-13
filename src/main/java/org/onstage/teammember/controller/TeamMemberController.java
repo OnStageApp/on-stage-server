@@ -68,7 +68,8 @@ public class TeamMemberController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> remove(@PathVariable final String id) {
-        return ResponseEntity.ok(teamMemberService.delete(id));
+        TeamMember teamMember = teamMemberService.getById(id);
+        return ResponseEntity.ok(teamMemberService.removeTeamMember(teamMember));
     }
 
     @PutMapping("/{id}")
@@ -88,6 +89,6 @@ public class TeamMemberController {
         String teamId = userSecurityContext.getCurrentTeamId();
         String invitedBy = userSecurityContext.getUserId();
         TeamMember invitedTeamMember = teamMemberService.inviteMember(request.email(), request.newMemberRole(), request.teamMemberInvited(), teamId, invitedBy);
-        return ResponseEntity.ok(teamMemberMapper.toDto(invitedTeamMember));
+        return ResponseEntity.ok(invitedTeamMember == null ? null : teamMemberMapper.toDto(invitedTeamMember));
     }
 }
