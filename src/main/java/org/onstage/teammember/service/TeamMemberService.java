@@ -181,8 +181,10 @@ public class TeamMemberService {
         }
         int membersCount = countByTeamId(teamId);
         if (membersCount > plan.getMaxMembers()) {
+            log.info("Team {} has more members than allowed by plan {}. Max {} are allowed", teamId, planId, membersCount - plan.getMaxMembers());
             updateMembersState(teamId, membersCount - plan.getMaxMembers(), true);
         } else if (membersCount < plan.getMaxMembers()) {
+            log.info("Team {} has less members than allowed by plan {}", teamId, planId);
             updateMembersState(teamId, plan.getMaxMembers() - membersCount, false);
         }
     }
