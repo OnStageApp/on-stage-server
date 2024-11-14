@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 public enum MemberRole {
     LEADER(0, "leader"),
     EDITOR(1, "editor"),
-    NONE(2, "bone");
+    NONE(2, "none");
 
     private final static Map<Integer, MemberRole> map = Arrays.stream(MemberRole.values())
             .collect(Collectors.toMap(obj -> obj.index, obj -> obj));

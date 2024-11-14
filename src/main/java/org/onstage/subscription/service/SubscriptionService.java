@@ -86,18 +86,17 @@ public class SubscriptionService {
             return;
         }
 
-        Plan existingPlan = planRepository.getById(existingSubscription.getPlanId()).orElseThrow(() -> BadRequestException.resourceNotFound("plan"));
+        Plan existingPlan = planRepository.getById(existingSubscription.getPlanId()).orElseThrow(() -> BadRequestException.resourceNotFound("Plan"));
         Plan newPlan = planRepository.getByRevenueCatProductId(event.getProductId());
 
         if (!Objects.equals(existingPlan.getRevenueCatProductId(), event.getProductId())) {
             existingSubscription.setPlanId(newPlan.getId());
             existingSubscription.setPurchaseDate(new Date(event.getPurchasedAtMs()));
-            teamMemberService.updateTeamMembersIfNeeded(newPlan.getId(), team.id());
         }
 
         existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
 
-        saveAndNotifyAllLogged(existingSubscription, user.getId(), team.id());
+        subscriptionRepository.save(existingSubscription);
         log.info("Renewed subscription for team {} with plan {}. New expiry date: {}", team.id(), newPlan.getName(), existingSubscription.getExpiryDate());
     }
 
@@ -122,18 +121,11 @@ public class SubscriptionService {
             return;
         }
 
-        if (!isDowngrade(existingSubscription.getPlanId(), newPlan)) {
-            existingSubscription = Subscription.builder()
-                    .userId(user.getId())
-                    .teamId(team.id())
-                    .planId(newPlan.getId())
-                    .purchaseDate(new Date(event.getPurchasedAtMs()))
-                    .expiryDate(new Date(event.getExpirationAtMs()))
-                    .status(SubscriptionStatus.ACTIVE)
-                    .build();
-            saveAndNotifyAllLogged(existingSubscription, user.getId(), team.id());
-        }
+        existingSubscription.setPlanId(newPlan.getId());
+        existingSubscription.setPurchaseDate(new Date(event.getPurchasedAtMs()));
+        existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
 
+        subscriptionRepository.save(existingSubscription);
         log.info("Updated subscription for team {} to new plan {}", team.id(), newPlan.getName());
     }
 
