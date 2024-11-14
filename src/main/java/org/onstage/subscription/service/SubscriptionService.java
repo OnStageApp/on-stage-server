@@ -74,28 +74,35 @@ public class SubscriptionService {
     public void handleSubscriptionRenewal(RevenueCatWebhookEvent event, User user) {
         Team team = validateTeamLeader(user);
 
-        Subscription existingSubscription = findActiveSubscriptionByTeam(team.id());
-        if (existingSubscription == null) {
-            log.warn("No active subscription found for team {}, cannot process renewal", team.id());
-            return;
-        }
-
         String newProductId = event.getProductId();
         if (newProductId == null || newProductId.isEmpty()) {
             log.warn("New product ID not found in event");
             return;
         }
 
-        Plan existingPlan = planRepository.getById(existingSubscription.getPlanId()).orElseThrow(() -> BadRequestException.resourceNotFound("plan"));
-        Plan newPlan = planRepository.getByRevenueCatProductId(event.getProductId());
+        Plan newPlan = planRepository.getByRevenueCatProductId(newProductId);
+        Subscription existingSubscription = findActiveSubscriptionByTeam(team.id());
 
-        if (!Objects.equals(existingPlan.getRevenueCatProductId(), event.getProductId())) {
-            existingSubscription.setPlanId(newPlan.getId());
-            existingSubscription.setPurchaseDate(new Date(event.getPurchasedAtMs()));
-            teamMemberService.updateTeamMembersIfNeeded(newPlan.getId(), team.id());
+        if (existingSubscription == null) {
+            existingSubscription = Subscription.builder()
+                    .userId(user.getId())
+                    .teamId(team.id())
+                    .planId(newPlan.getId())
+                    .purchaseDate(new Date(event.getPurchasedAtMs()))
+                    .expiryDate(new Date(event.getExpirationAtMs()))
+                    .status(SubscriptionStatus.ACTIVE)
+                    .build();
+        } else {
+            Plan existingPlan = planRepository.getById(existingSubscription.getPlanId()).orElseThrow(() -> BadRequestException.resourceNotFound("plan"));
+
+            if (!Objects.equals(existingPlan.getRevenueCatProductId(), event.getProductId())) {
+                existingSubscription.setPlanId(newPlan.getId());
+                existingSubscription.setPurchaseDate(new Date(event.getPurchasedAtMs()));
+                teamMemberService.updateTeamMembersIfNeeded(newPlan.getId(), team.id());
+            }
+
+            existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
         }
-
-        existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
 
         saveAndNotifyAllLogged(existingSubscription, user.getId(), team.id());
         log.info("Renewed subscription for team {} with plan {}. New expiry date: {}", team.id(), newPlan.getName(), existingSubscription.getExpiryDate());
@@ -122,15 +129,6 @@ public class SubscriptionService {
             return;
         }
 
-        if (!newPlan.getRevenueCatProductId().equals(existingSubscription.getPlanId())) {
-            teamMemberService.updateTeamMembersIfNeeded(newPlan.getId(), team.id());
-        }
-
-        existingSubscription.setPlanId(newPlan.getId());
-        existingSubscription.setPurchaseDate(new Date(event.getPurchasedAtMs()));
-        existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
-
-        saveAndNotifyAllLogged(existingSubscription, user.getId(), team.id());
         log.info("Updated subscription for team {} to new plan {}", team.id(), newPlan.getName());
     }
 
