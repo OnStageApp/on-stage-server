@@ -96,7 +96,8 @@ public class SubscriptionService {
 
         existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
 
-        subscriptionRepository.save(existingSubscription);
+        teamMemberService.updateTeamMembersIfNeeded(newPlan.getId(), team.id());
+        saveAndNotifyAllLogged(existingSubscription, user.getId(), team.id());
         log.info("Renewed subscription for team {} with plan {}. New expiry date: {}", team.id(), newPlan.getName(), existingSubscription.getExpiryDate());
     }
 
@@ -125,7 +126,8 @@ public class SubscriptionService {
         existingSubscription.setPurchaseDate(new Date(event.getPurchasedAtMs()));
         existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
 
-        subscriptionRepository.save(existingSubscription);
+        teamMemberService.updateTeamMembersIfNeeded(newPlan.getId(), team.id());
+        saveAndNotifyAllLogged(existingSubscription, user.getId(), team.id());
         log.info("Updated subscription for team {} to new plan {}", team.id(), newPlan.getName());
     }
 
