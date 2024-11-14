@@ -68,15 +68,10 @@ public class UserService {
                 teamMemberRepository.save(teamMember.toBuilder().name(request.name()).build());
             }
         }
-        User updatedUser = updateUserFromDTO(existingUser, request);
-        return userRepository.save(updatedUser);
-    }
-
-    private User updateUserFromDTO(User existingUser, UpdateUserRequest request) {
-        return existingUser.toBuilder()
-                .name(request.name() == null ? existingUser.getName() : request.name())
-                .role(request.role() == null ? existingUser.getRole() : request.role())
-                .build();
+        existingUser.setName(request.name() == null ? existingUser.getName() : request.name());
+        existingUser.setRole(request.role() == null ? existingUser.getRole() : request.role());
+        existingUser.setPosition(request.position() == null ? existingUser.getPosition() : request.position());
+        return userRepository.save(existingUser);
     }
 
 

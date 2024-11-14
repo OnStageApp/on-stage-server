@@ -19,7 +19,6 @@ public class TeamMemberMapper {
                 .teamId(entity.getTeamId())
                 .role(entity.getRole())
                 .inviteStatus(entity.getInviteStatus())
-                .position(entity.getPosition())
                 .build();
     }
 
@@ -31,7 +30,6 @@ public class TeamMemberMapper {
                 .teamId(request.teamId())
                 .role(request.role())
                 .inviteStatus(request.inviteStatus())
-                .position(request.position())
                 .build();
     }
 
@@ -49,7 +47,6 @@ public class TeamMemberMapper {
                 .teamId(response.getTeamId())
                 .role(response.getRole())
                 .inviteStatus(response.getInviteStatus())
-                .position(response.getPosition())
                 .build();
     }
 

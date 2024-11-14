@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public enum MemberPosition {
+public enum PositionEnum {
     leadVoice(0, "leadVoice"),
     altoVoice(1, "altoVoice"),
     tenorVoice(2, "tenorVoice"),
@@ -19,13 +19,13 @@ public enum MemberPosition {
     violin(9, "violin"),
     other(10, "other");
 
-    private final static Map<Integer, MemberPosition> map = Arrays.stream(MemberPosition.values())
+    private final static Map<Integer, PositionEnum> map = Arrays.stream(PositionEnum.values())
             .collect(Collectors.toMap(obj -> obj.index, obj -> obj));
 
     private final Integer index;
     private final String name;
 
-    MemberPosition(Integer index, String name) {
+    PositionEnum(Integer index, String name) {
         this.index = index;
         this.name = name;
     }
@@ -35,7 +35,7 @@ public enum MemberPosition {
         return name;
     }
 
-    public static MemberPosition valueOf(int id) {
+    public static PositionEnum valueOf(int id) {
         return map.get(id);
     }
 

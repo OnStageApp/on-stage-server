@@ -6,7 +6,6 @@ import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 import org.onstage.common.base.BaseEntity;
 import org.onstage.enums.MemberInviteStatus;
-import org.onstage.enums.MemberPosition;
 import org.onstage.enums.MemberRole;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
@@ -17,12 +16,11 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @Getter
 @Setter
 public class TeamMember extends BaseEntity {
-        @MongoId
-        private String id;
-        private String name;
-        private String userId;
-        private String teamId;
-        private MemberRole role;
-        private MemberInviteStatus inviteStatus;
-        private MemberPosition position;
+    @MongoId
+    private String id;
+    private String name;
+    private String userId;
+    private String teamId;
+    private MemberRole role;
+    private MemberInviteStatus inviteStatus;
 }

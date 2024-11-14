@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.With;
 import lombok.experimental.FieldNameConstants;
 import org.onstage.common.base.BaseEntity;
+import org.onstage.enums.PositionEnum;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -25,4 +26,5 @@ public class User extends BaseEntity {
     private UserRole role;
     private LocalDateTime imageTimestamp;
     private String currentTeamId;
+    private PositionEnum position;
 }
