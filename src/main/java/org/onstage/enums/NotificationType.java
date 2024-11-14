@@ -11,5 +11,6 @@ public enum NotificationType {
     LEAD_VOICE_ASSIGNED,
     EVENT_DELETED,
     REMINDER,
-    NEW_REHEARSAL
+    NEW_REHEARSAL,
+    ROLE_CHANGED
 }

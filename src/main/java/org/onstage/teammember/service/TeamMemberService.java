@@ -91,16 +91,18 @@ public class TeamMemberService {
 
     public TeamMember update(String id, TeamMember request) {
         TeamMember existingTeamMember = getById(id);
+        MemberRole currentRole = existingTeamMember.getRole();
         log.info("Updating team member {} with request {}", existingTeamMember.getId(), request);
 
-        existingTeamMember = teamMemberRepository.save(existingTeamMember.toBuilder()
-                .role(request.getRole() != null ? request.getRole() : existingTeamMember.getRole())
-                .inviteStatus(request.getInviteStatus() != null ? request.getInviteStatus() : existingTeamMember.getInviteStatus())
-                .position(request.getPosition() != null ? request.getPosition() : existingTeamMember.getPosition())
-                .build());
+        existingTeamMember.setRole(request.getRole() != null ? request.getRole() : existingTeamMember.getRole());
+        existingTeamMember.setInviteStatus(request.getInviteStatus() != null ? request.getInviteStatus() : existingTeamMember.getInviteStatus());
+        teamMemberRepository.save(existingTeamMember);
 
         if (request.getInviteStatus() != PENDING) {
             notifyLeader(existingTeamMember);
+        }
+        if (currentRole != existingTeamMember.getRole()) {
+            notifyTeamMemberWithNewRole(existingTeamMember);
         }
         return existingTeamMember;
     }
@@ -139,9 +141,14 @@ public class TeamMemberService {
                                 .inviteStatus(PENDING)
                                 .build()
                 );
+            } else if (teamMember.getInviteStatus() == CONFIRMED) {
+                throw BadRequestException.teamMemberAlreadyExists();
             }
         } else if (Strings.isNotEmpty(teamMemberInvited)) {
             teamMember = getById(teamMemberInvited);
+            if (teamMember.getInviteStatus() == CONFIRMED) {
+                throw BadRequestException.teamMemberAlreadyExists();
+            }
             invitedUser = userService.getById(teamMember.getUserId());
         } else {
             throw BadRequestException.invalidRequest();
@@ -191,13 +198,13 @@ public class TeamMemberService {
 
 
     private void notifyLeader(TeamMember teamMember) {
-        if (teamMember.getInviteStatus() == CONFIRMED) {
+        if (teamMember.getInviteStatus() == CONFIRMED && teamMember.getRole() != MemberRole.LEADER) {
             Team team = teamRepository.findById(teamMember.getTeamId()).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
             String description = String.format("%s accepted your invitation to join %s", teamMember.getName(), team.name());
             notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_ACCEPTED, team.leaderId(), description, null, NotificationParams.builder().teamMemberId(teamMember.getId()).userId(teamMember.getUserId()).build());
         }
 
-        if (teamMember.getInviteStatus() == DECLINED) {
+        if (teamMember.getInviteStatus() == DECLINED && teamMember.getRole() != MemberRole.LEADER) {
             Team team = teamRepository.findById(teamMember.getTeamId()).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
             delete(teamMember.getId());
             String description = String.format("%s declined your invitation to join %s", teamMember.getName(), team.name());
@@ -216,6 +223,17 @@ public class TeamMemberService {
     private void notifyRemovedUser(TeamMember teamMember) {
         Team team = teamRepository.findById(teamMember.getTeamId()).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
         String description = String.format("You have been removed from %s team", team.name());
+        notificationService.sendNotificationToUser(NotificationType.TEAM_MEMBER_REMOVED, teamMember.getUserId(), description, null, NotificationParams.builder().build());
+    }
+
+    private void notifyTeamMemberWithNewRole(TeamMember teamMember) {
+        Team team = teamRepository.findById(teamMember.getTeamId()).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
+        String description;
+        if (teamMember.getRole() == MemberRole.EDITOR) {
+            description = String.format("You have been upgraded with Editor rights in %s team", team.name());
+        } else {
+            description = String.format("You have been downgraded from editor position in %s team", team.name());
+        }
         notificationService.sendNotificationToUser(NotificationType.TEAM_MEMBER_REMOVED, teamMember.getUserId(), description, null, NotificationParams.builder().build());
     }
 }

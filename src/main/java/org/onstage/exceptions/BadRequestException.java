@@ -56,6 +56,10 @@ public class BadRequestException extends BaseException {
     }
 
     public static BadRequestException plansNotMatching() {
-        return new BadRequestException(11, "PLAN_NOT_MATCHING", "Current plan does not match the requested action");
+        return new BadRequestException(12, "PLAN_NOT_MATCHING", "Current plan does not match the requested action");
+    }
+
+    public static BadRequestException teamMemberAlreadyExists() {
+        return new BadRequestException(13, "TEAM_MEMBER_ALREADY_EXISTS", "Team member already exists");
     }
 }
