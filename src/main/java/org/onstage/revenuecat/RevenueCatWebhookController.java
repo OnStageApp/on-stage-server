@@ -72,6 +72,9 @@ public class RevenueCatWebhookController {
                 log.info("Handling uncancellation event with request: {}", event);
                 subscriptionService.handleUncancellation(event, user);
                 break;
+            case TRANSFER:
+                log.info("Handling transfer event with request: {}", event);
+                subscriptionService.handleTransfer(event, user);
             default:
                 log.warn("Unknown event type: {}", event.getType());
         }

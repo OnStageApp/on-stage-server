@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.onstage.common.base.BaseEntity;
 import org.onstage.enums.NotificationStatus;
 import org.onstage.enums.NotificationType;
-import org.onstage.notification.client.NotificationFilter;
 import org.onstage.notification.model.Notification;
 import org.onstage.notification.model.NotificationParams;
 import org.onstage.notification.model.PaginatedNotifications;
@@ -25,9 +24,8 @@ public class NotificationRepository {
     private final MongoTemplate mongoTemplate;
     private final NotificationRepo repo;
 
-    public PaginatedNotifications findNotifications(NotificationFilter filter, String userId, int offset, int limit) {
+    public PaginatedNotifications findNotifications(String userId, int offset, int limit) {
         Criteria criteria = new Criteria();
-        ofNullable(filter).flatMap(currentFilter -> ofNullable(filter.getStatus())).ifPresent(status -> criteria.and(Notification.Fields.status).is(status));
         ofNullable(userId).ifPresent(currentUserId -> criteria.and(Notification.Fields.userToNotify).is(currentUserId));
 
         Query query = new Query()

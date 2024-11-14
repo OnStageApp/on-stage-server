@@ -16,6 +16,7 @@ import org.onstage.team.model.Team;
 import org.onstage.team.repository.TeamRepository;
 import org.onstage.teammember.service.TeamMemberService;
 import org.onstage.user.model.User;
+import org.onstage.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -31,6 +32,7 @@ public class SubscriptionService {
     private final SocketIOService socketIOService;
     private final DeviceService deviceService;
     private final TeamMemberService teamMemberService;
+    private final UserRepository userRepository;
 
 
     public void handleInitialPurchase(RevenueCatWebhookEvent event, User user) {
@@ -120,7 +122,7 @@ public class SubscriptionService {
             return;
         }
 
-        if(!newPlan.getRevenueCatProductId().equals(existingSubscription.getPlanId())){
+        if (!newPlan.getRevenueCatProductId().equals(existingSubscription.getPlanId())) {
             teamMemberService.updateTeamMembersIfNeeded(newPlan.getId(), team.id());
         }
 
@@ -178,6 +180,50 @@ public class SubscriptionService {
         teamMemberService.updateTeamMembersIfNeeded(freePlan.getId(), team.id());
         saveAndNotifyAllLogged(freeSubscription, user.getId(), team.id());
         log.info("Assigned Starter plan to team {}", team.id());
+    }
+
+    public void handleTransfer(RevenueCatWebhookEvent event, User user) {
+        Team team = validateTeamLeader(user);
+
+        String[] transferredFrom = event.getTransferredFrom();
+        if (transferredFrom == null || transferredFrom.length == 0) {
+            log.error("Original user not found in transfer event");
+            throw BadRequestException.transferFailed();
+        }
+
+        User originalUser = userRepository.findByIdOrTeamId(transferredFrom[0]);
+        if (originalUser != null) {
+            Subscription originalSubscription = findActiveSubscriptionByTeam(teamRepository.findByLeader(originalUser).id());
+            if (originalSubscription != null) {
+                log.error("Cannot transfer - Original user still has active subscription");
+                throw BadRequestException.transferFailed();
+            }
+        }
+
+        String productId = event.getProductId();
+        if (productId == null || productId.isEmpty()) {
+            log.warn("Product ID not found in transfer event");
+            return;
+        }
+
+        Plan plan = planRepository.getByRevenueCatProductId(productId);
+        if (plan == null) {
+            log.warn("No plan found for product ID {} during transfer", productId);
+            return;
+        }
+
+        Subscription newSubscription = Subscription.builder()
+                .userId(user.getId())
+                .teamId(team.id())
+                .planId(plan.getId())
+                .purchaseDate(new Date(event.getPurchasedAtMs()))
+                .expiryDate(new Date(event.getExpirationAtMs()))
+                .status(SubscriptionStatus.ACTIVE)
+                .build();
+
+        teamMemberService.updateTeamMembersIfNeeded(plan.getId(), team.id());
+        saveAndNotifyAllLogged(newSubscription, user.getId(), team.id());
+        log.info("Created new subscription for team {} with transferred plan {}", team.id(), plan.getName());
     }
 
     public void handleUncancellation(RevenueCatWebhookEvent event, User user) {

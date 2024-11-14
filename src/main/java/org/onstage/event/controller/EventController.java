@@ -53,13 +53,13 @@ public class EventController {
     @PostMapping
     public ResponseEntity<EventDTO> create(@RequestBody CreateOrUpdateEventRequest event) {
         String teamId = userSecurityContext.getCurrentTeamId();
-        String createdBy = userSecurityContext.getUserId();
+        String createdByUser = userSecurityContext.getUserId();
         String createdByTeamMember = userSecurityContext.getCurrentTeamMemberId();
         List<String> membersToAdd = event.teamMemberIds();
         membersToAdd.add(createdByTeamMember);
 //TODO: Uncomment this
 //        planService.checkPermission(PermissionType.ADD_EVENTS, teamId);
-        return ResponseEntity.ok(eventMapper.toDto(eventService.save(eventMapper.fromCreateRequest(event), membersToAdd, event.rehearsals(), teamId, createdBy)));
+        return ResponseEntity.ok(eventMapper.toDto(eventService.save(eventMapper.fromCreateRequest(event), membersToAdd, event.rehearsals(), teamId, createdByUser)));
     }
 
     @DeleteMapping("/{id}")

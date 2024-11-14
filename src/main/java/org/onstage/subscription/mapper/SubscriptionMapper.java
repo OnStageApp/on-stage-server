@@ -7,15 +7,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class SubscriptionMapper {
 
-    public SubscriptionDTO toDTO(Subscription activeByTeamId) {
+    public SubscriptionDTO toDTO(Subscription subscription) {
         return SubscriptionDTO.builder()
-                .id(activeByTeamId.getId())
-                .teamId(activeByTeamId.getTeamId())
-                .userId(activeByTeamId.getUserId())
-                .planId(activeByTeamId.getPlanId())
-                .purchaseDate(activeByTeamId.getPurchaseDate())
-                .expiryDate(activeByTeamId.getExpiryDate())
-                .status(activeByTeamId.getStatus())
+                .id(subscription.getId())
+                .teamId(subscription.getTeamId())
+                .userId(subscription.getUserId())
+                .planId(subscription.getPlanId())
+                .purchaseDate(subscription.getPurchaseDate())
+                .expiryDate(subscription.getExpiryDate())
+                .status(subscription.getStatus())
                 .build();
     }
 }
