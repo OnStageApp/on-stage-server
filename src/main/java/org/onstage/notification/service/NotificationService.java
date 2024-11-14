@@ -7,7 +7,6 @@ import org.onstage.enums.NotificationActionStatus;
 import org.onstage.enums.NotificationStatus;
 import org.onstage.enums.NotificationType;
 import org.onstage.exceptions.BadRequestException;
-import org.onstage.notification.client.NotificationFilter;
 import org.onstage.notification.model.Notification;
 import org.onstage.notification.model.NotificationParams;
 import org.onstage.notification.model.PaginatedNotifications;
@@ -34,8 +33,8 @@ public class NotificationService {
     private final PushNotificationService pushNotificationService;
     private final UserSettingsService userSettingsService;
 
-    public PaginatedNotifications getNotificationsForUser(String userId, NotificationFilter filter, int offset, int limit) {
-        return notificationRepository.findNotifications(filter, userId, offset, limit);
+    public PaginatedNotifications getNotificationsForUser(String userId, int offset, int limit) {
+        return notificationRepository.findNotifications(userId, offset, limit);
     }
 
     public void sendNotificationToUser(NotificationType type, String userToNotify, String description, String title, NotificationParams params) {

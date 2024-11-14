@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.onstage.common.beans.UserSecurityContext;
 import org.onstage.notification.client.GetNotificationsResponse;
 import org.onstage.notification.client.NotificationDTO;
-import org.onstage.notification.client.NotificationFilter;
 import org.onstage.notification.model.PaginatedNotifications;
 import org.onstage.notification.model.mapper.NotificationMapper;
 import org.onstage.notification.service.NotificationService;
@@ -22,12 +21,11 @@ public class NotificationController {
 
     @GetMapping
     public ResponseEntity<GetNotificationsResponse> getAllNotifications(
-            @RequestBody NotificationFilter filter,
             @RequestParam(defaultValue = "0") int offset,
             @RequestParam(defaultValue = "20") int limit) {
         String userId = userSecurityContext.getUserId();
 
-        PaginatedNotifications paginatedResponse = notificationService.getNotificationsForUser(userId, filter, offset, limit);
+        PaginatedNotifications paginatedResponse = notificationService.getNotificationsForUser(userId, offset, limit);
 
         return ResponseEntity.ok(notificationMapper.toGetAllNotificationsResponse(paginatedResponse));
     }

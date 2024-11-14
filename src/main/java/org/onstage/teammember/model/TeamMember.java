@@ -18,11 +18,11 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @Setter
 public class TeamMember extends BaseEntity {
         @MongoId
-        String id;
-        String name;
-        String userId;
-        String teamId;
-        MemberRole role;
-        MemberInviteStatus inviteStatus;
-        MemberPosition position;
+        private String id;
+        private String name;
+        private String userId;
+        private String teamId;
+        private MemberRole role;
+        private MemberInviteStatus inviteStatus;
+        private MemberPosition position;
 }

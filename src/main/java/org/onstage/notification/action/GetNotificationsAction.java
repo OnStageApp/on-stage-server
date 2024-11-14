@@ -2,7 +2,6 @@ package org.onstage.notification.action;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.common.action.Action;
-import org.onstage.notification.client.NotificationFilter;
 import org.onstage.notification.model.Notification;
 import org.onstage.notification.repository.NotificationRepository;
 import org.springframework.stereotype.Component;

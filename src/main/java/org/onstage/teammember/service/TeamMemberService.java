@@ -93,7 +93,6 @@ public class TeamMemberService {
         TeamMember existingTeamMember = getById(id);
         MemberRole currentRole = existingTeamMember.getRole();
         log.info("Updating team member {} with request {}", existingTeamMember.getId(), request);
-
         existingTeamMember.setRole(request.getRole() != null ? request.getRole() : existingTeamMember.getRole());
         existingTeamMember.setInviteStatus(request.getInviteStatus() != null ? request.getInviteStatus() : existingTeamMember.getInviteStatus());
         teamMemberRepository.save(existingTeamMember);
