@@ -72,7 +72,7 @@ public class EventRepository {
 
         operations.add(Aggregation.match(Criteria.where(Event.Fields.teamId).is(teamId)));
 
-        if (teamMember.role() == MemberRole.NONE) {
+        if (teamMember.getRole() == MemberRole.NONE) {
             operations.add(Aggregation.match(Criteria.where(Event.Fields.eventStatus).is(EventStatus.PUBLISHED)));
         }
 
@@ -85,7 +85,7 @@ public class EventRepository {
         }
 
         operations.add(Aggregation.lookup("stagers", "_id", "eventId", "stagers"));
-        operations.add(Aggregation.match(Criteria.where("stagers.teamMemberId").is(teamMember.id())
+        operations.add(Aggregation.match(Criteria.where("stagers.teamMemberId").is(teamMember.getId())
                 .and("stagers.participationStatus").is(ParticipationStatus.CONFIRMED)));
 
         operations.add(Aggregation.skip(offset));
@@ -98,7 +98,7 @@ public class EventRepository {
                                    EventSearchType eventSearchType, String searchValue) {
         Criteria criteria = Criteria.where(Event.Fields.teamId).is(teamId);
 
-        if (teamMember.role() == MemberRole.NONE) {
+        if (teamMember.getRole() == MemberRole.NONE) {
             criteria.and(Event.Fields.eventStatus).is(EventStatus.PUBLISHED);
         }
 

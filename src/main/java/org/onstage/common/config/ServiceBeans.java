@@ -52,7 +52,7 @@ public class ServiceBeans implements WebMvcConfigurer {
                         .orElseThrow(() -> new RuntimeException("User not found"));
                 userSecurityContext.setUserId(currentUser.getId());
                 userSecurityContext.setCurrentTeamId(currentUser.getCurrentTeamId());
-                userSecurityContext.setCurrentTeamMemberId(teamMemberRepository.getByUserAndTeam(currentUser.getId(), currentUser.getCurrentTeamId()).id());
+                userSecurityContext.setCurrentTeamMemberId(teamMemberRepository.getByUserAndTeam(currentUser.getId(), currentUser.getCurrentTeamId()).getId());
                 return true;
             }
         };

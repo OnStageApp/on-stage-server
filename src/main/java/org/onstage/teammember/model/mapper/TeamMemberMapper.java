@@ -13,13 +13,13 @@ public class TeamMemberMapper {
 
     public TeamMemberDTO toDto(TeamMember entity) {
         return TeamMemberDTO.builder()
-                .id(entity.id())
-                .name(entity.name())
-                .userId(entity.userId())
-                .teamId(entity.teamId())
-                .role(entity.role())
-                .inviteStatus(entity.inviteStatus())
-                .position(entity.position())
+                .id(entity.getId())
+                .name(entity.getName())
+                .userId(entity.getUserId())
+                .teamId(entity.getTeamId())
+                .role(entity.getRole())
+                .inviteStatus(entity.getInviteStatus())
+                .position(entity.getPosition())
                 .build();
     }
 
@@ -43,20 +43,20 @@ public class TeamMemberMapper {
 
     public GetTeamMembersResponse toGetTeamMemberResponse(TeamMember response) {
         return GetTeamMembersResponse.builder()
-                .id(response.id())
-                .name(response.name())
-                .userId(response.userId())
-                .teamId(response.teamId())
-                .role(response.role())
-                .inviteStatus(response.inviteStatus())
-                .position(response.position())
+                .id(response.getId())
+                .name(response.getName())
+                .userId(response.getUserId())
+                .teamId(response.getTeamId())
+                .role(response.getRole())
+                .inviteStatus(response.getInviteStatus())
+                .position(response.getPosition())
                 .build();
     }
 
     public GetTeamMemberPhoto toTeamMemberPhoto(TeamMember response) {
         return GetTeamMemberPhoto.builder()
-                .id(response.id())
-                .userId(response.userId())
+                .id(response.getId())
+                .userId(response.getUserId())
                 .photoUrl(null)
                 .build();
     }

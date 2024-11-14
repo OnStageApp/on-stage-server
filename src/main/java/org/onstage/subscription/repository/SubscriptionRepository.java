@@ -2,10 +2,8 @@ package org.onstage.subscription.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.subscription.model.Subscription;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import static org.onstage.enums.SubscriptionStatus.ACTIVE;

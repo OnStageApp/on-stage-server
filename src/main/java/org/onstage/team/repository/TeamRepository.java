@@ -37,7 +37,7 @@ public class TeamRepository {
                 .and(TeamMember.Fields.inviteStatus).is("CONFIRMED"));
         List<String> teamIds = mongoTemplate.find(teamMemberQuery, TeamMember.class)
                 .stream()
-                .map(TeamMember::teamId)
+                .map(TeamMember::getTeamId)
                 .toList();
 
         Query teamQuery = new Query(Criteria.where(Team.Fields.id).in(teamIds));
@@ -48,7 +48,7 @@ public class TeamRepository {
         Criteria teamMemberCriteria = Criteria.where(TeamMember.Fields.userId).is(userId)
                 .and(TeamMember.Fields.role).is(MemberRole.LEADER);
         List<TeamMember> teamMembers = mongoTemplate.find(new Query(teamMemberCriteria), TeamMember.class);
-        Criteria teamCriteria = Criteria.where(TeamMember.Fields.id).in(teamMembers.stream().map(TeamMember::teamId).toList());
+        Criteria teamCriteria = Criteria.where(TeamMember.Fields.id).in(teamMembers.stream().map(TeamMember::getTeamId).toList());
         Query query = new Query(teamCriteria);
         mongoTemplate.remove(query, Team.class);
     }
