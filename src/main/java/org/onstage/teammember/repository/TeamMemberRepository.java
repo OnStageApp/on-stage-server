@@ -1,9 +1,12 @@
 package org.onstage.teammember.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.onstage.common.base.BaseEntity;
 import org.onstage.enums.MemberInviteStatus;
+import org.onstage.enums.MemberRole;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.user.model.User;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -75,7 +78,7 @@ public class TeamMemberRepository {
         Criteria membersCriteria = Criteria.where(TeamMember.Fields.teamId).is(teamId)
                 .and(TeamMember.Fields.inviteStatus).is(MemberInviteStatus.CONFIRMED);
         List<String> userIds = mongoTemplate.find(query(membersCriteria), TeamMember.class).stream()
-                .map(TeamMember::userId)
+                .map(TeamMember::getUserId)
                 .toList();
 
         Criteria userCriteria = Criteria.where(User.Fields.id).in(userIds)
@@ -83,5 +86,12 @@ public class TeamMemberRepository {
         return mongoTemplate.find(query(userCriteria).limit(2), User.class).stream()
                 .map(User::getId)
                 .toList();
+    }
+
+    public List<TeamMember> getAllToUpdate(String teamId, int limit, MemberInviteStatus searchByStatus) {
+        Criteria criteria = Criteria.where(TeamMember.Fields.teamId).is(teamId)
+                .and(TeamMember.Fields.inviteStatus).is(searchByStatus)
+                .and(TeamMember.Fields.role).ne(MemberRole.LEADER);
+        return mongoTemplate.find(query(criteria).with(Sort.by(Sort.Direction.ASC, BaseEntity.Fields.createdAt)).limit(limit), TeamMember.class);
     }
 }

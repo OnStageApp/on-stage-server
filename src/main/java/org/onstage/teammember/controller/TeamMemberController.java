@@ -68,7 +68,8 @@ public class TeamMemberController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> remove(@PathVariable final String id) {
-        return ResponseEntity.ok(teamMemberService.delete(id));
+        TeamMember teamMember = teamMemberService.getById(id);
+        return ResponseEntity.ok(teamMemberService.removeTeamMember(teamMember));
     }
 
     @PutMapping("/{id}")

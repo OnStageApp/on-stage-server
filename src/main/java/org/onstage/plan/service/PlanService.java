@@ -3,6 +3,7 @@ package org.onstage.plan.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.enums.PermissionType;
+import org.onstage.event.repository.EventRepository;
 import org.onstage.event.service.EventService;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.plan.model.Plan;
@@ -19,7 +20,7 @@ public class PlanService {
     private final PlanRepository planRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final TeamMemberRepository teamMemberRepository;
-    private final EventService eventService;
+    private final EventRepository eventRepository;
 
     public Plan save(Plan plan) {
         return planRepository.save(plan);
@@ -45,7 +46,7 @@ public class PlanService {
             case ADD_TEAM_MEMBERS ->
                     hasPermission = teamMemberRepository.getAllByTeam(teamId).size() < currentPlan.getMaxMembers();
             case ADD_EVENTS ->
-                    hasPermission = eventService.countAllCreatedInInterval(teamId) < currentPlan.getMaxEvents();
+                    hasPermission = eventRepository.countAllCreatedInInterval(teamId) < currentPlan.getMaxEvents();
         }
 
         return hasPermission;
@@ -54,5 +55,9 @@ public class PlanService {
     public Plan getActiveOrTrialPlan(String teamId) {
         Subscription subscription = subscriptionRepository.findActiveByTeam(teamId);
         return planRepository.getById(subscription.getPlanId()).orElseThrow(() -> BadRequestException.resourceNotFound("plan"));
+    }
+
+    public Plan getById(String planId) {
+        return planRepository.getById(planId).orElseThrow(() -> BadRequestException.resourceNotFound("plan"));
     }
 }

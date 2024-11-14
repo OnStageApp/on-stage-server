@@ -35,10 +35,10 @@ public class StagerRepository {
     public Stager createStager(String eventId, TeamMember teamMember, String createdBy) {
         return stagerRepo.save(Stager.builder()
                 .eventId(eventId)
-                .teamMemberId(teamMember.id())
-                .name(teamMember.name())
-                .userId(teamMember.userId())
-                .participationStatus(Objects.equals(teamMember.userId(), createdBy) ? CONFIRMED : PENDING).build());
+                .teamMemberId(teamMember.getId())
+                .name(teamMember.getName())
+                .userId(teamMember.getUserId())
+                .participationStatus(Objects.equals(teamMember.getUserId(), createdBy) ? CONFIRMED : PENDING).build());
     }
 
     public void removeStager(String stagerId) {

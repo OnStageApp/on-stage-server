@@ -9,7 +9,8 @@ import java.util.stream.Collectors;
 public enum MemberInviteStatus {
     CONFIRMED(0, "confirmed"),
     PENDING(1, "pending"),
-    DECLINED(2, "declined");
+    DECLINED(2, "declined"),
+    INACTIVE(3, "inactive");
 
     private final static Map<Integer, MemberInviteStatus> map = Arrays.stream(MemberInviteStatus.values())
             .collect(Collectors.toMap(obj -> obj.index, obj -> obj));

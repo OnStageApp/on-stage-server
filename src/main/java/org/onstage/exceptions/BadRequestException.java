@@ -54,4 +54,8 @@ public class BadRequestException extends BaseException {
     public static BadRequestException emailNotSent() {
         return new BadRequestException(11, "EMAIL_NOT_SENT", "Email was not sent");
     }
+
+    public static BadRequestException plansNotMatching() {
+        return new BadRequestException(11, "PLAN_NOT_MATCHING", "Current plan does not match the requested action");
+    }
 }
