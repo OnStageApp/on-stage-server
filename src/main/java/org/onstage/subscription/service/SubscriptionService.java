@@ -86,18 +86,18 @@ public class SubscriptionService {
             return;
         }
 
-        Plan existingPlan = planRepository.getById(existingSubscription.getPlanId()).orElseThrow(() -> BadRequestException.resourceNotFound("Plan"));
+        Plan existingPlan = planRepository.getById(existingSubscription.getPlanId()).orElseThrow(() -> BadRequestException.resourceNotFound("plan"));
         Plan newPlan = planRepository.getByRevenueCatProductId(event.getProductId());
 
         if (!Objects.equals(existingPlan.getRevenueCatProductId(), event.getProductId())) {
             existingSubscription.setPlanId(newPlan.getId());
             existingSubscription.setPurchaseDate(new Date(event.getPurchasedAtMs()));
+            teamMemberService.updateTeamMembersIfNeeded(newPlan.getId(), team.id());
         }
 
         existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
 
         saveAndNotifyAllLogged(existingSubscription, user.getId(), team.id());
-        teamMemberService.updateTeamMembersIfNeeded(newPlan.getId(), team.id());
         log.info("Renewed subscription for team {} with plan {}. New expiry date: {}", team.id(), newPlan.getName(), existingSubscription.getExpiryDate());
     }
 
@@ -122,12 +122,15 @@ public class SubscriptionService {
             return;
         }
 
+        if (!newPlan.getRevenueCatProductId().equals(existingSubscription.getPlanId())) {
+            teamMemberService.updateTeamMembersIfNeeded(newPlan.getId(), team.id());
+        }
+
         existingSubscription.setPlanId(newPlan.getId());
         existingSubscription.setPurchaseDate(new Date(event.getPurchasedAtMs()));
         existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
 
         saveAndNotifyAllLogged(existingSubscription, user.getId(), team.id());
-        teamMemberService.updateTeamMembersIfNeeded(newPlan.getId(), team.id());
         log.info("Updated subscription for team {} to new plan {}", team.id(), newPlan.getName());
     }
 
@@ -276,10 +279,5 @@ public class SubscriptionService {
             log.info("Sending subscription event to device {}", device);
             socketIOService.sendSocketEvent(userId, device.getDeviceId(), SocketEventType.SUBSCRIPTION, null);
         });
-    }
-
-    private boolean isDowngrade(String existingPlanId, Plan newPlan) {
-        Plan existingPlan = planRepository.getById(existingPlanId).orElseThrow(() -> BadRequestException.resourceNotFound("plan"));
-        return existingPlan.getMaxMembers() > newPlan.getMaxMembers();
     }
 }
