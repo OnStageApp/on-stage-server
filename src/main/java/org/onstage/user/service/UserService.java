@@ -7,7 +7,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.onstage.amazon.AmazonS3Service;
+import org.onstage.device.service.DeviceService;
 import org.onstage.exceptions.BadRequestException;
+import org.onstage.socketio.SocketEventType;
+import org.onstage.socketio.service.SocketIOService;
 import org.onstage.stager.repository.StagerRepository;
 import org.onstage.team.repository.TeamRepository;
 import org.onstage.teammember.model.TeamMember;
@@ -32,6 +35,8 @@ public class UserService {
     private final StagerRepository stagerRepository;
     private final TeamRepository teamRepository;
     private final FirebaseAuth firebaseAuth;
+    private final DeviceService deviceService;
+    private final SocketIOService socketIOService;
 
 
     public List<User> getAll() {
@@ -78,7 +83,7 @@ public class UserService {
     public void setCurrentTeam(String teamId, String userId) {
         User user = getById(userId);
         userRepository.save(user.toBuilder().currentTeamId(teamId).build());
-        // send event to update user's team
+        notifyTeamChanged(userId);
     }
 
     public String getPresignedUrl(String userId, boolean isThumbnail) {
@@ -120,5 +125,12 @@ public class UserService {
             log.error("Error deleting user", e);
             throw BadRequestException.invalidRequest();
         }
+    }
+
+    private void notifyTeamChanged(String userId) {
+        deviceService.getAllLoggedDevices(userId).forEach(device -> {
+            log.info("Sending team changed event to device {}", device);
+            socketIOService.sendSocketEvent(userId, device.getDeviceId(), SocketEventType.TEAM_CHANGED, null);
+        });
     }
 }
