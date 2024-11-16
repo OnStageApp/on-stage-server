@@ -37,11 +37,11 @@ public class RehearsalService {
         return rehearsalRepository.getAllByEventId(eventId);
     }
 
-    public Rehearsal save(Rehearsal rehearsal, String createdBy, boolean notifyStagers) {
+    public Rehearsal save(Rehearsal rehearsal, String requestedByUser, boolean notifyStagers) {
         Rehearsal savedRehearsal = rehearsalRepository.save(rehearsal);
         log.info("Rehearsal {} has been saved", savedRehearsal.id());
 
-        if (notifyStagers) notifyStagers(rehearsal, createdBy);
+        if (notifyStagers) notifyStagers(rehearsal, requestedByUser);
 
         return savedRehearsal;
     }
@@ -82,8 +82,8 @@ public class RehearsalService {
         rehearsalRepository.deleteAllByEventId(eventId);
     }
 
-    private void notifyStagers(Rehearsal rehearsal, String createdBy) {
-        List<Stager> stagers = stagerService.getStagersToNotify(rehearsal.eventId(), createdBy, ParticipationStatus.CONFIRMED);
+    private void notifyStagers(Rehearsal rehearsal, String requestedByUser) {
+        List<Stager> stagers = stagerService.getStagersToNotify(rehearsal.eventId(), requestedByUser, ParticipationStatus.CONFIRMED);
         Event event = eventRepository.findById(rehearsal.eventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
         String description = String.format("You have a new rehearsal on %s for %s", DateUtils.formatDate(rehearsal.dateTime()), event.getName());
         String title = event.getName();

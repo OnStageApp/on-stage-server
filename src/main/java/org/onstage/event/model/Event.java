@@ -26,5 +26,5 @@ public class Event extends BaseEntity {
     @Builder.Default
     EventStatus eventStatus = EventStatus.DRAFT;
     String teamId;
-    String createdBy;
+    String createdByUser;
 }

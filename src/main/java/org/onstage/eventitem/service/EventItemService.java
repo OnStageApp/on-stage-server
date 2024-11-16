@@ -2,6 +2,7 @@ package org.onstage.eventitem.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.onstage.enums.NotificationType;
 import org.onstage.event.model.Event;
 import org.onstage.event.repository.EventRepository;
 import org.onstage.eventitem.client.EventItemDTO;
@@ -9,7 +10,6 @@ import org.onstage.eventitem.mapper.EventItemMapper;
 import org.onstage.eventitem.model.EventItem;
 import org.onstage.eventitem.repository.EventItemRepository;
 import org.onstage.exceptions.BadRequestException;
-import org.onstage.enums.NotificationType;
 import org.onstage.notification.model.NotificationParams;
 import org.onstage.notification.service.NotificationService;
 import org.onstage.song.client.SongOverview;
@@ -46,8 +46,8 @@ public class EventItemService {
         List<EventItem> eventItems = eventItemRepository.getAll(eventId);
         List<EventItemDTO> eventItemDTOS = eventItems.stream().map(eventItem -> {
             EventItemDTO eventItemDTO = eventItemMapper.toDto(eventItem);
-            if (eventItem.eventType() == SONG) {
-                SongOverview song = songService.getOverviewSong(eventItem.songId());
+            if (eventItem.getEventType() == SONG) {
+                SongOverview song = songService.getOverviewSong(eventItem.getSongId());
                 SongConfig config = songConfigService.getBySongAndTeam(song.id(), teamId);
                 if (config != null && config.isCustom()) {
                     song = song.toBuilder()
@@ -65,7 +65,7 @@ public class EventItemService {
     public List<Stager> getLeadVocals(String id) {
         EventItem eventItem = eventItemRepository.getById(id)
                 .orElseThrow(() -> BadRequestException.resourceNotFound("eventItem"));
-        List<String> leadVocalIds = eventItem.leadVocalIds();
+        List<String> leadVocalIds = eventItem.getLeadVocalIds();
         if (Objects.isNull(leadVocalIds) || leadVocalIds.isEmpty()) {
             return List.of();
         }
@@ -74,45 +74,38 @@ public class EventItemService {
 
     public EventItemDTO save(EventItem eventItem) {
         EventItem savedEventItem = eventItemRepository.save(eventItem);
-        log.info("EventItem {} has been saved", savedEventItem.id());
+        log.info("EventItem {} has been saved", savedEventItem.getEventId());
         SongOverview song = null;
-        if (eventItem.songId() != null) {
-            song = songService.getOverviewSong(savedEventItem.songId());
+        if (eventItem.getSongId() != null) {
+            song = songService.getOverviewSong(savedEventItem.getSongId());
         }
         return EventItemDTO.builder()
-                .id(savedEventItem.id())
-                .name(savedEventItem.name())
-                .index(savedEventItem.index())
-                .eventType(savedEventItem.eventType())
-                .eventId(savedEventItem.eventId())
+                .id(savedEventItem.getSongId())
+                .name(savedEventItem.getName())
+                .index(savedEventItem.getIndex())
+                .eventType(savedEventItem.getEventType())
+                .eventId(savedEventItem.getEventId())
                 .song(song)
                 .build();
     }
 
-    public EventItemDTO update(String id, EventItemDTO request) {
+    public EventItemDTO update(String id, EventItem request) {
         EventItem existingEventItem = eventItemRepository.getById(id)
                 .orElseThrow(() -> BadRequestException.resourceNotFound("eventItem"));
-        EventItem updatedEventItem = updateEventItemFromDTO(existingEventItem, request);
-        return save(updatedEventItem);
+        existingEventItem.setName(request.getName() == null ? existingEventItem.getName() : request.getName());
+        existingEventItem.setIndex(request.getIndex() == null ? existingEventItem.getIndex() : request.getIndex());
+        return save(existingEventItem);
     }
 
-    private EventItem updateEventItemFromDTO(EventItem existingEventItem, EventItemDTO request) {
-        return EventItem.builder()
-                .id(existingEventItem.id())
-                .name(request.name() == null ? existingEventItem.name() : request.name())
-                .index(request.index() == null ? existingEventItem.index() : request.index())
-                .eventType(existingEventItem.eventType())
-                .songId(existingEventItem.songId())
-                .eventId(existingEventItem.eventId())
-                .build();
-    }
-
-    public void updateEventItemLeadVocals(String eventItemId, List<String> stagerIds, String updatedBy) {
+    public void updateEventItemLeadVocals(String eventItemId, List<String> stagerIds, String requestedByUser) {
         EventItem existingEventItem = eventItemRepository.getById(eventItemId)
                 .orElseThrow(() -> BadRequestException.resourceNotFound("eventItem"));
+
+        List<String> initialLeadVocalIds = existingEventItem.getLeadVocalIds() == null ? List.of() : existingEventItem.getLeadVocalIds();
+        existingEventItem.setLeadVocalIds(stagerIds.stream().distinct().toList());
         eventItemRepository.save(existingEventItem.toBuilder().leadVocalIds(stagerIds.stream().distinct().toList()).build());
 
-        stagerIds.forEach(stagerId -> notifyLeadVocal(stagerId, eventItemId, updatedBy, existingEventItem));
+        notifyLeadVocals(initialLeadVocalIds, stagerIds, eventItemId, requestedByUser, existingEventItem);
     }
 
     public List<EventItemDTO> updateEventItemList(List<EventItem> eventItems, String eventId) {
@@ -128,19 +121,35 @@ public class EventItemService {
         if (eventItem == null) {
             return;
         }
-        List<String> leadVocalIds = eventItem.leadVocalIds();
+        List<String> leadVocalIds = eventItem.getLeadVocalIds();
         leadVocalIds.remove(stagerId);
         eventItemRepository.save(eventItem.toBuilder().leadVocalIds(leadVocalIds).build());
 
     }
 
-    private void notifyLeadVocal(String stagerId, String eventItemId, String updatedBy, EventItem existingEventItem) {
-        Stager stager = stagerRepository.findById(stagerId).orElseThrow(() -> BadRequestException.resourceNotFound("stager"));
-        Event event = eventRepository.findById(stager.eventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
-        User user = userService.getById(updatedBy);
-        String description = String.format("%s assigned you as a lead voice for the song %s", user.getName(), existingEventItem.name());
-        String title = "Lead vocal assigned";
-        notificationService.sendNotificationToUser(NotificationType.LEAD_VOICE_ASSIGNED, stager.userId(), description, title,
-                NotificationParams.builder().eventId(event.getId()).eventItemId(eventItemId).userId(updatedBy).build());
+    private void notifyLeadVocals(List<String> initialLeadVocals, List<String> stagerIds, String eventItemId, String requestedByUser, EventItem existingEventItem) {
+        List<String> removedLeadVocals = initialLeadVocals.stream().filter(id -> !stagerIds.contains(id)).toList();
+        List<String> addedLeadVocals = stagerIds.stream().filter(id -> !initialLeadVocals.contains(id)).toList();
+        Event event = eventRepository.findById(existingEventItem.getEventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
+        User user = userService.getById(requestedByUser);
+        String title = event.getName();
+
+        removedLeadVocals.forEach(removedLeadVocal -> {
+            Stager stager = stagerRepository.findById(removedLeadVocal).orElseThrow(() -> BadRequestException.resourceNotFound("stager"));
+            if (!Objects.equals(stager.userId(), requestedByUser)) {
+                String description = String.format("You are no longer the lead for %s", existingEventItem.getName());
+                notificationService.sendNotificationToUser(NotificationType.LEAD_VOICE_REMOVED, stager.userId(), description, title,
+                        NotificationParams.builder().eventId(event.getId()).eventItemId(eventItemId).userId(requestedByUser).build());
+            }
+        });
+
+        addedLeadVocals.forEach(addedLeadVocal -> {
+            Stager stager = stagerRepository.findById(addedLeadVocal).orElseThrow(() -> BadRequestException.resourceNotFound("stager"));
+            if (!Objects.equals(stager.userId(), requestedByUser)) {
+                String description = String.format("%s assigned you as a lead voice for %s", user.getName(), existingEventItem.getName());
+                notificationService.sendNotificationToUser(NotificationType.LEAD_VOICE_ASSIGNED, stager.userId(), description, title,
+                        NotificationParams.builder().eventId(event.getId()).eventItemId(eventItemId).userId(requestedByUser).build());
+            }
+        });
     }
 }

@@ -42,8 +42,8 @@ public class StagerService {
         return stagerRepository.getAllByEventId(eventId);
     }
 
-    public List<Stager> getStagersToNotify(String eventId, String createdBy, ParticipationStatus participationStatus) {
-        return stagerRepository.getStagersToNotify(eventId, createdBy, participationStatus);
+    public List<Stager> getStagersToNotify(String eventId, String requestedByUser, ParticipationStatus participationStatus) {
+        return stagerRepository.getStagersToNotify(eventId, requestedByUser, participationStatus);
     }
 
     public List<Stager> createStagersForEvent(Event event, List<String> teamMembersIds) {
@@ -53,7 +53,7 @@ public class StagerService {
     public Stager create(Event event, String teamMemberId) {
         log.info("Creating stager for event {} and team member {}", event.getId(), teamMemberId);
         TeamMember teamMember = teamMemberRepository.findById(teamMemberId).orElseThrow(() -> BadRequestException.resourceNotFound("teamMember"));
-        return stagerRepository.createStager(event.getId(), teamMember, event.getCreatedBy());
+        return stagerRepository.createStager(event.getId(), teamMember, event.getCreatedByUser());
     }
 
     public String remove(String stagerId) {
@@ -96,13 +96,13 @@ public class StagerService {
 
             Event event = eventRepository.findById(stager.eventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
             String description = String.format("%s declined your invitation to the event %s", stager.name(), event.getName());
-            notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_DECLINED, event.getCreatedBy(), description, null, NotificationParams.builder().eventId(event.getId()).userId(stager.userId()).build());
+            notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_DECLINED, event.getCreatedByUser(), description, null, NotificationParams.builder().eventId(event.getId()).userId(stager.userId()).build());
         }
 
         if (stager.participationStatus() == ParticipationStatus.CONFIRMED) {
             Event event = eventRepository.findById(stager.eventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
             String description = String.format("%s accepted your invitation to the event %s", stager.name(), event.getName());
-            notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_ACCEPTED, event.getCreatedBy(), description, null, NotificationParams.builder().eventId(event.getId()).userId(stager.userId()).build());
+            notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_ACCEPTED, event.getCreatedByUser(), description, null, NotificationParams.builder().eventId(event.getId()).userId(stager.userId()).build());
         }
     }
 

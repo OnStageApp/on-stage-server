@@ -32,8 +32,8 @@ public class RehearsalController {
 
     @PostMapping
     public ResponseEntity<RehearsalDTO> create(@RequestBody final RehearsalDTO request) {
-        String createdBy = userSecurityContext.getCurrentTeamMemberId();
-        return ResponseEntity.ok(rehearsalMapper.toDto(rehearsalService.save(rehearsalMapper.toEntity(request), createdBy, true)));
+        String requestedByUser = userSecurityContext.getCurrentTeamMemberId();
+        return ResponseEntity.ok(rehearsalMapper.toDto(rehearsalService.save(rehearsalMapper.toEntity(request), requestedByUser, true)));
     }
 
     @DeleteMapping("/{id}")

@@ -32,13 +32,13 @@ public class StagerRepository {
         return mongoTemplate.find(query, Stager.class);
     }
 
-    public Stager createStager(String eventId, TeamMember teamMember, String createdBy) {
+    public Stager createStager(String eventId, TeamMember teamMember, String eventCreatedByUser) {
         return stagerRepo.save(Stager.builder()
                 .eventId(eventId)
                 .teamMemberId(teamMember.getId())
                 .name(teamMember.getName())
                 .userId(teamMember.getUserId())
-                .participationStatus(Objects.equals(teamMember.getUserId(), createdBy) ? CONFIRMED : PENDING).build());
+                .participationStatus(Objects.equals(teamMember.getUserId(), eventCreatedByUser) ? CONFIRMED : PENDING).build());
     }
 
     public void removeStager(String stagerId) {
@@ -63,7 +63,8 @@ public class StagerRepository {
     }
 
     public Integer countByEventId(String eventId) {
-        Criteria criteria = Criteria.where(Stager.Fields.eventId).is(eventId);
+        Criteria criteria = Criteria.where(Stager.Fields.eventId).is(eventId)
+                .and(Stager.Fields.participationStatus).is(CONFIRMED);
         Query query = new Query(criteria);
         return (int) mongoTemplate.count(query, Stager.class);
     }
@@ -80,10 +81,10 @@ public class StagerRepository {
         return mongoTemplate.find(query, Stager.class);
     }
 
-    public List<Stager> getStagersToNotify(String eventId, String createdBy, ParticipationStatus participationStatus) {
+    public List<Stager> getStagersToNotify(String eventId, String requestedByUser, ParticipationStatus participationStatus) {
         Criteria criteria = Criteria.where(Stager.Fields.eventId).is(eventId)
                 .and(Stager.Fields.participationStatus).is(participationStatus)
-                .and(Stager.Fields.teamMemberId).ne(createdBy);
+                .and(Stager.Fields.teamMemberId).ne(requestedByUser);
         Query query = new Query(criteria);
         return mongoTemplate.find(query, Stager.class);
     }

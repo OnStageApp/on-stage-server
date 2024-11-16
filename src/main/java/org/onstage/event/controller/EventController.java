@@ -53,13 +53,13 @@ public class EventController {
     @PostMapping
     public ResponseEntity<EventDTO> create(@RequestBody CreateOrUpdateEventRequest event) {
         String teamId = userSecurityContext.getCurrentTeamId();
-        String createdByUser = userSecurityContext.getUserId();
-        String createdByTeamMember = userSecurityContext.getCurrentTeamMemberId();
+        String requestedByUser = userSecurityContext.getUserId();
+        String requestedByTeamMember = userSecurityContext.getCurrentTeamMemberId();
         List<String> membersToAdd = event.teamMemberIds();
-        membersToAdd.add(createdByTeamMember);
+        membersToAdd.add(requestedByTeamMember);
 //TODO: Uncomment this
 //        planService.checkPermission(PermissionType.ADD_EVENTS, teamId);
-        return ResponseEntity.ok(eventMapper.toDto(eventService.save(eventMapper.fromCreateRequest(event), membersToAdd, event.rehearsals(), teamId, createdByUser)));
+        return ResponseEntity.ok(eventMapper.toDto(eventService.save(eventMapper.fromCreateRequest(event), membersToAdd, event.rehearsals(), teamId, requestedByUser)));
     }
 
     @DeleteMapping("/{id}")
@@ -69,14 +69,14 @@ public class EventController {
 
     @PutMapping("/{id}")
     public ResponseEntity<EventDTO> update(@PathVariable String id, @RequestBody CreateOrUpdateEventRequest request) {
-        String userId = userSecurityContext.getUserId();
-        return ResponseEntity.ok(eventMapper.toDto(eventService.update(id, eventMapper.fromCreateRequest(request), userId)));
+        String requestedByUser = userSecurityContext.getUserId();
+        return ResponseEntity.ok(eventMapper.toDto(eventService.update(id, eventMapper.fromCreateRequest(request), requestedByUser)));
     }
 
     @PostMapping("/duplicate/{id}")
     public ResponseEntity<EventDTO> duplicate(@PathVariable final String id, @RequestBody DuplicateEventRequest request) {
         Event event = eventService.getById(id);
-        String createdBy = userSecurityContext.getUserId();
-        return ResponseEntity.ok(eventMapper.toDto(eventService.duplicate(event, request.dateTime(), request.name(), createdBy)));
+        String requestedByUser = userSecurityContext.getUserId();
+        return ResponseEntity.ok(eventMapper.toDto(eventService.duplicate(event, request.dateTime(), request.name(), requestedByUser)));
     }
 }
