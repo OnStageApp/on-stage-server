@@ -123,9 +123,20 @@ public class EventItemService {
         }
         List<String> leadVocalIds = eventItem.getLeadVocalIds();
         leadVocalIds.remove(stagerId);
-        eventItemRepository.save(eventItem.toBuilder().leadVocalIds(leadVocalIds).build());
-
+        eventItem.setLeadVocalIds(leadVocalIds);
+        eventItemRepository.save(eventItem);
     }
+
+    public void deleteLEadVocalFromEventItem(String eventItemId, String stagerId, String requestedByUser) {
+        EventItem eventItem = eventItemRepository.getById(eventItemId).orElseThrow(() -> BadRequestException.resourceNotFound("eventItem"));
+        List<String> leadVocalIds = eventItem.getLeadVocalIds();
+        leadVocalIds.remove(stagerId);
+        eventItem.setLeadVocalIds(leadVocalIds);
+
+        notifyLeadVocalRemoved(eventItem, stagerId, requestedByUser);
+        eventItemRepository.save(eventItem);
+    }
+
 
     private void notifyLeadVocals(List<String> initialLeadVocals, List<String> stagerIds, String eventItemId, String requestedByUser, EventItem existingEventItem) {
         List<String> removedLeadVocals = initialLeadVocals.stream().filter(id -> !stagerIds.contains(id)).toList();
@@ -153,5 +164,18 @@ public class EventItemService {
                         NotificationParams.builder().eventId(event.getId()).eventItemId(eventItemId).userId(requestedByUser).build());
             }
         });
+    }
+
+    private void notifyLeadVocalRemoved(EventItem eventItem, String removedLeadVocal, String requestedByUser) {
+        log.info("Removed lead vocal {} from event item {}", removedLeadVocal, eventItem.getId());
+        Event event = eventRepository.findById(eventItem.getEventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
+        String title = event.getName();
+
+        Stager stager = stagerRepository.findById(removedLeadVocal).orElseThrow(() -> BadRequestException.resourceNotFound("stager"));
+        if (!Objects.equals(stager.userId(), requestedByUser)) {
+            String description = String.format("You are no longer the lead for %s", eventItem.getName());
+            notificationService.sendNotificationToUser(NotificationType.LEAD_VOICE_REMOVED, stager.userId(), description, title,
+                    NotificationParams.builder().eventId(event.getId()).eventItemId(eventItem.getId()).userId(requestedByUser).build());
+        }
     }
 }
