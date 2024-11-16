@@ -103,7 +103,7 @@ public class EventService {
         duplicatedEvent = eventRepository.save(duplicatedEvent);
 
         TeamMember teamMember = teamMemberService.getByUserAndTeam(createdBy, event.getTeamId());
-        stagerService.create(event, teamMember.getId());
+        stagerService.create(duplicatedEvent, teamMember.getId());
 
         List<Reminder> reminders = reminderService.getAllByEventId(event.getId());
         reminderService.createReminders(reminders.stream().map(Reminder::daysBefore).toList(), duplicatedEvent.getId());

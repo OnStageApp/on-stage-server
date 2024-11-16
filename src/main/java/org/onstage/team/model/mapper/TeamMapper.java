@@ -7,6 +7,7 @@ import org.onstage.team.client.TeamDTO;
 import org.onstage.team.model.Team;
 import org.onstage.teammember.service.TeamMemberService;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -51,7 +52,7 @@ public class TeamMapper {
                 .id(team.id())
                 .name(team.name())
                 .membersCount(teamMemberService.countByTeamId(team.id()))
-                .role(teamMemberService.getRole(team, userId))
+                .role(StringUtils.capitalize(teamMemberService.getRole(team, userId).getValue()))
                 .build();
     }
 }
