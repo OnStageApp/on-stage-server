@@ -8,6 +8,6 @@ public record GetTeamResponse(
         String id,
         String name,
         Integer membersCount,
-        MemberRole role
+        String role
 ) {
 }
