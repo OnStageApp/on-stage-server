@@ -12,11 +12,11 @@ import java.util.List;
 public class EventItemMapper {
     public EventItemDTO toDto(EventItem entity) {
         return EventItemDTO.builder()
-                .id(entity.id())
-                .name(entity.name())
-                .index(entity.index())
-                .eventType(entity.eventType())
-                .eventId(entity.eventId())
+                .id(entity.getId())
+                .name(entity.getName())
+                .index(entity.getIndex())
+                .eventType(entity.getEventType())
+                .eventId(entity.getEventId())
                 .build();
     }
 
@@ -35,5 +35,15 @@ public class EventItemMapper {
         return eventItems.stream()
                 .map(item -> fromCreateRequest(item, eventId))
                 .toList();
+    }
+
+    public EventItem toEntity(EventItemDTO request) {
+        return EventItem.builder()
+                .id(request.id())
+                .name(request.name())
+                .index(request.index())
+                .eventType(request.eventType())
+                .eventId(request.eventId())
+                .build();
     }
 }

@@ -48,8 +48,8 @@ public class EventService {
         return eventRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
     }
 
-    public Event save(Event event, List<String> teamMembersIds, List<CreateRehearsalForEventRequest> rehearsals, String teamId, String createdBy) {
-        event = event.toBuilder().teamId(teamId).createdBy(createdBy).build();
+    public Event save(Event event, List<String> teamMembersIds, List<CreateRehearsalForEventRequest> rehearsals, String teamId, String requestedByUser) {
+        event = event.toBuilder().teamId(teamId).createdByUser(requestedByUser).build();
         Event savedEvent = eventRepository.save(event);
 
         stagerService.createStagersForEvent(savedEvent, teamMembersIds);
@@ -68,8 +68,8 @@ public class EventService {
         return eventRepository.delete(event.getId());
     }
 
-    public Event update(String id, Event request, String updatedBy) {
-        log.info("{} updated event {} with request {}", updatedBy, id, request);
+    public Event update(String id, Event request, String requestedByUser) {
+        log.info("{} updated event {} with request {}", requestedByUser, id, request);
         Event existingEvent = getById(id);
         existingEvent.setName(request.getName() != null ? request.getName() : existingEvent.getName());
         existingEvent.setDateTime(request.getDateTime() != null ? request.getDateTime() : existingEvent.getDateTime());
@@ -77,7 +77,7 @@ public class EventService {
         existingEvent.setEventStatus(request.getEventStatus() != null ? request.getEventStatus() : existingEvent.getEventStatus());
         existingEvent = eventRepository.save(existingEvent);
 
-        notifyStagersAboutEvent(existingEvent, updatedBy);
+        notifyStagersAboutEvent(existingEvent, requestedByUser);
 
         return existingEvent;
     }
@@ -91,18 +91,18 @@ public class EventService {
         return eventRepository.getUpcomingPublishedEvent(teamId, userId);
     }
 
-    public Event duplicate(Event event, LocalDateTime dateTime, String name, String createdBy) {
+    public Event duplicate(Event event, LocalDateTime dateTime, String name, String requestedByUser) {
         Event duplicatedEvent = Event.builder()
                 .name(name)
                 .location(event.getLocation())
                 .eventStatus(DRAFT)
                 .dateTime(dateTime)
                 .teamId(event.getTeamId())
-                .createdBy(createdBy)
+                .createdByUser(requestedByUser)
                 .build();
         duplicatedEvent = eventRepository.save(duplicatedEvent);
 
-        TeamMember teamMember = teamMemberService.getByUserAndTeam(createdBy, event.getTeamId());
+        TeamMember teamMember = teamMemberService.getByUserAndTeam(requestedByUser, event.getTeamId());
         stagerService.create(duplicatedEvent, teamMember.getId());
 
         List<Reminder> reminders = reminderService.getAllByEventId(event.getId());
@@ -112,27 +112,23 @@ public class EventService {
         for (EventItem eventItem : eventItems) {
             eventItemRepository.save(EventItem.builder()
                     .eventId(duplicatedEvent.getId())
-                    .eventType(eventItem.eventType())
-                    .songId(eventItem.songId())
-                    .index(eventItem.index())
-                    .name(eventItem.name())
+                    .eventType(eventItem.getEventType())
+                    .songId(eventItem.getSongId())
+                    .index(eventItem.getIndex())
+                    .name(eventItem.getName())
                     .build());
         }
 
         return duplicatedEvent;
     }
 
-    public int countAllCreatedInInterval(String teamId) {
-        return eventRepository.countAllCreatedInInterval(teamId);
-    }
-
-    private void notifyStagersAboutEvent(Event event, String updatedBy) {
+    private void notifyStagersAboutEvent(Event event, String requestedByUser) {
         if (event.getEventStatus() == DELETED) {
-            String description = String.format("%s cancelled event %s", updatedBy, event.getName());
+            String description = String.format("%s cancelled event %s", requestedByUser, event.getName());
             String title = "Event cancelled";
 
-            stagerService.getStagersToNotify(event.getId(), updatedBy, ParticipationStatus.CONFIRMED).forEach(stager -> {
-                notificationService.sendNotificationToUser(NotificationType.EVENT_DELETED, stager.userId(), description, title, NotificationParams.builder().userId(updatedBy).build());
+            stagerService.getStagersToNotify(event.getId(), requestedByUser, ParticipationStatus.CONFIRMED).forEach(stager -> {
+                notificationService.sendNotificationToUser(NotificationType.EVENT_DELETED, stager.userId(), description, title, NotificationParams.builder().userId(requestedByUser).build());
             });
         }
 
@@ -142,7 +138,7 @@ public class EventService {
             String title = event.getName();
 
             List<String> usersWithPhoto = userService.getUserIdsWithPhoto(event.getId());
-            stagerService.getStagersToNotify(event.getId(), updatedBy, ParticipationStatus.PENDING).forEach(stager -> {
+            stagerService.getStagersToNotify(event.getId(), requestedByUser, ParticipationStatus.PENDING).forEach(stager -> {
                 notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_REQUEST, stager.userId(), description, title,
                         NotificationParams.builder().stagerId(stager.id()).eventId(event.getId()).date(event.getDateTime()).usersWithPhoto(usersWithPhoto).build());
             });

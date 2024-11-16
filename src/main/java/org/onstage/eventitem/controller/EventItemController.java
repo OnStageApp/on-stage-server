@@ -5,6 +5,7 @@ import org.onstage.common.beans.UserSecurityContext;
 import org.onstage.eventitem.client.EventItemDTO;
 import org.onstage.eventitem.client.UpdateEventItemListRequest;
 import org.onstage.eventitem.mapper.EventItemMapper;
+import org.onstage.eventitem.model.EventItem;
 import org.onstage.eventitem.service.EventItemService;
 import org.onstage.stager.client.StagerDTO;
 import org.onstage.stager.model.mapper.StagerMapper;
@@ -36,7 +37,7 @@ public class EventItemController {
 
     @PutMapping("/{id}")
     public ResponseEntity<EventItemDTO> update(@PathVariable String id, @RequestBody EventItemDTO request) {
-        return ResponseEntity.ok(eventItemService.update(id, request));
+        return ResponseEntity.ok(eventItemService.update(id, eventItemMapper.toEntity(request)));
     }
 
     @GetMapping("/{id}/lead-vocals")
@@ -46,8 +47,8 @@ public class EventItemController {
 
     @PutMapping("/{id}/lead-vocals")
     public ResponseEntity<Void> updateVocalLeads(@PathVariable String id, @RequestBody List<String> stagerIds) {
-        String userId = userSecurityContext.getUserId();
-        eventItemService.updateEventItemLeadVocals(id, stagerIds, userId);
+        String requestedByUser = userSecurityContext.getUserId();
+        eventItemService.updateEventItemLeadVocals(id, stagerIds, requestedByUser);
         return ResponseEntity.ok().build();
     }
 
