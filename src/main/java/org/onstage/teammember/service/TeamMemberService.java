@@ -3,6 +3,7 @@ package org.onstage.teammember.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
+import org.onstage.enums.MemberInviteStatus;
 import org.onstage.enums.MemberRole;
 import org.onstage.enums.NotificationType;
 import org.onstage.exceptions.BadRequestException;
@@ -92,12 +93,13 @@ public class TeamMemberService {
     public TeamMember update(String id, TeamMember request) {
         TeamMember existingTeamMember = getById(id);
         MemberRole currentRole = existingTeamMember.getRole();
+        MemberInviteStatus currentInviteStatus = existingTeamMember.getInviteStatus();
         log.info("Updating team member {} with request {}", existingTeamMember.getId(), request);
         existingTeamMember.setRole(request.getRole() != null ? request.getRole() : existingTeamMember.getRole());
         existingTeamMember.setInviteStatus(request.getInviteStatus() != null ? request.getInviteStatus() : existingTeamMember.getInviteStatus());
         teamMemberRepository.save(existingTeamMember);
 
-        if (request.getInviteStatus() != PENDING) {
+        if (currentInviteStatus == PENDING && request.getInviteStatus() != PENDING) {
             notifyLeader(existingTeamMember);
         }
         if (currentRole != existingTeamMember.getRole()) {
@@ -235,6 +237,6 @@ public class TeamMemberService {
         } else {
             description = String.format("You have been downgraded from editor position in %s team", team.name());
         }
-        notificationService.sendNotificationToUser(NotificationType.TEAM_MEMBER_REMOVED, teamMember.getUserId(), description, null, NotificationParams.builder().build());
+        notificationService.sendNotificationToUser(NotificationType.ROLE_CHANGED, teamMember.getUserId(), description, null, NotificationParams.builder().build());
     }
 }
