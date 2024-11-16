@@ -6,4 +6,5 @@ import lombok.Getter;
 public enum SocketEventType {
     NOTIFICATION,
     SUBSCRIPTION,
+    TEAM_CHANGED
 }
