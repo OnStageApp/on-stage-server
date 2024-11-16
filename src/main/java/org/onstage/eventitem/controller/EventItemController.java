@@ -52,4 +52,11 @@ public class EventItemController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/{id}/lead-vocals/{stagerId}")
+    public ResponseEntity<Void> removeVocalLead(@PathVariable String id, @PathVariable String stagerId) {
+        String requestedByUser = userSecurityContext.getUserId();
+        eventItemService.deleteLEadVocalFromEventItem(id, stagerId, requestedByUser);
+        return ResponseEntity.ok().build();
+    }
+
 }
