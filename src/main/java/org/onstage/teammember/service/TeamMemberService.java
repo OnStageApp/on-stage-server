@@ -177,10 +177,6 @@ public class TeamMemberService {
 
     public void updateTeamMembersIfNeeded(String planId, String teamId) {
         Plan plan = planService.getById(planId);
-        Plan activePlan = planService.getActiveOrTrialPlan(teamId);
-        if (!plan.getId().equals(activePlan.getId())) {
-            throw BadRequestException.plansNotMatching();
-        }
         int membersCount = countByTeamId(teamId);
         if (membersCount > plan.getMaxMembers()) {
             log.info("Team {} has more members than allowed by plan {}. Max {} are allowed", teamId, planId, membersCount - plan.getMaxMembers());

@@ -3,11 +3,13 @@ package org.onstage.common.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.onstage.enums.NotificationType;
+import org.onstage.enums.PermissionType;
 import org.onstage.event.model.Event;
 import org.onstage.event.service.EventService;
-import org.onstage.enums.NotificationType;
 import org.onstage.notification.model.NotificationParams;
 import org.onstage.notification.service.NotificationService;
+import org.onstage.plan.service.PlanService;
 import org.onstage.reminder.model.Reminder;
 import org.onstage.reminder.repository.ReminderRepository;
 import org.onstage.stager.model.Stager;
@@ -28,6 +30,7 @@ public class SendRemindersScheduler {
     private final NotificationService notificationService;
     private final StagerService stagerService;
     private final EventService eventService;
+    private final PlanService planService;
 
     @Value(("${cron.enabled}"))
     private Boolean cronEnabled;
@@ -43,13 +46,14 @@ public class SendRemindersScheduler {
         List<Reminder> remindersToSend = reminderRepository.findRemindersToSend(now);
 
         for (Reminder reminder : remindersToSend) {
-            log.info("Sending reminder {}", reminder.id());
             List<Stager> stagers = stagerService.getAllByEventId(reminder.eventId());
             Event event = eventService.getById(reminder.eventId());
+            planService.checkPermission(PermissionType.REMINDERS, event.getTeamId());
 
             String description = String.format("%d days left until %s", reminder.daysBefore(), event.getName());
             String title = "Reminder";
 
+            log.info("Sending reminder {}", reminder.id());
             stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.REMINDER, stager.userId(), description, title, NotificationParams.builder().eventId(event.getId()).build()));
             reminder.toBuilder().isSent(true);
             reminderRepository.save(reminder);

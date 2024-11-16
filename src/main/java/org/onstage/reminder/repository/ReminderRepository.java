@@ -36,7 +36,7 @@ public class ReminderRepository {
     public List<Reminder> findRemindersToSend(LocalDateTime now) {
         LocalDateTime nextDay = now.plusHours(24);
 
-        Criteria criteria = Criteria.where("sendingTime").gte(now).lt(nextDay);
+        Criteria criteria = Criteria.where(Reminder.Fields.sendingTime).gte(now).lt(nextDay);
         Query query = new Query(criteria);
         return mongoTemplate.find(query, Reminder.class);
     }

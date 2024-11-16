@@ -39,7 +39,6 @@ public class PlanService {
 
         boolean hasPermission = false;
         switch (permission) {
-            case SONGS_ACCESS -> hasPermission = currentPlan.isHasSongsAccess();
             case ADD_SONG -> hasPermission = currentPlan.isHasAddSong();
             case SCREENS_SYNC -> hasPermission = currentPlan.isHasScreensSync();
             case REMINDERS -> hasPermission = currentPlan.isHasReminders();

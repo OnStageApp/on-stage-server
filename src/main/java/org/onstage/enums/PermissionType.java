@@ -7,12 +7,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public enum PermissionType {
-    SONGS_ACCESS(0, "songsAccess"),
+    ADD_EVENTS(0, "addEvents"),
     ADD_SONG(1, "addSong"),
     SCREENS_SYNC(2, "screensSync"),
     REMINDERS(3, "reminders"),
-    ADD_TEAM_MEMBERS(4, "addTeamMembers"),
-    ADD_EVENTS(5, "addEvents");
+    ADD_TEAM_MEMBERS(4, "addTeamMembers");
 
     private final static Map<Integer, PermissionType> map = Arrays.stream(PermissionType.values())
             .collect(Collectors.toMap(obj -> obj.index, obj -> obj));
