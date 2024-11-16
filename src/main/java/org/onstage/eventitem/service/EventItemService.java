@@ -135,6 +135,7 @@ public class EventItemService {
         String title = event.getName();
 
         removedLeadVocals.forEach(removedLeadVocal -> {
+            log.info("Removed lead vocal {} from event item {}", removedLeadVocal, eventItemId);
             Stager stager = stagerRepository.findById(removedLeadVocal).orElseThrow(() -> BadRequestException.resourceNotFound("stager"));
             if (!Objects.equals(stager.userId(), requestedByUser)) {
                 String description = String.format("You are no longer the lead for %s", existingEventItem.getName());
@@ -144,6 +145,7 @@ public class EventItemService {
         });
 
         addedLeadVocals.forEach(addedLeadVocal -> {
+            log.info("Added lead vocal {} to event item {}", addedLeadVocal, eventItemId);
             Stager stager = stagerRepository.findById(addedLeadVocal).orElseThrow(() -> BadRequestException.resourceNotFound("stager"));
             if (!Objects.equals(stager.userId(), requestedByUser)) {
                 String description = String.format("%s assigned you as a lead voice for %s", user.getName(), existingEventItem.getName());
