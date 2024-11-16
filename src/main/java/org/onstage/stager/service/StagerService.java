@@ -12,13 +12,17 @@ import org.onstage.notification.model.NotificationParams;
 import org.onstage.notification.service.NotificationService;
 import org.onstage.stager.model.Stager;
 import org.onstage.stager.repository.StagerRepository;
+import org.onstage.team.model.Team;
+import org.onstage.team.repository.TeamRepository;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
+import org.onstage.user.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
+import static org.onstage.enums.EventStatus.PUBLISHED;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +33,8 @@ public class StagerService {
     private final EventItemService eventItemService;
     private final NotificationService notificationService;
     private final EventRepository eventRepository;
+    private final UserService userService;
+    private TeamRepository teamRepository;
 
     public Stager getById(String id) {
         return stagerRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("stager"));
@@ -53,20 +59,16 @@ public class StagerService {
     public Stager create(Event event, String teamMemberId) {
         log.info("Creating stager for event {} and team member {}", event.getId(), teamMemberId);
         TeamMember teamMember = teamMemberRepository.findById(teamMemberId).orElseThrow(() -> BadRequestException.resourceNotFound("teamMember"));
-        return stagerRepository.createStager(event.getId(), teamMember, event.getCreatedByUser());
+        Stager stager = stagerRepository.createStager(event.getId(), teamMember, event.getCreatedByUser());
+
+        notifyStager(event, stager);
+        return stager;
     }
 
     public String remove(String stagerId) {
         log.info("Removing stager with id {}", stagerId);
         stagerRepository.removeStager(stagerId);
         return stagerId;
-    }
-
-    private void checkStagerAlreadyExists(String eventId, String teamMemberId) {
-        Stager stager = getByEventAndTeamMember(eventId, teamMemberId);
-        if (stager != null) {
-            throw BadRequestException.stagerAlreadyCreated();
-        }
     }
 
     public Stager update(String id, Stager request) {
@@ -90,6 +92,28 @@ public class StagerService {
         return stagerRepository.countByEventId(eventId);
     }
 
+    public void removeAllByTeamMemberId(String teamMemberId) {
+        log.info("Removing all stagers for team member {}", teamMemberId);
+        List<Stager> stagers = stagerRepository.getAllByTeamMemberId(teamMemberId);
+        stagers.forEach(stager -> {
+            eventItemService.removeLeadVocalFromEvent(stager.id(), stager.eventId());
+            stagerRepository.removeStager(stager.id());
+        });
+    }
+
+    public void notifyStager(Event event, Stager stager) {
+        if (event.getEventStatus() == PUBLISHED && stager.participationStatus() != ParticipationStatus.CONFIRMED) {
+            Team team = teamRepository.findById(event.getTeamId()).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
+            String description = String.format("You have been invited to %s event. Team %s", event.getName(), team.name());
+            String title = event.getName();
+
+            List<String> usersWithPhoto = userService.getUserIdsWithPhoto(event.getId());
+            notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_REQUEST, stager.userId(), description, title,
+                    NotificationParams.builder().stagerId(stager.id()).eventId(event.getId()).date(event.getDateTime()).usersWithPhoto(usersWithPhoto).build());
+
+        }
+    }
+
     private void notifyEventEditor(Stager stager) {
         if (stager.participationStatus() == ParticipationStatus.DECLINED) {
             eventItemService.removeLeadVocalFromEvent(stager.id(), stager.eventId());
@@ -104,14 +128,5 @@ public class StagerService {
             String description = String.format("%s accepted your invitation to the event %s", stager.name(), event.getName());
             notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_ACCEPTED, event.getCreatedByUser(), description, null, NotificationParams.builder().eventId(event.getId()).userId(stager.userId()).build());
         }
-    }
-
-    public void removeAllByTeamMemberId(String teamMemberId) {
-        log.info("Removing all stagers for team member {}", teamMemberId);
-        List<Stager> stagers = stagerRepository.getAllByTeamMemberId(teamMemberId);
-        stagers.forEach(stager -> {
-            eventItemService.removeLeadVocalFromEvent(stager.id(), stager.eventId());
-            stagerRepository.removeStager(stager.id());
-        });
     }
 }
