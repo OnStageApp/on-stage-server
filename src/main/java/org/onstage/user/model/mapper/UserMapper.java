@@ -16,6 +16,7 @@ public class UserMapper {
                 .imageTimestamp(entity.getImageTimestamp())
                 .role(entity.getRole())
                 .currentTeamId(entity.getCurrentTeamId())
+                .position(entity.getPosition())
                 .build();
     }
 
@@ -27,6 +28,7 @@ public class UserMapper {
                 .imageTimestamp(request.imageTimestamp())
                 .role(request.role())
                 .currentTeamId(request.currentTeamId())
+                .position(request.position())
                 .build();
     }
 
