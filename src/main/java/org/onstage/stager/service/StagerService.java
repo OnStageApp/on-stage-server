@@ -34,7 +34,7 @@ public class StagerService {
     private final NotificationService notificationService;
     private final EventRepository eventRepository;
     private final UserService userService;
-    private TeamRepository teamRepository;
+    private final TeamRepository teamRepository;
 
     public Stager getById(String id) {
         return stagerRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("stager"));
