@@ -1,6 +1,7 @@
 package org.onstage.user.client;
 
 import lombok.Builder;
+import org.onstage.enums.PositionEnum;
 import org.onstage.user.model.UserRole;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ public record UserDTO(
         UserRole role,
         LocalDateTime imageTimestamp,
         String currentTeamId,
-        String revenueCatId
+        String revenueCatId,
+        PositionEnum position
 ) {
 }
