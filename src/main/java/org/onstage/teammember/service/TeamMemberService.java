@@ -23,6 +23,7 @@ import org.onstage.user.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.onstage.enums.MemberInviteStatus.*;
@@ -188,11 +189,18 @@ public class TeamMemberService {
     }
 
     private void updateMembersState(String teamId, int limit, boolean isDowngrade) {
-        List<TeamMember> teamMembersToUpdate = teamMemberRepository.getAllToUpdate(teamId, limit, isDowngrade ? CONFIRMED : INACTIVE);
-        teamMembersToUpdate.forEach(teamMember -> {
-            teamMemberRepository.save(teamMember.toBuilder().inviteStatus(isDowngrade ? INACTIVE : CONFIRMED).build());
-            notifyRemovedUser(teamMember);
-        });
+        MemberInviteStatus fromStatus = isDowngrade ? CONFIRMED : INACTIVE;
+        MemberInviteStatus toStatus = isDowngrade ? INACTIVE : CONFIRMED;
+        Consumer<TeamMember> notificationFunction = isDowngrade
+                ? this::notifyRemovedUser
+                : this::notifyActivatedUser;
+
+        List<TeamMember> teamMembersToUpdate = teamMemberRepository.getAllToUpdate(teamId, limit, fromStatus);
+        for (TeamMember teamMember : teamMembersToUpdate) {
+            TeamMember updatedMember = teamMember.toBuilder().inviteStatus(toStatus).build();
+            teamMemberRepository.save(updatedMember);
+            notificationFunction.accept(updatedMember);
+        }
     }
 
 
@@ -223,6 +231,12 @@ public class TeamMemberService {
         Team team = teamRepository.findById(teamMember.getTeamId()).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
         String description = String.format("You have been removed from %s team", team.name());
         notificationService.sendNotificationToUser(NotificationType.TEAM_MEMBER_REMOVED, teamMember.getUserId(), description, null, NotificationParams.builder().build());
+    }
+
+    private void notifyActivatedUser(TeamMember teamMember) {
+        Team team = teamRepository.findById(teamMember.getTeamId()).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
+        String description = String.format("You have been added to %s team", team.name());
+        notificationService.sendNotificationToUser(NotificationType.TEAM_MEMBER_ADDED, teamMember.getUserId(), description, null, NotificationParams.builder().build());
     }
 
     private void notifyTeamMemberWithNewRole(TeamMember teamMember) {

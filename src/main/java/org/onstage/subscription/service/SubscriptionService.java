@@ -66,7 +66,7 @@ public class SubscriptionService {
                 .status(SubscriptionStatus.ACTIVE)
                 .build();
 
-        saveAndNotifyAllLogged(newSubscription, user.getId(), team.id());
+        saveAndNotifyAllLogged(newSubscription, user.getId());
         log.info("Created new subscription for team {} with plan {}", team.id(), plan.getName());
     }
 
@@ -97,7 +97,7 @@ public class SubscriptionService {
 
         existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
 
-        saveAndNotifyAllLogged(existingSubscription, user.getId(), team.id());
+        saveAndNotifyAllLogged(existingSubscription, user.getId());
         log.info("Renewed subscription for team {} with plan {}. New expiry date: {}", team.id(), newPlan.getName(), existingSubscription.getExpiryDate());
     }
 
@@ -130,7 +130,7 @@ public class SubscriptionService {
         existingSubscription.setPurchaseDate(new Date(event.getPurchasedAtMs()));
         existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
 
-        saveAndNotifyAllLogged(existingSubscription, user.getId(), team.id());
+        saveAndNotifyAllLogged(existingSubscription, user.getId());
         log.info("Updated subscription for team {} to new plan {}", team.id(), newPlan.getName());
     }
 
@@ -145,7 +145,7 @@ public class SubscriptionService {
 
         existingSubscription.setCancellationDate(new Date(event.getEventTimestampMs()));
 
-        saveAndNotifyAllLogged(existingSubscription, user.getId(), team.id());
+        saveAndNotifyAllLogged(existingSubscription, user.getId());
         log.info("Cancelled subscription for team {}. Subscription will expire on {}", team.id(), existingSubscription.getExpiryDate());
     }
 
@@ -178,7 +178,7 @@ public class SubscriptionService {
                 .build();
 
         teamMemberService.updateTeamMembersIfNeeded(freePlan.getId(), team.id());
-        saveAndNotifyAllLogged(freeSubscription, user.getId(), team.id());
+        saveAndNotifyAllLogged(freeSubscription, user.getId());
         log.info("Assigned Starter plan to team {}", team.id());
     }
 
@@ -222,7 +222,7 @@ public class SubscriptionService {
                 .build();
 
         teamMemberService.updateTeamMembersIfNeeded(plan.getId(), team.id());
-        saveAndNotifyAllLogged(newSubscription, user.getId(), team.id());
+        saveAndNotifyAllLogged(newSubscription, user.getId());
         log.info("Created new subscription for team {} with transferred plan {}", team.id(), plan.getName());
     }
 
@@ -237,7 +237,7 @@ public class SubscriptionService {
 
         existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
         existingSubscription.setCancellationDate(null);
-        saveAndNotifyAllLogged(existingSubscription, user.getId(), team.id());
+        saveAndNotifyAllLogged(existingSubscription, user.getId());
         log.info("Uncancelled subscription for team {}. Subscription is now active until {}", team.id(), existingSubscription.getExpiryDate());
     }
 
@@ -256,7 +256,7 @@ public class SubscriptionService {
                 .status(SubscriptionStatus.ACTIVE)
                 .planId(starterPlan.getId())
                 .build();
-        saveAndNotifyAllLogged(subscription, userId, teamId);
+        saveAndNotifyAllLogged(subscription, userId);
         log.info("Starter subscription created for team {}", teamId);
     }
 
@@ -273,7 +273,7 @@ public class SubscriptionService {
         return team;
     }
 
-    public void saveAndNotifyAllLogged(Subscription newSubscription, String userId, String teamId) {
+    public void saveAndNotifyAllLogged(Subscription newSubscription, String userId) {
         subscriptionRepository.save(newSubscription);
         deviceService.getAllLoggedDevices(userId).forEach(device -> {
             log.info("Sending subscription event to device {}", device);
