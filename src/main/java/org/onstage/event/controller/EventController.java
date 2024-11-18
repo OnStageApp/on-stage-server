@@ -2,12 +2,12 @@ package org.onstage.event.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.common.beans.UserSecurityContext;
+import org.onstage.enums.PermissionType;
 import org.onstage.event.client.*;
 import org.onstage.event.model.Event;
 import org.onstage.event.model.mapper.EventMapper;
 import org.onstage.event.service.EventService;
 import org.onstage.plan.service.PlanService;
-import org.onstage.teammember.model.TeamMember;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,8 +57,7 @@ public class EventController {
         String requestedByTeamMember = userSecurityContext.getCurrentTeamMemberId();
         List<String> membersToAdd = event.teamMemberIds();
         membersToAdd.add(requestedByTeamMember);
-//TODO: Uncomment this
-//        planService.checkPermission(PermissionType.ADD_EVENTS, teamId);
+        planService.checkPermission(PermissionType.ADD_EVENTS, teamId);
         return ResponseEntity.ok(eventMapper.toDto(eventService.save(eventMapper.fromCreateRequest(event), membersToAdd, event.rehearsals(), teamId, requestedByUser)));
     }
 
@@ -75,8 +74,10 @@ public class EventController {
 
     @PostMapping("/duplicate/{id}")
     public ResponseEntity<EventDTO> duplicate(@PathVariable final String id, @RequestBody DuplicateEventRequest request) {
+        String teamId = userSecurityContext.getCurrentTeamId();
         Event event = eventService.getById(id);
         String requestedByUser = userSecurityContext.getUserId();
+        planService.checkPermission(PermissionType.ADD_EVENTS, teamId);
         return ResponseEntity.ok(eventMapper.toDto(eventService.duplicate(event, request.dateTime(), request.name(), requestedByUser)));
     }
 }
