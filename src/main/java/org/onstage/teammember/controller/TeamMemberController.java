@@ -2,6 +2,7 @@ package org.onstage.teammember.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.common.beans.UserSecurityContext;
+import org.onstage.enums.PermissionType;
 import org.onstage.plan.service.PlanService;
 import org.onstage.teammember.client.GetTeamMemberPhoto;
 import org.onstage.teammember.client.GetTeamMembersResponse;
@@ -60,8 +61,7 @@ public class TeamMemberController {
     @PostMapping
     public ResponseEntity<TeamMemberDTO> create(@RequestBody TeamMemberDTO request) {
         String teamId = userSecurityContext.getCurrentTeamId();
-//TODO: Uncomment
-//        planService.checkPermission(PermissionType.ADD_TEAM_MEMBERS, teamId);
+        planService.checkPermission(PermissionType.ADD_TEAM_MEMBERS, teamId);
         request = request.toBuilder().teamId(teamId).build();
         return ResponseEntity.ok(teamMemberMapper.toDto(teamMemberService.save(teamMemberMapper.toEntity(request))));
     }
@@ -88,6 +88,7 @@ public class TeamMemberController {
     public ResponseEntity<TeamMemberDTO> inviteMember(@RequestBody InviteMemberDTO request) {
         String teamId = userSecurityContext.getCurrentTeamId();
         String invitedBy = userSecurityContext.getUserId();
+        planService.checkPermission(PermissionType.ADD_TEAM_MEMBERS, teamId);
         TeamMember invitedTeamMember = teamMemberService.inviteMember(request.email(), request.newMemberRole(), request.teamMemberInvited(), teamId, invitedBy);
         return ResponseEntity.ok(invitedTeamMember == null ? null : teamMemberMapper.toDto(invitedTeamMember));
     }
