@@ -2,6 +2,7 @@ package org.onstage.plan.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.plan.model.Plan;
+import org.onstage.revenuecat.model.StoreEnum;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -23,8 +24,9 @@ public class PlanRepository {
         return planRepo.save(entity);
     }
 
-    public Plan getByRevenueCatProductId(String productId) {
-        Criteria criteria = Criteria.where(Plan.Fields.revenueCatProductId).is(productId);
+    public Plan getByPlatformProductId(String productId) {
+        Criteria criteria = Criteria.where(Plan.Fields.appleProductId).is(productId)
+                .orOperator(Criteria.where(Plan.Fields.googleProductId).is(productId));
         return mongoTemplate.findOne(Query.query(criteria), Plan.class);
     }
 

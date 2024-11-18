@@ -13,7 +13,8 @@ public record PlanDTO(
         boolean hasAddSong,
         boolean hasScreensSync,
         boolean hasReminders,
-        String revenueCatId,
+        String appleProductId,
+        String googleProductId,
         Long price,
         String currency,
         boolean isYearly

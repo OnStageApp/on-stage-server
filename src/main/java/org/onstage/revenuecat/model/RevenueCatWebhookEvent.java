@@ -75,9 +75,9 @@ public class RevenueCatWebhookEvent {
 
     @JsonProperty("purchased_at_ms")
     private long purchasedAtMs;
-//
-//    @JsonProperty("store")
-//    private RevenueCatStoreEnum store;
+
+    @JsonProperty("store")
+    private StoreEnum store;
 //
 //    @JsonProperty("cancel_reason")
 //    private CancelAndExpirationReason cancelReason;
