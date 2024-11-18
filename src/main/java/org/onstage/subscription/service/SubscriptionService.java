@@ -51,7 +51,7 @@ public class SubscriptionService {
             return;
         }
 
-        Plan plan = planRepository.getByRevenueCatProductId(productId);
+        Plan plan = planRepository.getByPlatformProductId(productId);
         if (plan == null) {
             log.warn("No plan found for product ID {}", productId);
             return;
@@ -87,9 +87,9 @@ public class SubscriptionService {
         }
 
         Plan existingPlan = planRepository.getById(existingSubscription.getPlanId()).orElseThrow(() -> BadRequestException.resourceNotFound("plan"));
-        Plan newPlan = planRepository.getByRevenueCatProductId(event.getProductId());
+        Plan newPlan = planRepository.getByPlatformProductId(event.getProductId());
 
-        if (!Objects.equals(existingPlan.getRevenueCatProductId(), event.getProductId())) {
+        if (!Objects.equals(existingPlan.getByPlatformProductId(event.getStore()), event.getProductId())) {
             existingSubscription.setPlanId(newPlan.getId());
             existingSubscription.setPurchaseDate(new Date(event.getPurchasedAtMs()));
             teamMemberService.updateTeamMembersIfNeeded(newPlan.getId(), team.id());
@@ -116,13 +116,13 @@ public class SubscriptionService {
             return;
         }
 
-        Plan newPlan = planRepository.getByRevenueCatProductId(newProductId);
+        Plan newPlan = planRepository.getByPlatformProductId(newProductId);
         if (newPlan == null) {
             log.warn("No plan found for new product ID {}", newProductId);
             return;
         }
 
-        if (!newPlan.getRevenueCatProductId().equals(existingSubscription.getPlanId())) {
+        if (!newPlan.getId().equals(existingSubscription.getPlanId())) {
             teamMemberService.updateTeamMembersIfNeeded(newPlan.getId(), team.id());
         }
 
@@ -206,7 +206,7 @@ public class SubscriptionService {
             return;
         }
 
-        Plan plan = planRepository.getByRevenueCatProductId(productId);
+        Plan plan = planRepository.getByPlatformProductId(productId);
         if (plan == null) {
             log.warn("No plan found for product ID {} during transfer", productId);
             return;

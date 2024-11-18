@@ -18,9 +18,10 @@ public class PlanMapper {
                 .hasAddSong(entity.isHasAddSong())
                 .hasScreensSync(entity.isHasScreensSync())
                 .hasReminders(entity.isHasReminders())
-                .revenueCatId(entity.getRevenueCatProductId())
                 .price(entity.getPrice())
                 .currency(entity.getCurrency())
+                .appleProductId(entity.getAppleProductId())
+                .googleProductId(entity.getGoogleProductId())
                 .isYearly(entity.isYearly())
                 .build();
     }
@@ -35,7 +36,8 @@ public class PlanMapper {
                 .hasAddSong(request.hasAddSong())
                 .hasScreensSync(request.hasScreensSync())
                 .hasReminders(request.hasReminders())
-                .revenueCatProductId(request.revenueCatId())
+                .appleProductId(request.appleProductId())
+                .googleProductId(request.googleProductId())
                 .price(request.price())
                 .currency(request.currency())
                 .isYearly(request.isYearly())
