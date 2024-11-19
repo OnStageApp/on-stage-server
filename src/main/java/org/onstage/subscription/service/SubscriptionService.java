@@ -46,12 +46,14 @@ public class SubscriptionService {
         }
 
         String productId = event.getProductId();
+        log.info("Product ID: {}", productId);
         if (productId == null || productId.isEmpty()) {
             log.warn("Product ID not found in event");
             return;
         }
 
         Plan plan = planRepository.getByPlatformProductId(productId);
+
         if (plan == null) {
             log.warn("No plan found for product ID {}", productId);
             return;
@@ -201,6 +203,7 @@ public class SubscriptionService {
         }
 
         String productId = event.getProductId();
+        log.info("Product ID: {}", productId);
         if (productId == null || productId.isEmpty()) {
             log.warn("Product ID not found in transfer event");
             return;
