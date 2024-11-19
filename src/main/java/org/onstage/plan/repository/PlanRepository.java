@@ -25,8 +25,11 @@ public class PlanRepository {
     }
 
     public Plan getByPlatformProductId(String productId) {
-        Criteria criteria = Criteria.where(Plan.Fields.appleProductId).is(productId)
-                .orOperator(Criteria.where(Plan.Fields.googleProductId).is(productId));
+        System.out.println("productId = " + productId);
+        Criteria criteria = new Criteria().orOperator(
+                Criteria.where(Plan.Fields.appleProductId).is(productId),
+                Criteria.where(Plan.Fields.googleProductId).is(productId)
+        );
         return mongoTemplate.findOne(Query.query(criteria), Plan.class);
     }
 
