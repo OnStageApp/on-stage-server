@@ -138,6 +138,8 @@ public class SongRepository {
         projectionFields.put("tempo", "tempo");
         projectionFields.put("artist", "artist");
         projectionFields.put("teamId", "teamId");
+        projectionFields.put("theme", "theme");
+        projectionFields.put("genre", "genre");
         return projectionFields;
     }
 
@@ -149,6 +151,8 @@ public class SongRepository {
         projectionFields.put("tempo", "tempo");
         projectionFields.put("artist", "artist");
         projectionFields.put("teamId", "teamId");
+        projectionFields.put("theme", "theme");
+        projectionFields.put("genre", "genre");
         return projectionFields;
     }
 }

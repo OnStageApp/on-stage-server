@@ -1,7 +1,9 @@
 package org.onstage.song.client;
 
 import lombok.Builder;
+import org.onstage.enums.GenreEnum;
 import org.onstage.enums.StructureItemEnum;
+import org.onstage.enums.ThemeEnum;
 import org.onstage.song.model.RawSongSection;
 import org.onstage.song.model.SongKey;
 
@@ -12,8 +14,10 @@ public record CreateOrUpdateSongRequest(
         String title,
         List<StructureItemEnum> structure,
         List<RawSongSection> rawSections,
-        Integer tempo,
         SongKey originalKey,
-        String artistId
+        String artistId,
+        ThemeEnum theme,
+        GenreEnum genre,
+        TempoRange tempo
 ) {
 }
