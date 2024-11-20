@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.common.config.JwtTokenProvider;
@@ -27,12 +28,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         try {
             String jwt = extractJwtFromRequest(request);
-            log.debug("Processing request to '{}' with token: {}", request.getRequestURI(),
-                    jwt != null ? "present" : "absent");
+            log.debug("Processing request to '{}' with token: {}", request.getRequestURI(), jwt);
 
             if (StringUtils.hasText(jwt)) {
                 boolean isValid = jwtTokenUtil.validateToken(jwt);

@@ -5,11 +5,10 @@ import com.google.firebase.auth.FirebaseToken;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.onstage.auth.model.LoginRequest;
-import org.onstage.auth.model.LoginResponse;
+import org.onstage.auth.model.TokenDTO;
 import org.onstage.common.action.Action;
 import org.onstage.common.config.JwtTokenProvider;
 import org.onstage.exceptions.BadRequestException;
-import org.onstage.subscription.service.SubscriptionService;
 import org.onstage.team.model.Team;
 import org.onstage.team.service.TeamService;
 import org.onstage.user.model.User;
@@ -19,7 +18,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class LoginAction implements Action<LoginRequest, LoginResponse> {
+public class LoginAction implements Action<LoginRequest, TokenDTO> {
     private final static String SOLO_TEAM_NAME = "Solo Team";
     private final UserRepository userRepository;
     private final UserService userService;
@@ -28,7 +27,7 @@ public class LoginAction implements Action<LoginRequest, LoginResponse> {
 
     @SneakyThrows
     @Override
-    public LoginResponse doExecute(LoginRequest request) {
+    public TokenDTO doExecute(LoginRequest request) {
         FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(request.firebaseToken());
 
         if (decodedToken == null) {
@@ -43,7 +42,7 @@ public class LoginAction implements Action<LoginRequest, LoginResponse> {
         String accessToken = jwtTokenProvider.generateAccessToken(user);
         String refreshToken = jwtTokenProvider.generateRefreshToken(user);
 
-        return LoginResponse.builder()
+        return TokenDTO.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
