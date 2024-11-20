@@ -25,6 +25,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/auth/login").permitAll()
                         .requestMatchers("/revenuecat/webhook").permitAll()
+                        .requestMatchers("/auth/refresh-token").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
