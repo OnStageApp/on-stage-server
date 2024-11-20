@@ -66,7 +66,9 @@ public class ServiceBeans implements WebMvcConfigurer {
     private boolean isPublicEndpoint(String requestURI) {
         List<String> publicEndpoints = List.of(
                 "/auth/login",
-                "/revenuecat/webhook");
+                "/revenuecat/webhook",
+                "/auth/refresh-token"
+                );
         return publicEndpoints.contains(requestURI);
     }
 }
