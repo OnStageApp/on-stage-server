@@ -12,7 +12,7 @@ public record SongOverview(
         String title,
         ArtistDTO artist,
         SongKey key,
-        TempoRange tempo,
+        Integer tempo,
         String teamId,
         ThemeEnum theme,
         GenreEnum genre

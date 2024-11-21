@@ -22,6 +22,6 @@ public record SongDTO(
         String teamId,
         ThemeEnum theme,
         GenreEnum genre,
-        TempoRange tempo
+        Integer tempo
 ) {
 }

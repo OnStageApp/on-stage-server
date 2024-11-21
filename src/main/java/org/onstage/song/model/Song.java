@@ -31,5 +31,5 @@ public class Song extends BaseEntity {
     String teamId;
     ThemeEnum theme;
     GenreEnum genre;
-    TempoRange tempo;
+    Integer tempo;
 }

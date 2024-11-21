@@ -18,6 +18,6 @@ public record CreateOrUpdateSongRequest(
         String artistId,
         ThemeEnum theme,
         GenreEnum genre,
-        TempoRange tempo
+        Integer tempo
 ) {
 }
