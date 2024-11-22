@@ -49,9 +49,15 @@ public class LoginAction implements Action<LoginRequest, TokenDTO> {
     }
 
     private User createNewUser(String uid, FirebaseToken decodedToken) {
+        String name;
+        if (decodedToken.getName() == null) {
+            name = decodedToken.getEmail().trim().split("@")[0];
+        } else {
+            name = decodedToken.getName();
+        }
         User user = userService.create(User.builder()
                 .id(uid)
-                .name(decodedToken.getName())
+                .name(name)
                 .email(decodedToken.getEmail())
                 .build());
         Team team = teamService.create(Team.builder().name(SOLO_TEAM_NAME).leaderId(user.getId()).build());
