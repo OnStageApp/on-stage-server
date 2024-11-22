@@ -19,4 +19,5 @@ public class NotificationParams {
     private String eventItemId;
     private LocalDateTime date;
     private List<String> usersWithPhoto;
+    private Integer stagerCount;
 }

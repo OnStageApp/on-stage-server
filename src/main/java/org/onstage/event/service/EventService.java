@@ -136,11 +136,12 @@ public class EventService {
             Team team = teamService.getById(event.getTeamId());
             String description = String.format("You have been invited to %s event. Team %s", event.getName(), team.name());
             String title = event.getName();
+            Integer stagerCount = stagerService.countByEventId(event.getId());
 
             List<String> usersWithPhoto = userService.getUserIdsWithPhoto(event.getId());
             stagerService.getStagersToNotify(event.getId(), requestedByUser, ParticipationStatus.PENDING).forEach(stager -> {
                 notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_REQUEST, stager.userId(), description, title,
-                        NotificationParams.builder().stagerId(stager.id()).eventId(event.getId()).date(event.getDateTime()).usersWithPhoto(usersWithPhoto).build());
+                        NotificationParams.builder().stagerId(stager.id()).eventId(event.getId()).date(event.getDateTime()).usersWithPhoto(usersWithPhoto).stagerCount(stagerCount).build());
             });
         }
     }

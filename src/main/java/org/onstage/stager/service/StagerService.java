@@ -106,10 +106,11 @@ public class StagerService {
             Team team = teamRepository.findById(event.getTeamId()).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
             String description = String.format("You have been invited to %s event. Team %s", event.getName(), team.name());
             String title = event.getName();
+            Integer stagerCount = countByEventId(event.getId());
 
             List<String> usersWithPhoto = userService.getUserIdsWithPhoto(event.getId());
             notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_REQUEST, stager.userId(), description, title,
-                    NotificationParams.builder().stagerId(stager.id()).eventId(event.getId()).date(event.getDateTime()).usersWithPhoto(usersWithPhoto).build());
+                    NotificationParams.builder().stagerId(stager.id()).eventId(event.getId()).date(event.getDateTime()).usersWithPhoto(usersWithPhoto).stagerCount(stagerCount).build());
 
         }
     }
