@@ -57,6 +57,15 @@ public class SongRepository {
             preLookupCriteriaList.add(Criteria.where(Song.Fields.title).regex(songFilter.search(), "i"));
         }
 
+        if (songFilter.tempoRange() != null) {
+            if(songFilter.tempoRange().min() != null) {
+                preLookupCriteriaList.add(Criteria.where(Song.Fields.tempo).gte(songFilter.tempoRange().min()));
+            }
+            if(songFilter.tempoRange().max() != null) {
+                preLookupCriteriaList.add(Criteria.where(Song.Fields.tempo).lte(songFilter.tempoRange().max()));
+            }
+        }
+
         Criteria teamCriteria = getTeamCriteria(teamId, songFilter.includeOnlyTeamSongs());
         if (teamCriteria != null) {
             preLookupCriteriaList.add(teamCriteria);
@@ -138,6 +147,8 @@ public class SongRepository {
         projectionFields.put("tempo", "tempo");
         projectionFields.put("artist", "artist");
         projectionFields.put("teamId", "teamId");
+        projectionFields.put("theme", "theme");
+        projectionFields.put("genre", "genre");
         return projectionFields;
     }
 
@@ -149,6 +160,8 @@ public class SongRepository {
         projectionFields.put("tempo", "tempo");
         projectionFields.put("artist", "artist");
         projectionFields.put("teamId", "teamId");
+        projectionFields.put("theme", "theme");
+        projectionFields.put("genre", "genre");
         return projectionFields;
     }
 }

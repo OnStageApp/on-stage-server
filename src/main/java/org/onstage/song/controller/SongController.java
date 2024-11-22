@@ -8,6 +8,7 @@ import org.onstage.song.client.CreateOrUpdateSongRequest;
 import org.onstage.song.client.SongDTO;
 import org.onstage.song.client.SongFilter;
 import org.onstage.song.client.SongOverview;
+import org.onstage.song.model.Song;
 import org.onstage.song.model.mapper.SongMapper;
 import org.onstage.song.service.SongService;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +46,7 @@ public class SongController {
 
     @PutMapping("/{id}")
     public ResponseEntity<SongDTO> update(@PathVariable String id, @RequestBody CreateOrUpdateSongRequest request) {
-        return ResponseEntity.ok(songService.updateSong(id, request));
+        return ResponseEntity.ok(songService.updateSong(id, songMapper.fromCreateRequest(request, userSecurityContext.getCurrentTeamId())));
     }
 
     @PostMapping("/favorites/{songId}")

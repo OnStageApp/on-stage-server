@@ -7,6 +7,7 @@ public record SongFilter(
         String search,
         String artistId,
         String genres,
-        Boolean includeOnlyTeamSongs
+        Boolean includeOnlyTeamSongs,
+        TempoRange tempoRange
 ) {
 }
