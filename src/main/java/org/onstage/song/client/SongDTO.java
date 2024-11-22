@@ -2,7 +2,9 @@ package org.onstage.song.client;
 
 import lombok.Builder;
 import org.onstage.artist.client.ArtistDTO;
+import org.onstage.enums.GenreEnum;
 import org.onstage.enums.StructureItemEnum;
+import org.onstage.enums.ThemeEnum;
 import org.onstage.song.model.RawSongSection;
 import org.onstage.song.model.SongKey;
 
@@ -14,10 +16,12 @@ public record SongDTO(
         String title,
         List<StructureItemEnum> structure,
         List<RawSongSection> rawSections,
-        Integer tempo,
         SongKey key,
         SongKey originalKey,
         ArtistDTO artist,
-        String teamId
+        String teamId,
+        ThemeEnum theme,
+        GenreEnum genre,
+        Integer tempo
 ) {
 }

@@ -13,21 +13,33 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+
 @Component
 public class JwtTokenProvider {
     @Value("${jwt.secret}")
     private String secret;
 
     @Value("${jwt.expiration}")
-    private Long expiration;
+    private Long accessTokenExpiration;
 
-    public String generateToken(User userDetails) {
+    @Value("${jwt.refresh.expiration}")
+    private Long refreshTokenExpiration;
+
+    public String generateAccessToken(User userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userDetails.getId());
-        return createToken(claims, userDetails.getEmail());
+        claims.put("type", "ACCESS");
+        return createToken(claims, userDetails.getEmail(), accessTokenExpiration);
     }
 
-    private String createToken(Map<String, Object> claims, String subject) {
+    public String generateRefreshToken(User userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userDetails.getId());
+        claims.put("type", "REFRESH");
+        return createToken(claims, userDetails.getEmail(), refreshTokenExpiration);
+    }
+
+    private String createToken(Map<String, Object> claims, String subject, Long expiration) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
@@ -39,8 +51,17 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
-            return true;
+            Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+            return !isTokenExpired(token) && claims.get("type").equals("ACCESS");
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public boolean validateRefreshToken(String token) {
+        try {
+            Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+            return !isTokenExpired(token) && claims.get("type").equals("REFRESH");
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
@@ -48,6 +69,14 @@ public class JwtTokenProvider {
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public String extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("userId", String.class));
+    }
+
+    public String extractTokenType(String token) {
+        return extractClaim(token, claims -> claims.get("type", String.class));
     }
 
     public Date extractExpiration(String token) {
@@ -64,7 +93,8 @@ public class JwtTokenProvider {
     }
 
     private Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+        final Date expiration = extractExpiration(token);
+        return expiration.before(new Date());
     }
 
     public String getEmailFromJwt(String token) {

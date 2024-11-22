@@ -3,6 +3,7 @@ package org.onstage.teammember.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
+import org.onstage.device.service.DeviceService;
 import org.onstage.enums.MemberInviteStatus;
 import org.onstage.enums.MemberRole;
 import org.onstage.enums.NotificationType;
@@ -12,6 +13,8 @@ import org.onstage.notification.service.NotificationService;
 import org.onstage.plan.model.Plan;
 import org.onstage.plan.service.PlanService;
 import org.onstage.sendgrid.SendGridService;
+import org.onstage.socketio.SocketEventType;
+import org.onstage.socketio.service.SocketIOService;
 import org.onstage.stager.model.Stager;
 import org.onstage.stager.service.StagerService;
 import org.onstage.team.model.Team;
@@ -39,6 +42,8 @@ public class TeamMemberService {
     private final SendGridService sendGridService;
     private final NotificationService notificationService;
     private final PlanService planService;
+    private final DeviceService deviceService;
+    private final SocketIOService socketIOService;
 
     public TeamMember getById(String id) {
         return teamMemberRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("teamMember"));
@@ -200,6 +205,12 @@ public class TeamMemberService {
             TeamMember updatedMember = teamMember.toBuilder().inviteStatus(toStatus).build();
             teamMemberRepository.save(updatedMember);
             notificationFunction.accept(updatedMember);
+            if (isDowngrade) {
+                deviceService.getAllLoggedDevices(teamMember.getUserId()).forEach(device -> {
+                    log.info("Sending team changed event to device {}", device);
+                    socketIOService.sendSocketEvent(teamMember.getUserId(), device.getDeviceId(), SocketEventType.TEAM_CHANGED, null);
+                });
+            }
         }
     }
 

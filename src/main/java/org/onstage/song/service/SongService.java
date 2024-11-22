@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.favoritesong.model.FavoriteSong;
 import org.onstage.favoritesong.repository.FavoriteSongRepository;
-import org.onstage.song.client.CreateOrUpdateSongRequest;
 import org.onstage.song.client.SongDTO;
 import org.onstage.song.client.SongFilter;
 import org.onstage.song.client.SongOverview;
@@ -15,7 +14,6 @@ import org.onstage.songconfig.model.SongConfig;
 import org.onstage.songconfig.service.SongConfigService;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,40 +61,36 @@ public class SongService {
     }
 
     public SongDTO createSong(Song song) {
-        Song savedSong = songRepository.save(song.toBuilder()
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build());
-        log.info("Song {} has been created", savedSong.id());
-        return getSongCustom(savedSong.id(), null, null);
+        Song savedSong = songRepository.save(song);
+        log.info("Song {} has been created", savedSong.getId());
+        return getSongCustom(savedSong.getId(), null, null);
     }
 
-    public SongDTO updateSong(String id, CreateOrUpdateSongRequest request) {
-        Song existingSong = songRepository.findById(id)
-                .orElseThrow(() -> BadRequestException.resourceNotFound("song"));
-        existingSong = existingSong.toBuilder()
-                .title(request.title() == null ? existingSong.title() : request.title())
-                .structure(request.structure() == null ? existingSong.structure() : request.structure())
-                .rawSections(request.rawSections() == null ? existingSong.rawSections() : request.rawSections())
-                .tempo(request.tempo() == null ? existingSong.tempo() : request.tempo())
-                .originalKey(request.originalKey() == null ? existingSong.originalKey() : request.originalKey())
-                .artistId(request.artistId() == null ? existingSong.artistId() : request.artistId())
-                .updatedAt(LocalDateTime.now())
-                .build();
-        Song updatedSong = songRepository.save(existingSong);
-        log.info("Song {} has been updated", updatedSong.id());
-        return getSongCustom(updatedSong.id(), updatedSong.teamId(), null);
+    public SongDTO updateSong(String id, Song request) {
+        Song existingSong = songRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("song"));
+        existingSong.setTitle(request.getTitle() == null ? existingSong.getTitle() : request.getTitle());
+        existingSong.setStructure(request.getStructure() == null ? existingSong.getStructure() : request.getStructure());
+        existingSong.setRawSections(request.getRawSections() == null ? existingSong.getRawSections() : request.getRawSections());
+        existingSong.setTempo(request.getTempo() == null ? existingSong.getTempo() : request.getTempo());
+        existingSong.setOriginalKey(request.getOriginalKey() == null ? existingSong.getOriginalKey() : request.getOriginalKey());
+        existingSong.setArtistId(request.getArtistId() == null ? existingSong.getArtistId() : request.getArtistId());
+        existingSong.setTheme(request.getTheme() == null ? existingSong.getTheme() : request.getTheme());
+        existingSong.setGenre(request.getGenre() == null ? existingSong.getGenre() : request.getGenre());
+
+        songRepository.save(existingSong);
+        log.info("Song {} has been updated", id);
+        return getSongCustom(id, existingSong.getTeamId(), null);
     }
 
     public void addFavoriteSong(String songId, String userId) {
         Song song = songRepository.findById(songId).orElseThrow(() -> BadRequestException.resourceNotFound("song"));
-        FavoriteSong favoriteSong = favoriteSongRepository.findBySongIdAndUserId(song.id(), userId);
+        FavoriteSong favoriteSong = favoriteSongRepository.findBySongIdAndUserId(song.getId(), userId);
         if (favoriteSong != null) {
-            log.info("Song {} is already saved by user {}", song.id(), userId);
+            log.info("Song {} is already saved by user {}", song.getId(), userId);
             return;
         }
-        log.info("Adding song {} to favorites for user {}", song.id(), userId);
-        favoriteSongRepository.save(FavoriteSong.builder().songId(song.id()).userId(userId).build());
+        log.info("Adding song {} to favorites for user {}", song.getId(), userId);
+        favoriteSongRepository.save(FavoriteSong.builder().songId(song.getId()).userId(userId).build());
     }
 
     public List<SongOverview> getFavoriteSongs(String userId) {
