@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -36,5 +37,9 @@ public class PlanRepository {
     public Plan getStarterPlan() {
         Criteria criteria = Criteria.where(Plan.Fields.name).is("Starter");
         return mongoTemplate.findOne(Query.query(criteria), Plan.class);
+    }
+
+    public List<Plan> getAll() {
+        return planRepo.findAll();
     }
 }

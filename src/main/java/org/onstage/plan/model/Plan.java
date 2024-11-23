@@ -24,7 +24,7 @@ public class Plan extends BaseEntity {
     private boolean hasReminders;
     private String appleProductId;
     private String googleProductId;
-    private Long price;
+    private Double price;
     private String currency;
     private boolean isYearly;
 

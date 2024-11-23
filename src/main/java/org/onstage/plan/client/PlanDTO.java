@@ -14,7 +14,7 @@ public record PlanDTO(
         boolean hasReminders,
         String appleProductId,
         String googleProductId,
-        Long price,
+        Double price,
         String currency,
         boolean isYearly
 ) {
