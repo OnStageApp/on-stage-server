@@ -19,7 +19,6 @@ public class Plan extends BaseEntity {
     private String entitlementId;
     private int maxEvents;
     private int maxMembers;
-    private boolean hasSongsAccess;
     private boolean hasAddSong;
     private boolean hasScreensSync;
     private boolean hasReminders;

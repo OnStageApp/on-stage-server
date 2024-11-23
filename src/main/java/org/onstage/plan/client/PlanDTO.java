@@ -9,7 +9,6 @@ public record PlanDTO(
         String entitlementId,
         int maxEvents,
         int maxMembers,
-        boolean hasSongsAccess,
         boolean hasAddSong,
         boolean hasScreensSync,
         boolean hasReminders,
