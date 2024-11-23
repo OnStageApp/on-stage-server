@@ -27,11 +27,6 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class AmazonS3Service {
 
-    private final Integer DEFAULT_WIDTH = 200;
-    private final Integer DEFAULT_HEIGHT = 200;
-    private final Integer THUMBNAIL_WIDTH = 50;
-    private final Integer THUMBNAIL_HEIGHT = 50;
-
     private final AmazonS3 amazonS3;
 
     @Value("${clound.aws.s3.bucket}")

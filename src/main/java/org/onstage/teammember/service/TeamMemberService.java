@@ -232,7 +232,7 @@ public class TeamMemberService {
 
     private void notifyInvitedUser(Team team, String invitedBy, User invitedUser, String teamMemberId) {
         User invitedByUser = userService.getById(invitedBy);
-        String description = String.format("%s invited you to join %s team", invitedByUser.getName(), team.name());
+        String description = String.format("%s invited you to join %s", invitedByUser.getName(), team.name());
         NotificationParams params = NotificationParams.builder().teamMemberId(teamMemberId).teamId(team.id()).build();
         notificationService.deleteNotification(NotificationType.TEAM_INVITATION_REQUEST, params);
         notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_REQUEST, invitedUser.getId(), description, team.name(), params);
@@ -240,13 +240,13 @@ public class TeamMemberService {
 
     private void notifyRemovedUser(TeamMember teamMember) {
         Team team = teamRepository.findById(teamMember.getTeamId()).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
-        String description = String.format("You have been removed from %s team", team.name());
+        String description = String.format("You have been removed from %s", team.name());
         notificationService.sendNotificationToUser(NotificationType.TEAM_MEMBER_REMOVED, teamMember.getUserId(), description, null, NotificationParams.builder().build());
     }
 
     private void notifyActivatedUser(TeamMember teamMember) {
         Team team = teamRepository.findById(teamMember.getTeamId()).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
-        String description = String.format("You have been added to %s team", team.name());
+        String description = String.format("You have been added to %s", team.name());
         notificationService.sendNotificationToUser(NotificationType.TEAM_MEMBER_ADDED, teamMember.getUserId(), description, null, NotificationParams.builder().build());
     }
 
@@ -254,9 +254,9 @@ public class TeamMemberService {
         Team team = teamRepository.findById(teamMember.getTeamId()).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
         String description;
         if (teamMember.getRole() == MemberRole.EDITOR) {
-            description = String.format("You have been upgraded with Editor rights in %s team", team.name());
+            description = String.format("You have been upgraded with Editor rights in %s", team.name());
         } else {
-            description = String.format("You have been downgraded from editor position in %s team", team.name());
+            description = String.format("You have been downgraded from editor position in %s", team.name());
         }
         notificationService.sendNotificationToUser(NotificationType.ROLE_CHANGED, teamMember.getUserId(), description, null, NotificationParams.builder().build());
     }
