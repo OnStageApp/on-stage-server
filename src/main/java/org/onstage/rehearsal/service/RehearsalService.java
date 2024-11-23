@@ -87,6 +87,7 @@ public class RehearsalService {
         Event event = eventRepository.findById(rehearsal.eventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
         String description = String.format("You have a new rehearsal on %s for %s", DateUtils.formatDate(rehearsal.dateTime()), event.getName());
         String title = event.getName();
-        stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.NEW_REHEARSAL, stager.userId(), description, title, NotificationParams.builder().eventId(event.getId()).build()));
+        stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.NEW_REHEARSAL, stager.userId(), description, title, event.getTeamId(),
+                NotificationParams.builder().eventId(event.getId()).build()));
     }
 }

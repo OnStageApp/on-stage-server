@@ -128,7 +128,7 @@ public class EventService {
             String title = "Event cancelled";
 
             stagerService.getStagersToNotify(event.getId(), requestedByUser, ParticipationStatus.CONFIRMED).forEach(stager -> {
-                notificationService.sendNotificationToUser(NotificationType.EVENT_DELETED, stager.userId(), description, title, NotificationParams.builder().userId(requestedByUser).build());
+                notificationService.sendNotificationToUser(NotificationType.EVENT_DELETED, stager.userId(), description, title, event.getTeamId(), NotificationParams.builder().userId(requestedByUser).build());
             });
         }
 
@@ -140,7 +140,7 @@ public class EventService {
 
             List<String> usersWithPhoto = userService.getUserIdsWithPhoto(event.getId());
             stagerService.getStagersToNotify(event.getId(), requestedByUser, ParticipationStatus.PENDING).forEach(stager -> {
-                notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_REQUEST, stager.userId(), description, title,
+                notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_REQUEST, stager.userId(), description, title, team.id(),
                         NotificationParams.builder().stagerId(stager.id()).eventId(event.getId()).date(event.getDateTime()).usersWithPhoto(usersWithPhoto).stagerCount(stagerCount).build());
             });
         }

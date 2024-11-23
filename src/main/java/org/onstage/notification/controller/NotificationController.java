@@ -24,8 +24,9 @@ public class NotificationController {
             @RequestParam(defaultValue = "0") int offset,
             @RequestParam(defaultValue = "20") int limit) {
         String userId = userSecurityContext.getUserId();
+        String currentTeamId = userSecurityContext.getCurrentTeamId();
 
-        PaginatedNotifications paginatedResponse = notificationService.getNotificationsForUser(userId, offset, limit);
+        PaginatedNotifications paginatedResponse = notificationService.getNotificationsForUser(userId, currentTeamId, offset, limit);
 
         return ResponseEntity.ok(notificationMapper.toGetAllNotificationsResponse(paginatedResponse));
     }

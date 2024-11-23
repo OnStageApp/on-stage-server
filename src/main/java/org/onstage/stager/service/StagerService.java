@@ -109,7 +109,7 @@ public class StagerService {
             Integer stagerCount = countByEventId(event.getId());
 
             List<String> usersWithPhoto = userService.getUserIdsWithPhoto(event.getId());
-            notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_REQUEST, stager.userId(), description, title,
+            notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_REQUEST, stager.userId(), description, title, team.id(),
                     NotificationParams.builder().stagerId(stager.id()).eventId(event.getId()).date(event.getDateTime()).usersWithPhoto(usersWithPhoto).stagerCount(stagerCount).build());
 
         }
@@ -121,13 +121,15 @@ public class StagerService {
 
             Event event = eventRepository.findById(stager.eventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
             String description = String.format("%s declined your invitation to the event %s", stager.name(), event.getName());
-            notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_DECLINED, event.getCreatedByUser(), description, null, NotificationParams.builder().eventId(event.getId()).userId(stager.userId()).build());
+            notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_DECLINED, event.getCreatedByUser(), description, null, event.getTeamId(),
+                    NotificationParams.builder().eventId(event.getId()).userId(stager.userId()).build());
         }
 
         if (stager.participationStatus() == ParticipationStatus.CONFIRMED) {
             Event event = eventRepository.findById(stager.eventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
             String description = String.format("%s accepted your invitation to the event %s", stager.name(), event.getName());
-            notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_ACCEPTED, event.getCreatedByUser(), description, null, NotificationParams.builder().eventId(event.getId()).userId(stager.userId()).build());
+            notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_ACCEPTED, event.getCreatedByUser(), description, null, event.getTeamId(),
+                    NotificationParams.builder().eventId(event.getId()).userId(stager.userId()).build());
         }
     }
 }
