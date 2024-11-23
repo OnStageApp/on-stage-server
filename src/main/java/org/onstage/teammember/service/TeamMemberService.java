@@ -236,7 +236,8 @@ public class TeamMemberService {
         User invitedByUser = userService.getById(invitedBy);
         String description = String.format("%s invited you to join %s", invitedByUser.getName(), team.name());
         List<String> usersWithPhoto = userService.getUserIdsWithPhotoFromTeam(team.id());
-        NotificationParams params = NotificationParams.builder().teamMemberId(teamMemberId).usersWithPhoto(usersWithPhoto).build();
+        Integer teamMembersCount = countByTeamId(team.id());
+        NotificationParams params = NotificationParams.builder().teamMemberId(teamMemberId).usersWithPhoto(usersWithPhoto).participantsCount(teamMembersCount).build();
         notificationService.deleteNotification(NotificationType.TEAM_INVITATION_REQUEST, params);
         notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_REQUEST, invitedUser.getId(), description, team.name(), team.id(), params);
     }

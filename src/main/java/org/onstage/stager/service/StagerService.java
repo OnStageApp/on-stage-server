@@ -110,7 +110,7 @@ public class StagerService {
 
             List<String> usersWithPhoto = userService.getUserIdsWithPhotoFromEvent(event.getId());
             notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_REQUEST, stager.userId(), description, title, team.id(),
-                    NotificationParams.builder().stagerId(stager.id()).eventId(event.getId()).date(event.getDateTime()).usersWithPhoto(usersWithPhoto).stagerCount(stagerCount).build());
+                    NotificationParams.builder().stagerId(stager.id()).eventId(event.getId()).date(event.getDateTime()).usersWithPhoto(usersWithPhoto).participantsCount(stagerCount).build());
 
         }
     }
