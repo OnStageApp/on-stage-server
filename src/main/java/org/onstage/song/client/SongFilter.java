@@ -1,6 +1,8 @@
 package org.onstage.song.client;
 
 import lombok.Builder;
+import org.onstage.enums.GenreEnum;
+import org.onstage.enums.ThemeEnum;
 
 @Builder
 public record SongFilter(
@@ -8,6 +10,8 @@ public record SongFilter(
         String artistId,
         String genres,
         Boolean includeOnlyTeamSongs,
-        TempoRange tempoRange
+        TempoRange tempoRange,
+        GenreEnum genre,
+        ThemeEnum theme
 ) {
 }

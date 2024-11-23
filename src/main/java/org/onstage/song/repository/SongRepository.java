@@ -66,6 +66,14 @@ public class SongRepository {
             }
         }
 
+        if (songFilter.genre() != null) {
+            preLookupCriteriaList.add(Criteria.where(Song.Fields.genre).is(songFilter.genre()));
+        }
+
+        if (songFilter.theme() != null) {
+            preLookupCriteriaList.add(Criteria.where(Song.Fields.theme).is(songFilter.theme()));
+        }
+
         Criteria teamCriteria = getTeamCriteria(teamId, songFilter.includeOnlyTeamSongs());
         if (teamCriteria != null) {
             preLookupCriteriaList.add(teamCriteria);
