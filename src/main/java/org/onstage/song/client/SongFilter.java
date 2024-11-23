@@ -8,7 +8,6 @@ import org.onstage.enums.ThemeEnum;
 public record SongFilter(
         String search,
         String artistId,
-        String genres,
         Boolean includeOnlyTeamSongs,
         TempoRange tempoRange,
         GenreEnum genre,
