@@ -33,6 +33,8 @@ public class NotificationRepository {
                 Criteria.where(Notification.Fields.type).in(BASE_NOTIFICATIONS)
         );
 
+        long totalCount = mongoTemplate.count(new Query().addCriteria(criteria), Notification.class);
+
         Query query = new Query()
                 .addCriteria(criteria)
                 .with(Sort.by(Sort.Direction.DESC, BaseEntity.Fields.createdAt))
@@ -41,11 +43,7 @@ public class NotificationRepository {
 
         List<Notification> notifications = mongoTemplate.find(query, Notification.class);
 
-        boolean hasMore = notifications.size() > limit;
-
-        if (hasMore) {
-            notifications = notifications.subList(0, limit);
-        }
+        boolean hasMore = totalCount > (offset + limit);
 
         return new PaginatedNotifications(notifications, hasMore);
     }
