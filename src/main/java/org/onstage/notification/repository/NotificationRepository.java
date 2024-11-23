@@ -21,12 +21,17 @@ import static java.util.Optional.ofNullable;
 @Component
 @RequiredArgsConstructor
 public class NotificationRepository {
+    public static final List<NotificationType> BASE_NOTIFICATIONS = List.of(NotificationType.TEAM_INVITATION_REQUEST, NotificationType.TEAM_MEMBER_ADDED, NotificationType.TEAM_MEMBER_REMOVED);
     private final MongoTemplate mongoTemplate;
     private final NotificationRepo repo;
 
-    public PaginatedNotifications findNotifications(String userId, int offset, int limit) {
+    public PaginatedNotifications findNotifications(String userId, String currentTeamId, int offset, int limit) {
         Criteria criteria = new Criteria();
         ofNullable(userId).ifPresent(currentUserId -> criteria.and(Notification.Fields.userToNotify).is(currentUserId));
+        criteria.orOperator(
+                Criteria.where(NotificationParams.Fields.teamId).is(currentTeamId),
+                Criteria.where(Notification.Fields.type).in(BASE_NOTIFICATIONS)
+        );
 
         Query query = new Query()
                 .addCriteria(criteria)

@@ -150,7 +150,7 @@ public class EventItemService {
             Stager stager = stagerRepository.findById(removedLeadVocal).orElseThrow(() -> BadRequestException.resourceNotFound("stager"));
             if (!Objects.equals(stager.userId(), requestedByUser)) {
                 String description = String.format("You are no longer the lead for %s", existingEventItem.getName());
-                notificationService.sendNotificationToUser(NotificationType.LEAD_VOICE_REMOVED, stager.userId(), description, title,
+                notificationService.sendNotificationToUser(NotificationType.LEAD_VOICE_REMOVED, stager.userId(), description, title, event.getTeamId(),
                         NotificationParams.builder().eventId(event.getId()).eventItemId(eventItemId).userId(requestedByUser).build());
             }
         });
@@ -160,7 +160,7 @@ public class EventItemService {
             Stager stager = stagerRepository.findById(addedLeadVocal).orElseThrow(() -> BadRequestException.resourceNotFound("stager"));
             if (!Objects.equals(stager.userId(), requestedByUser)) {
                 String description = String.format("%s assigned you as a lead voice for %s", user.getName(), existingEventItem.getName());
-                notificationService.sendNotificationToUser(NotificationType.LEAD_VOICE_ASSIGNED, stager.userId(), description, title,
+                notificationService.sendNotificationToUser(NotificationType.LEAD_VOICE_ASSIGNED, stager.userId(), description, title, event.getTeamId(),
                         NotificationParams.builder().eventId(event.getId()).eventItemId(eventItemId).userId(requestedByUser).build());
             }
         });
@@ -174,7 +174,7 @@ public class EventItemService {
         Stager stager = stagerRepository.findById(removedLeadVocal).orElseThrow(() -> BadRequestException.resourceNotFound("stager"));
         if (!Objects.equals(stager.userId(), requestedByUser)) {
             String description = String.format("You are no longer the lead for %s", eventItem.getName());
-            notificationService.sendNotificationToUser(NotificationType.LEAD_VOICE_REMOVED, stager.userId(), description, title,
+            notificationService.sendNotificationToUser(NotificationType.LEAD_VOICE_REMOVED, stager.userId(), description, title, event.getTeamId(),
                     NotificationParams.builder().eventId(event.getId()).eventItemId(eventItem.getId()).userId(requestedByUser).build());
         }
     }
