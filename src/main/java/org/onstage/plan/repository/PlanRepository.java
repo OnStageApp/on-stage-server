@@ -1,8 +1,10 @@
 package org.onstage.plan.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.onstage.common.base.BaseEntity;
 import org.onstage.plan.model.Plan;
 import org.onstage.revenuecat.model.StoreEnum;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -40,6 +42,7 @@ public class PlanRepository {
     }
 
     public List<Plan> getAll() {
-        return planRepo.findAll();
+        Query query = new Query().with(Sort.by(Sort.Direction.ASC, Plan.Fields.price));
+        return mongoTemplate.find(query, Plan.class);
     }
 }
