@@ -26,7 +26,6 @@ import org.onstage.user.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.onstage.enums.MemberInviteStatus.*;
@@ -196,20 +195,24 @@ public class TeamMemberService {
     private void updateMembersState(String teamId, int limit, boolean isDowngrade) {
         MemberInviteStatus fromStatus = isDowngrade ? CONFIRMED : INACTIVE;
         MemberInviteStatus toStatus = isDowngrade ? INACTIVE : CONFIRMED;
-        Consumer<TeamMember> notificationFunction = isDowngrade
-                ? this::notifyRemovedUser
-                : this::notifyActivatedUser;
 
         List<TeamMember> teamMembersToUpdate = teamMemberRepository.getAllToUpdate(teamId, limit, fromStatus);
         for (TeamMember teamMember : teamMembersToUpdate) {
-            TeamMember updatedMember = teamMember.toBuilder().inviteStatus(toStatus).build();
-            teamMemberRepository.save(updatedMember);
-            notificationFunction.accept(updatedMember);
+            teamMember.setInviteStatus(toStatus);
+            teamMemberRepository.save(teamMember);
+
+            User user = userService.getById(teamMember.getUserId());
             if (isDowngrade) {
-                deviceService.getAllLoggedDevices(teamMember.getUserId()).forEach(device -> {
-                    log.info("Sending team changed event to device {}", device);
-                    socketIOService.sendSocketEvent(teamMember.getUserId(), device.getDeviceId(), SocketEventType.TEAM_CHANGED, null);
-                });
+                if (user.getCurrentTeamId().equals(teamId)) {
+                    user.setCurrentTeamId(teamRepository.getStarterTeam(user.getId()).getId());
+                    deviceService.getAllLoggedDevices(teamMember.getUserId()).forEach(device -> {
+                        log.info("Sending team changed event to device {}", device);
+                        socketIOService.sendSocketEvent(teamMember.getUserId(), device.getDeviceId(), SocketEventType.TEAM_CHANGED, null);
+                    });
+                }
+                notifyRemovedUser(teamMember);
+            } else {
+                notifyActivatedUser(teamMember);
             }
         }
     }
