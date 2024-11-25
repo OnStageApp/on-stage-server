@@ -44,7 +44,7 @@ public class RehearsalController {
     @PutMapping("/{id}")
     public ResponseEntity<RehearsalDTO> update(@PathVariable String id, @RequestBody RehearsalDTO request) {
         Rehearsal rehearsal = rehearsalService.getById(id);
-        return ResponseEntity.ok(rehearsalMapper.toDto(rehearsalService.update(rehearsal, request)));
+        return ResponseEntity.ok(rehearsalMapper.toDto(rehearsalService.update(rehearsal, rehearsalMapper.toEntity(request))));
     }
 
 }

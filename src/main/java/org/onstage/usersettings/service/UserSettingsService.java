@@ -36,20 +36,19 @@ public class UserSettingsService {
                 .userId(userId)
                 .build());
 
-        log.info("Default user settings for user {} has been saved", savedUserSettings.userId());
+        log.info("Default user settings for user {} has been saved", savedUserSettings.getUserId());
     }
 
-    public UserSettings update(String userId, UserSettingsDTO request) {
+    public UserSettings update(String userId, UserSettings request) {
         UserSettings existingUserSettings = getUserSettings(userId);
-        UserSettings updatedUserSettings = existingUserSettings.toBuilder()
-                .isDarkMode(request.isDarkMode() == null ? existingUserSettings.isDarkMode() : request.isDarkMode())
-                .isNotificationsEnabled(request.isNotificationsEnabled() == null ? existingUserSettings.isNotificationsEnabled() : request.isNotificationsEnabled())
-                .songView(request.songView() == null ? existingUserSettings.songView() : request.songView())
-                .isOnboardingDone(request.isOnboardingDone() == null ? existingUserSettings.isOnboardingDone() : request.isOnboardingDone())
-                .textSize(request.textSize() == null ? existingUserSettings.textSize() : request.textSize())
-                .isCreateEventTooltipShown(request.isCreateEventTooltipShown() == null ? existingUserSettings.isCreateEventTooltipShown() : request.isCreateEventTooltipShown())
-                .isAddRemindersTooltipShown(request.isAddRemindersTooltipShown() == null ? existingUserSettings.isAddRemindersTooltipShown() : request.isAddRemindersTooltipShown())
-                .build();
-        return userSettingsRepository.save(updatedUserSettings);
+        existingUserSettings.setIsDarkMode(request.getIsDarkMode() == null ? existingUserSettings.getIsDarkMode() : request.getIsDarkMode());
+        existingUserSettings.setIsNotificationsEnabled(request.getIsNotificationsEnabled() == null ? existingUserSettings.getIsNotificationsEnabled() : request.getIsNotificationsEnabled());
+        existingUserSettings.setSongView(request.getSongView() == null ? existingUserSettings.getSongView() : request.getSongView());
+        existingUserSettings.setIsOnboardingDone(request.getIsOnboardingDone() == null ? existingUserSettings.getIsOnboardingDone() : request.getIsOnboardingDone());
+        existingUserSettings.setTextSize(request.getTextSize() == null ? existingUserSettings.getTextSize() : request.getTextSize());
+        existingUserSettings.setIsCreateEventTooltipShown(request.getIsCreateEventTooltipShown() == null ? existingUserSettings.getIsCreateEventTooltipShown() : request.getIsCreateEventTooltipShown());
+        existingUserSettings.setIsAddRemindersTooltipShown(request.getIsAddRemindersTooltipShown() == null ? existingUserSettings.getIsAddRemindersTooltipShown() : request.getIsAddRemindersTooltipShown());
+
+        return userSettingsRepository.save(existingUserSettings);
     }
 }

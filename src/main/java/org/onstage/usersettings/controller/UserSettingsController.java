@@ -35,7 +35,7 @@ public class UserSettingsController {
     public ResponseEntity<UserSettingsDTO> updateUserSettings(@RequestBody UserSettingsDTO request) {
         String userId = userSecurityContext.getUserId();
         log.info("Updating user settings for user {} with request {}", userId, request);
-        return ResponseEntity.ok(userSettingsMapper.toDTO(userSettingsService.update(userId, request)));
+        return ResponseEntity.ok(userSettingsMapper.toDTO(userSettingsService.update(userId, userSettingsMapper.toEntity(request))));
     }
 
 

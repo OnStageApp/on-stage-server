@@ -10,8 +10,8 @@ import java.util.List;
 public class ArtistMapper {
     public ArtistDTO toDto(Artist entity) {
         return ArtistDTO.builder()
-                .id(entity.id())
-                .name(entity.name())
+                .id(entity.getId())
+                .name(entity.getName())
                 .imageUrl(null)
                 .build();
     }

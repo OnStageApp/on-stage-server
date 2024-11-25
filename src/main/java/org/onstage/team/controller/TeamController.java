@@ -61,6 +61,6 @@ public class TeamController {
     @PutMapping("/{id}")
     public ResponseEntity<TeamDTO> update(@PathVariable String id, @RequestBody TeamDTO request) {
         Team team = teamService.getById(id);
-        return ResponseEntity.ok(teamMapper.toDto(teamService.update(team, request)));
+        return ResponseEntity.ok(teamMapper.toDto(teamService.update(team, teamMapper.toEntity(request, team.getLeaderId()))));
     }
 }

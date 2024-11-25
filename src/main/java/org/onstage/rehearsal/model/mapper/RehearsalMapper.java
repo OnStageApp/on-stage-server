@@ -10,11 +10,11 @@ import java.util.List;
 public class RehearsalMapper {
     public RehearsalDTO toDto(Rehearsal entity) {
         return RehearsalDTO.builder()
-                .id(entity.id())
-                .name(entity.name())
-                .dateTime(entity.dateTime())
-                .location(entity.location())
-                .eventId(entity.eventId())
+                .id(entity.getId())
+                .name(entity.getName())
+                .dateTime(entity.getDateTime())
+                .location(entity.getLocation())
+                .eventId(entity.getEventId())
                 .build();
     }
 

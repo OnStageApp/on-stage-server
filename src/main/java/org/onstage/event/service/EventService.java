@@ -128,20 +128,20 @@ public class EventService {
             String title = "Event cancelled";
 
             stagerService.getStagersToNotify(event.getId(), requestedByUser, ParticipationStatus.CONFIRMED).forEach(stager -> {
-                notificationService.sendNotificationToUser(NotificationType.EVENT_DELETED, stager.userId(), description, title, event.getTeamId(), NotificationParams.builder().userId(requestedByUser).build());
+                notificationService.sendNotificationToUser(NotificationType.EVENT_DELETED, stager.getUserId(), description, title, event.getTeamId(), NotificationParams.builder().userId(requestedByUser).build());
             });
         }
 
         if (event.getEventStatus() == PUBLISHED) {
             Team team = teamService.getById(event.getTeamId());
-            String description = String.format("You have been invited to %s event. Team %s", event.getName(), team.name());
+            String description = String.format("You have been invited to %s event. Team %s", event.getName(), team.getName());
             String title = event.getName();
             Integer stagerCount = stagerService.countByEventId(event.getId());
 
             List<String> usersWithPhoto = userService.getUserIdsWithPhotoFromEvent(event.getId());
             stagerService.getStagersToNotify(event.getId(), requestedByUser, ParticipationStatus.PENDING).forEach(stager -> {
-                notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_REQUEST, stager.userId(), description, title, team.id(),
-                        NotificationParams.builder().stagerId(stager.id()).eventId(event.getId()).date(event.getDateTime()).usersWithPhoto(usersWithPhoto).participantsCount(stagerCount).build());
+                notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_REQUEST, stager.getUserId(), description, title, team.getId(),
+                        NotificationParams.builder().stagerId(stager.getId()).eventId(event.getId()).date(event.getDateTime()).usersWithPhoto(usersWithPhoto).participantsCount(stagerCount).build());
             });
         }
     }

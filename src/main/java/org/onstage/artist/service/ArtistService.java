@@ -26,20 +26,14 @@ public class ArtistService {
 
     public Artist save(Artist artist) {
         Artist savedArtist = artistRepository.save(artist);
-        log.info("Artist {} has been saved", savedArtist.id());
+        log.info("Artist {} has been saved", savedArtist.getId());
         return savedArtist;
     }
 
     public Artist update(Artist existingArtist, Artist request) {
-        log.info("Updating artist {} with request {}", existingArtist.id(), request);
-        Artist updatedArtist = updateArtistFromDTO(existingArtist, request);
-        return save(updatedArtist);
-    }
-
-    private Artist updateArtistFromDTO(Artist existingArtist, Artist request) {
-        return Artist.builder()
-                .id(existingArtist.id())
-                .name(request.name())
-                .build();
+        log.info("Updating artist {} with request {}", existingArtist.getId(), request);
+        existingArtist.setName(request.getName() == null ? existingArtist.getName() : request.getName());
+        existingArtist.setImageUrl(request.getImageUrl() == null ? existingArtist.getImageUrl() : request.getImageUrl());
+        return save(existingArtist);
     }
 }

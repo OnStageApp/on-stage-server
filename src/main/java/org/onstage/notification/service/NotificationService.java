@@ -53,7 +53,7 @@ public class NotificationService {
         deviceService.getAllLoggedDevices(userToNotify).forEach(device -> {
             socketIOService.sendSocketEvent(notification.getUserToNotify(), device.getDeviceId(), NOTIFICATION, null);
             UserSettings userSettings = userSettingsService.getUserSettings(notification.getUserToNotify());
-            if (userSettings != null && userSettings.isNotificationsEnabled()) {
+            if (userSettings != null && userSettings.getIsNotificationsEnabled()) {
                 pushNotificationService.sendPushNotification(title, description, device.getPushToken());
             }
         });

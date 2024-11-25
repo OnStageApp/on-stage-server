@@ -39,7 +39,7 @@ public class RehearsalService {
 
     public Rehearsal save(Rehearsal rehearsal, String requestedByUser, boolean notifyStagers) {
         Rehearsal savedRehearsal = rehearsalRepository.save(rehearsal);
-        log.info("Rehearsal {} has been saved", savedRehearsal.id());
+        log.info("Rehearsal {} has been saved", savedRehearsal.getId());
 
         if (notifyStagers) notifyStagers(rehearsal, requestedByUser);
 
@@ -51,20 +51,13 @@ public class RehearsalService {
         return rehearsalRepository.delete(id);
     }
 
-    public Rehearsal update(Rehearsal existingRehearsal, RehearsalDTO request) {
-        log.info("Updating rehearsal {} with request {}", existingRehearsal.id(), request);
-        Rehearsal updatedRehearsal = updateRehearsalFromDTO(existingRehearsal, request);
-        return rehearsalRepository.save(updatedRehearsal);
-    }
+    public Rehearsal update(Rehearsal existingRehearsal, Rehearsal request) {
+        log.info("Updating rehearsal {} with request {}", existingRehearsal.getId(), request);
+        existingRehearsal.setName(request.getName() == null ? existingRehearsal.getName() : request.getName());
+        existingRehearsal.setDateTime(request.getDateTime() == null ? existingRehearsal.getDateTime() : request.getDateTime());
+        existingRehearsal.setLocation(request.getLocation() == null ? existingRehearsal.getLocation() : request.getLocation());
 
-    private Rehearsal updateRehearsalFromDTO(Rehearsal existingRehearsal, RehearsalDTO request) {
-        return Rehearsal.builder()
-                .id(existingRehearsal.id())
-                .name(request.name() == null ? existingRehearsal.name() : request.name())
-                .dateTime(request.dateTime() == null ? existingRehearsal.dateTime() : request.dateTime())
-                .location(request.location() == null ? existingRehearsal.location() : request.location())
-                .eventId(existingRehearsal.eventId())
-                .build();
+        return rehearsalRepository.save(existingRehearsal);
     }
 
 
@@ -83,11 +76,11 @@ public class RehearsalService {
     }
 
     private void notifyStagers(Rehearsal rehearsal, String requestedByUser) {
-        List<Stager> stagers = stagerService.getStagersToNotify(rehearsal.eventId(), requestedByUser, ParticipationStatus.CONFIRMED);
-        Event event = eventRepository.findById(rehearsal.eventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
-        String description = String.format("You have a new rehearsal on %s for %s", DateUtils.formatDate(rehearsal.dateTime()), event.getName());
+        List<Stager> stagers = stagerService.getStagersToNotify(rehearsal.getEventId(), requestedByUser, ParticipationStatus.CONFIRMED);
+        Event event = eventRepository.findById(rehearsal.getEventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
+        String description = String.format("You have a new rehearsal on %s for %s", DateUtils.formatDate(rehearsal.getDateTime()), event.getName());
         String title = event.getName();
-        stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.NEW_REHEARSAL, stager.userId(), description, title, event.getTeamId(),
+        stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.NEW_REHEARSAL, stager.getUserId(), description, title, event.getTeamId(),
                 NotificationParams.builder().eventId(event.getId()).build()));
     }
 }
