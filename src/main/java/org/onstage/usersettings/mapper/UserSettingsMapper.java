@@ -8,14 +8,14 @@ import org.springframework.stereotype.Component;
 public class UserSettingsMapper {
     public UserSettingsDTO toDTO(UserSettings userSettings) {
         return UserSettingsDTO.builder()
-                .userId(userSettings.userId())
-                .isDarkMode(userSettings.isDarkMode())
-                .isNotificationsEnabled(userSettings.isNotificationsEnabled())
-                .isOnboardingDone(userSettings.isOnboardingDone())
-                .songView(userSettings.songView())
-                .textSize(userSettings.textSize())
-                .isAddRemindersTooltipShown(userSettings.isAddRemindersTooltipShown())
-                .isCreateEventTooltipShown(userSettings.isCreateEventTooltipShown())
+                .userId(userSettings.getUserId())
+                .isDarkMode(userSettings.getIsDarkMode())
+                .isNotificationsEnabled(userSettings.getIsNotificationsEnabled())
+                .isOnboardingDone(userSettings.getIsOnboardingDone())
+                .songView(userSettings.getSongView())
+                .textSize(userSettings.getTextSize())
+                .isAddRemindersTooltipShown(userSettings.getIsAddRemindersTooltipShown())
+                .isCreateEventTooltipShown(userSettings.getIsCreateEventTooltipShown())
                 .build();
     }
 

@@ -30,7 +30,7 @@ public class FavoriteSongRepository {
 
 
     public void removeFavoriteSong(String songId, String userId) {
-        Query query = new Query(Criteria.where("songId").is(songId).and("userId").is(userId));
+        Query query = new Query(Criteria.where(FavoriteSong.Fields.songId).is(songId).and(FavoriteSong.Fields.userId).is(userId));
         mongoTemplate.remove(query, FavoriteSong.class);
     }
 

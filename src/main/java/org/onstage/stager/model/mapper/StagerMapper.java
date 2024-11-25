@@ -10,12 +10,12 @@ import java.util.List;
 public class StagerMapper {
     public StagerDTO toDto(Stager entity) {
         return StagerDTO.builder()
-                .id(entity.id())
-                .eventId(entity.eventId())
-                .teamMemberId(entity.teamMemberId())
-                .userId(entity.userId())
-                .name(entity.name())
-                .participationStatus(entity.participationStatus())
+                .id(entity.getId())
+                .eventId(entity.getEventId())
+                .teamMemberId(entity.getTeamMemberId())
+                .userId(entity.getUserId())
+                .name(entity.getName())
+                .participationStatus(entity.getParticipationStatus())
                 .build();
     }
 

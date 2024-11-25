@@ -33,16 +33,16 @@ public class TeamService {
 
     public Team create(Team team) {
         Team savedTeam = teamRepository.save(team);
-        User user = userService.getById(savedTeam.leaderId());
-        log.info("Team {} has been created", savedTeam.id());
+        User user = userService.getById(savedTeam.getLeaderId());
+        log.info("Team {} has been created", savedTeam.getId());
         teamMemberRepository.save(TeamMember.builder()
-                .teamId(savedTeam.id())
-                .userId(savedTeam.leaderId())
+                .teamId(savedTeam.getId())
+                .userId(savedTeam.getLeaderId())
                 .name(user.getName() != null ? user.getName() : user.getEmail())
                 .role(MemberRole.LEADER)
                 .inviteStatus(CONFIRMED).build());
-        subscriptionService.createStarterSubscription(savedTeam.id(), savedTeam.leaderId());
-        return getById(savedTeam.id());
+        subscriptionService.createStarterSubscription(savedTeam.getId(), savedTeam.getLeaderId());
+        return getById(savedTeam.getId());
     }
 
     public String delete(String id) {
@@ -51,12 +51,9 @@ public class TeamService {
         return teamRepository.delete(id);
     }
 
-    public Team update(Team existingTeam, TeamDTO request) {
-        log.info("Updating team {} with request {}", existingTeam.id(), request);
-        existingTeam = Team.builder()
-                .id(existingTeam.id())
-                .leaderId(existingTeam.leaderId())
-                .name(request.name() != null? request.name() : existingTeam.name()).build();
+    public Team update(Team existingTeam, Team request) {
+        log.info("Updating team {} with request {}", existingTeam.getId(), request);
+        existingTeam.setName(request.getName() != null ? request.getName() : existingTeam.getName());
         return teamRepository.save(existingTeam);
     }
 

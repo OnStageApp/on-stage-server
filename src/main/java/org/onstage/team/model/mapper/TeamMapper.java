@@ -18,9 +18,9 @@ public class TeamMapper {
 
     public TeamDTO toDto(Team entity) {
         return TeamDTO.builder()
-                .id(entity.id())
-                .name(entity.name())
-                .membersCount(teamMemberService.countByTeamId(entity.id()))
+                .id(entity.getId())
+                .name(entity.getName())
+                .membersCount(teamMemberService.countByTeamId(entity.getId()))
                 .build();
     }
 
@@ -40,18 +40,18 @@ public class TeamMapper {
 
     public CurrentTeamDTO toCurrentTeamDTO(Team team) {
         return CurrentTeamDTO.builder()
-                .id(team.id())
-                .name(team.name())
-                .membersCount(teamMemberService.countByTeamId(team.id()))
-                .membersUserIds(teamMemberService.getMemberWithPhotoIds(team.id()))
+                .id(team.getId())
+                .name(team.getName())
+                .membersCount(teamMemberService.countByTeamId(team.getId()))
+                .membersUserIds(teamMemberService.getMemberWithPhotoIds(team.getId()))
                 .build();
     }
 
     public GetTeamResponse toGetTeamResponse(Team team, String userId) {
         return GetTeamResponse.builder()
-                .id(team.id())
-                .name(team.name())
-                .membersCount(teamMemberService.countByTeamId(team.id()))
+                .id(team.getId())
+                .name(team.getName())
+                .membersCount(teamMemberService.countByTeamId(team.getId()))
                 .role(StringUtils.capitalize(teamMemberService.getRole(team, userId).getValue()))
                 .build();
     }

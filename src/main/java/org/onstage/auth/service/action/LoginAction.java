@@ -60,7 +60,7 @@ public class LoginAction implements Action<LoginRequest, TokenDTO> {
                 .email(decodedToken.getEmail())
                 .build());
         Team team = teamService.create(Team.builder().name(name.concat("'s Team")).leaderId(user.getId()).build());
-        return userRepository.save(user.toBuilder().currentTeamId(team.id()).build());
+        return userRepository.save(user.toBuilder().currentTeamId(team.getId()).build());
 
     }
 }
