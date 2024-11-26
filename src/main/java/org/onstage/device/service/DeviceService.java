@@ -14,6 +14,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class DeviceService {
+    private static final int MAX_DEVICES = 3;
     private final DeviceRepository deviceRepository;
 
     public Device getById(String id) {
@@ -21,7 +22,24 @@ public class DeviceService {
     }
 
     public Device loginDevice(Device device) {
-        Device existingDevice = deviceRepository.findByDeviceId(device.getDeviceId()).orElse(device);
+        Device existingDevice = deviceRepository.findByDeviceId(device.getDeviceId())
+                .orElse(device);
+
+        long loggedDevicesCount = deviceRepository.countLoggedDevices(device.getUserId());
+
+        if (existingDevice.getLogged() && existingDevice.getUserId().equals(device.getUserId())) {
+            existingDevice.setLastLogin(new Date());
+            return deviceRepository.save(existingDevice);
+        }
+
+        if (loggedDevicesCount >= MAX_DEVICES) {
+            Device oldestDevice = deviceRepository.getDeviceToLogout(device.getUserId());
+            if (oldestDevice != null) {
+                oldestDevice.setLogged(false);
+                deviceRepository.save(oldestDevice);
+            }
+        }
+
         existingDevice.setUserId(device.getUserId());
         existingDevice.setLogged(true);
         existingDevice.setLastLogin(new Date());
