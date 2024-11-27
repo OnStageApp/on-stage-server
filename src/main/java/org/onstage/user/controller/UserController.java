@@ -52,6 +52,12 @@ public class UserController {
         return ResponseEntity.ok(userService.getPresignedUrl(userId, false));
     }
 
+    @GetMapping(value = "/photo/currentUser")
+    public ResponseEntity<String> generateGetPresignedUrlForCurrentUser() {
+        String userId = userSecurityContext.getUserId();
+        return ResponseEntity.ok(userService.getPresignedUrl(userId, false));
+    }
+
     @PostMapping(value = "/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadPhoto(@ModelAttribute MultipartFile image) {
         String userId = userSecurityContext.getUserId();
