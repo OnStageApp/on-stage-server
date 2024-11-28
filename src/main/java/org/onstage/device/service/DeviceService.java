@@ -25,6 +25,10 @@ public class DeviceService {
         Device existingDevice = deviceRepository.findByDeviceId(device.getDeviceId())
                 .orElse(device);
 
+        existingDevice.setUserId(device.getUserId());
+        existingDevice.setLogged(true);
+        existingDevice.setLastLogin(new Date());
+
         long loggedDevicesCount = deviceRepository.countLoggedDevices(device.getUserId());
 
         if (existingDevice.getLogged() && existingDevice.getUserId().equals(device.getUserId())) {
@@ -40,9 +44,6 @@ public class DeviceService {
             }
         }
 
-        existingDevice.setUserId(device.getUserId());
-        existingDevice.setLogged(true);
-        existingDevice.setLastLogin(new Date());
         return deviceRepository.save(existingDevice);
     }
 
