@@ -18,6 +18,7 @@ public class DeviceService {
     private final DeviceRepository deviceRepository;
 
     public Device getByDeviceId(String deviceId) {
+        //TODO: If it's null i think we should create a new device
         return deviceRepository.findByDeviceId(deviceId).orElse(null);
     }
 
@@ -64,6 +65,10 @@ public class DeviceService {
     public void updateLoggedStatus(String deviceId, boolean isLogged) {
 
         Device device = getByDeviceId(deviceId);
+        if(device == null){
+            log.info("Device ID is null: {}", device);
+            return;
+        }
         device.setLogged(isLogged);
         if (isLogged) {
             device.setLastLogin(new Date());
