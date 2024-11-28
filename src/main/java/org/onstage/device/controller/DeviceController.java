@@ -27,7 +27,7 @@ public class DeviceController {
     @PutMapping("/{id}")
     public ResponseEntity<DeviceDTO> updateDevice(@PathVariable final String id, @RequestBody DeviceDTO deviceDTO) {
         String userId = userSecurityContext.getUserId();
-        Device existingDevice = deviceService.getById(id);
+        Device existingDevice = deviceService.getByDeviceId(id);
         return ResponseEntity.ok(deviceMapper.toDTO(deviceService.updateDevice(existingDevice, deviceMapper.fromDTO(deviceDTO, userId))));
     }
 }

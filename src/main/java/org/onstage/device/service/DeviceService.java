@@ -17,14 +17,14 @@ public class DeviceService {
     private static final int MAX_DEVICES = 3;
     private final DeviceRepository deviceRepository;
 
-    public Device getById(String id) {
-        return deviceRepository.findByDeviceId(id).orElseThrow(() -> BadRequestException.resourceNotFound("device"));
+    public Device getByDeviceId(String deviceId) {
+        return deviceRepository.findByDeviceId(deviceId).orElse(null);
     }
 
     public Device loginDevice(Device device) {
         Device existingDevice = deviceRepository.findByDeviceId(device.getDeviceId())
                 .orElse(device);
-
+//TODO: Verify this, idk if it's ok
         existingDevice.setUserId(device.getUserId());
         existingDevice.setLogged(true);
         existingDevice.setLastLogin(new Date());
@@ -48,6 +48,9 @@ public class DeviceService {
     }
 
     public Device updateDevice(Device existingDevice, Device device) {
+
+        //TODO: We need to create the device if device does not exist
+
         log.info("Updating device {} with new data: {}", existingDevice, device);
         existingDevice.setDeviceId(device.getDeviceId() != null ? device.getDeviceId() : existingDevice.getDeviceId());
         existingDevice.setOsVersion(device.getOsVersion() != null ? device.getOsVersion() : existingDevice.getOsVersion());
@@ -59,7 +62,8 @@ public class DeviceService {
     }
 
     public void updateLoggedStatus(String deviceId, boolean isLogged) {
-        Device device = getById(deviceId);
+
+        Device device = getByDeviceId(deviceId);
         device.setLogged(isLogged);
         if (isLogged) {
             device.setLastLogin(new Date());
