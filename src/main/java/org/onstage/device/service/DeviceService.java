@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.device.model.Device;
 import org.onstage.device.repository.DeviceRepository;
-import org.onstage.exceptions.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -18,14 +17,13 @@ public class DeviceService {
     private final DeviceRepository deviceRepository;
 
     public Device getByDeviceId(String deviceId) {
-        //TODO: If it's null i think we should create a new device
         return deviceRepository.findByDeviceId(deviceId).orElse(null);
     }
 
     public Device loginDevice(Device device) {
         Device existingDevice = deviceRepository.findByDeviceId(device.getDeviceId())
                 .orElse(device);
-//TODO: Verify this, idk if it's ok
+
         existingDevice.setUserId(device.getUserId());
         existingDevice.setLogged(true);
         existingDevice.setLastLogin(new Date());
@@ -33,7 +31,6 @@ public class DeviceService {
         long loggedDevicesCount = deviceRepository.countLoggedDevices(device.getUserId());
 
         if (existingDevice.getLogged() && existingDevice.getUserId().equals(device.getUserId())) {
-            existingDevice.setLastLogin(new Date());
             return deviceRepository.save(existingDevice);
         }
 
@@ -49,9 +46,10 @@ public class DeviceService {
     }
 
     public Device updateDevice(Device existingDevice, Device device) {
-
-        //TODO: We need to create the device if device does not exist
-
+        if (existingDevice == null) {
+            log.info("Device {} not found, logging in new device", device);
+            return loginDevice(device);
+        }
         log.info("Updating device {} with new data: {}", existingDevice, device);
         existingDevice.setDeviceId(device.getDeviceId() != null ? device.getDeviceId() : existingDevice.getDeviceId());
         existingDevice.setOsVersion(device.getOsVersion() != null ? device.getOsVersion() : existingDevice.getOsVersion());
@@ -63,10 +61,9 @@ public class DeviceService {
     }
 
     public void updateLoggedStatus(String deviceId, boolean isLogged) {
-
         Device device = getByDeviceId(deviceId);
-        if(device == null){
-            log.info("Device ID is null: {}", device);
+        if (device == null) {
+            log.info("Device ID is null");
             return;
         }
         device.setLogged(isLogged);
