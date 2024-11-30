@@ -56,29 +56,15 @@ public class SubscriptionService {
             return;
         }
 
-        if (isPromotionalProduct(productId)) {
+        if (event.getPeriodType().equals("PROMOTIONAL")) {
             handlePromotionalSubscription(event, team, user);
         } else {
             handleRegularSubscription(event, team, user);
         }
     }
 
-    private boolean isPromotionalProduct(String productId) {
-        return productId != null && productId.startsWith("rc_promo_");
-    }
-
     private void handlePromotionalSubscription(RevenueCatWebhookEvent event, Team team, User user) {
-        String productId = event.getProductId();
-        String[] parts = productId.split("_");
-
-        if (parts.length < 3) {
-            log.warn("Invalid promotional product ID format: {}", productId);
-            return;
-        }
-
-        String entitlementType = parts[2];
-        String duration = parts.length >= 4 ? parts[3] : "default";
-
+        String entitlementType = event.getEntitlementId();
         Plan plan = getPlanForPromotion(entitlementType);
         if (plan == null) {
             log.warn("No plan found for promotional entitlement: {}", entitlementType);
@@ -90,15 +76,9 @@ public class SubscriptionService {
                 .teamId(team.getId())
                 .planId(plan.getId())
                 .purchaseDate(new Date(event.getPurchasedAtMs()))
+                .expiryDate(new Date(event.getExpirationAtMs()))
                 .status(SubscriptionStatus.ACTIVE)
                 .build();
-
-        if ("lifetime".equalsIgnoreCase(duration)) {
-            newSubscription.setExpiryDate(null);
-            log.info("Creating lifetime subscription for team {}", team.getId());
-        } else {
-            newSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
-        }
 
         saveAndNotifyAllLogged(newSubscription, user.getId());
         teamMemberService.updateTeamMembersIfNeeded(plan.getId(), team.getId());
