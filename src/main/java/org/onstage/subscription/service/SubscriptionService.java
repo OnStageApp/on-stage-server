@@ -244,6 +244,10 @@ public class SubscriptionService {
         log.info("Uncancelled subscription for team {}. Subscription is now active until {}", team.getId(), existingSubscription.getExpiryDate());
     }
 
+    public void handleNonRenewingPurchase(RevenueCatWebhookEvent event, User user) {
+
+    }
+
     public void createStarterSubscription(String teamId, String userId) {
         Subscription currentSubscription = findActiveSubscriptionByTeam(teamId);
         if (currentSubscription != null) {

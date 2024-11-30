@@ -9,6 +9,7 @@ public enum RevenueCatEventType {
     UNCANCELLATION,
     BILLING_ISSUE,
     EXPIRATION,
-    TRANSFER
+    TRANSFER,
+    NON_RENEWING_PURCHASE
 
 }
