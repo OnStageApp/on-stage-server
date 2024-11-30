@@ -35,7 +35,7 @@ public class SubscriptionService {
     private final UserRepository userRepository;
 
 
-    public void handleInitialPurchase(RevenueCatWebhookEvent event, User user) {
+    public void purchaseSubscription(RevenueCatWebhookEvent event, User user) {
         Team team = validateTeamLeader(user);
 
         Subscription existingSubscription = findActiveSubscriptionByTeam(team.getId());
@@ -242,10 +242,6 @@ public class SubscriptionService {
         existingSubscription.setCancellationDate(null);
         saveAndNotifyAllLogged(existingSubscription, user.getId());
         log.info("Uncancelled subscription for team {}. Subscription is now active until {}", team.getId(), existingSubscription.getExpiryDate());
-    }
-
-    public void handleNonRenewingPurchase(RevenueCatWebhookEvent event, User user) {
-
     }
 
     public void createStarterSubscription(String teamId, String userId) {
