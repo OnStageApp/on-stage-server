@@ -47,8 +47,13 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping(value = "/photo")
-    public ResponseEntity<String> generateGetPresignedUrl() {
+    @GetMapping(value = "/photo/{userId}")
+    public ResponseEntity<String> generateGetPresignedUrl(@PathVariable(name = "userId") String userId) {
+        return ResponseEntity.ok(userService.getPresignedUrl(userId, false));
+    }
+
+    @GetMapping(value = "/photo/currentUser")
+    public ResponseEntity<String> generateGetPresignedUrlForCurrentUser() {
         String userId = userSecurityContext.getUserId();
         return ResponseEntity.ok(userService.getPresignedUrl(userId, false));
     }

@@ -104,8 +104,12 @@ public class UserService {
         userRepository.updateImageTimestamp(userId, now);
     }
 
-    public List<String> getUserIdsWithPhoto(String eventId) {
-        return userRepository.getUserIdsWithPhoto(eventId);
+    public List<String> getUserIdsWithPhotoFromEvent(String eventId) {
+        return userRepository.getUserIdsWithPhotoFromEvent(eventId);
+    }
+
+    public List<String> getUserIdsWithPhotoFromTeam(String teamId) {
+        return userRepository.getUserIdsWithPhotoFromTeam(teamId);
     }
 
     public void delete(String userId) {

@@ -1,9 +1,12 @@
 package org.onstage.device.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.onstage.common.base.BaseEntity;
 import org.onstage.device.model.Device;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -29,5 +32,16 @@ public class DeviceRepository {
     public List<Device> findAllByLogged(String userId) {
         Criteria criteria = Criteria.where(Device.Fields.userId).is(userId).and(Device.Fields.logged).is(true);
         return mongoTemplate.find(query(criteria), Device.class);
+    }
+
+    public Device getDeviceToLogout(String userId) {
+        Criteria criteria = Criteria.where(Device.Fields.userId).is(userId).and(Device.Fields.logged).is(true);
+        Query query = query(criteria).with(Sort.by(Sort.Direction.ASC, Device.Fields.lastLogin));
+        return mongoTemplate.findOne(query, Device.class);
+    }
+
+    public long countLoggedDevices(String userId) {
+        Criteria criteria = Criteria.where(Device.Fields.userId).is(userId).and(Device.Fields.logged).is(true);
+        return mongoTemplate.count(query(criteria), Device.class);
     }
 }

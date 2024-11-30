@@ -2,6 +2,7 @@ package org.onstage.user.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
+import org.onstage.enums.MemberInviteStatus;
 import org.onstage.enums.ParticipationStatus;
 import org.onstage.user.model.User;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -53,7 +54,7 @@ public class UserRepository {
     }
 
 
-    public List<String> getUserIdsWithPhoto(String eventId) {
+    public List<String> getUserIdsWithPhotoFromEvent(String eventId) {
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("imageTimestamp").ne(null)),
                 Aggregation.lookup("stagers", "_id", "userId", "stagers"),
@@ -87,5 +88,22 @@ public class UserRepository {
         );
         Query query = new Query(criteria);
         return mongoTemplate.findOne(query, User.class);
+    }
+
+    public List<String> getUserIdsWithPhotoFromTeam(String teamId) {
+        Aggregation aggregation = Aggregation.newAggregation(
+            Aggregation.match(Criteria.where("imageTimestamp").ne(null)),
+            Aggregation.lookup("teamMembers", "_id", "userId", "teamMembers"),
+            Aggregation.unwind("teamMembers"),
+            Aggregation.match(Criteria.where("teamMembers.teamId").is(teamId)
+                    .and("teamMembers.inviteStatus").is(MemberInviteStatus.CONFIRMED)),
+            Aggregation.limit(2),
+            Aggregation.project("_id")
+    );
+
+        AggregationResults<Document> results = mongoTemplate.aggregate(aggregation, "users", Document.class);
+        return results.getMappedResults().stream()
+                .map(doc -> doc.getString("_id"))
+                .collect(Collectors.toList());
     }
 }

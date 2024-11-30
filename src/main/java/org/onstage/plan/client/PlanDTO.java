@@ -9,13 +9,12 @@ public record PlanDTO(
         String entitlementId,
         int maxEvents,
         int maxMembers,
-        boolean hasSongsAccess,
         boolean hasAddSong,
         boolean hasScreensSync,
         boolean hasReminders,
         String appleProductId,
         String googleProductId,
-        Long price,
+        Double price,
         String currency,
         boolean isYearly
 ) {

@@ -13,6 +13,8 @@ import org.onstage.subscription.repository.SubscriptionRepository;
 import org.onstage.teammember.repository.TeamMemberRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -21,6 +23,10 @@ public class PlanService {
     private final SubscriptionRepository subscriptionRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final EventRepository eventRepository;
+
+    public List<Plan> getAll() {
+        return planRepository.getAll();
+    }
 
     public Plan save(Plan plan) {
         return planRepository.save(plan);

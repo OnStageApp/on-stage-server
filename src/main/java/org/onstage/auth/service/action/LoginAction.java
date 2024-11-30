@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class LoginAction implements Action<LoginRequest, TokenDTO> {
-    private final static String SOLO_TEAM_NAME = "Solo Team";
     private final UserRepository userRepository;
     private final UserService userService;
     private final TeamService teamService;
@@ -60,8 +59,8 @@ public class LoginAction implements Action<LoginRequest, TokenDTO> {
                 .name(name)
                 .email(decodedToken.getEmail())
                 .build());
-        Team team = teamService.create(Team.builder().name(SOLO_TEAM_NAME).leaderId(user.getId()).build());
-        return userRepository.save(user.toBuilder().currentTeamId(team.id()).build());
+        Team team = teamService.create(Team.builder().name(name.concat("'s Team")).leaderId(user.getId()).build());
+        return userRepository.save(user.toBuilder().currentTeamId(team.getId()).build());
 
     }
 }

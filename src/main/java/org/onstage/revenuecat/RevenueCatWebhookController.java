@@ -75,6 +75,11 @@ public class RevenueCatWebhookController {
             case TRANSFER:
                 log.info("Handling transfer event with request: {}", event);
                 subscriptionService.handleTransfer(event, user);
+            case NON_RENEWING_PURCHASE:
+                log.info("Handling non-renewing purchase event with request: {}", event);
+                subscriptionService.handleNonRenewingPurchase(event, user);
+                break;
+
             default:
                 log.warn("Unknown event type: {}", event.getType());
         }

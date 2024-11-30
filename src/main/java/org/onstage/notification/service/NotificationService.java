@@ -33,11 +33,12 @@ public class NotificationService {
     private final PushNotificationService pushNotificationService;
     private final UserSettingsService userSettingsService;
 
-    public PaginatedNotifications getNotificationsForUser(String userId, int offset, int limit) {
-        return notificationRepository.findNotifications(userId, offset, limit);
+    public PaginatedNotifications getNotificationsForUser(String userId, String currentTeamId, int offset, int limit) {
+        return notificationRepository.findNotifications(userId, currentTeamId, offset, limit);
     }
 
-    public void sendNotificationToUser(NotificationType type, String userToNotify, String description, String title, NotificationParams params) {
+    public void sendNotificationToUser(NotificationType type, String userToNotify, String description, String title, String teamId, NotificationParams params) {
+        params.setTeamId(teamId);
         Notification notification = Notification.builder()
                 .type(type)
                 .status(NotificationStatus.NEW)
@@ -52,7 +53,7 @@ public class NotificationService {
         deviceService.getAllLoggedDevices(userToNotify).forEach(device -> {
             socketIOService.sendSocketEvent(notification.getUserToNotify(), device.getDeviceId(), NOTIFICATION, null);
             UserSettings userSettings = userSettingsService.getUserSettings(notification.getUserToNotify());
-            if (userSettings != null && userSettings.isNotificationsEnabled()) {
+            if (userSettings != null && userSettings.getIsNotificationsEnabled()) {
                 pushNotificationService.sendPushNotification(title, description, device.getPushToken());
             }
         });

@@ -54,7 +54,7 @@ public class SendRemindersScheduler {
             String title = "Reminder";
 
             log.info("Sending reminder {}", reminder.id());
-            stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.REMINDER, stager.userId(), description, title, NotificationParams.builder().eventId(event.getId()).build()));
+            stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.REMINDER, stager.getUserId(), description, title, event.getTeamId(), NotificationParams.builder().eventId(event.getId()).build()));
             reminder.toBuilder().isSent(true);
             reminderRepository.save(reminder);
         }

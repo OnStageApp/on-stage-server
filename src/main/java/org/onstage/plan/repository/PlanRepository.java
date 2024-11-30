@@ -1,13 +1,16 @@
 package org.onstage.plan.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.onstage.common.base.BaseEntity;
 import org.onstage.plan.model.Plan;
 import org.onstage.revenuecat.model.StoreEnum;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -36,5 +39,10 @@ public class PlanRepository {
     public Plan getStarterPlan() {
         Criteria criteria = Criteria.where(Plan.Fields.name).is("Starter");
         return mongoTemplate.findOne(Query.query(criteria), Plan.class);
+    }
+
+    public List<Plan> getAll() {
+        Query query = new Query().with(Sort.by(Sort.Direction.ASC, Plan.Fields.price));
+        return mongoTemplate.find(query, Plan.class);
     }
 }

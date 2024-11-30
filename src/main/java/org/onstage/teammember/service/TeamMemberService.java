@@ -26,7 +26,6 @@ import org.onstage.user.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.onstage.enums.MemberInviteStatus.*;
@@ -74,9 +73,9 @@ public class TeamMemberService {
         }
 
         User user = userService.getById(teamMember.getUserId());
-        String soloTeamId = teamRepository.getStarterTeam(user.getId()).id();
+        String soloTeamId = teamRepository.getStarterTeam(user.getId()).getId();
         if (!user.getCurrentTeamId().equals(soloTeamId)) {
-            user.setCurrentTeamId(teamRepository.getStarterTeam(user.getId()).id());
+            user.setCurrentTeamId(teamRepository.getStarterTeam(user.getId()).getId());
             userService.save(user);
         }
         stagerService.removeAllByTeamMemberId(teamMemberId);
@@ -120,7 +119,7 @@ public class TeamMemberService {
 
         return teamMembers.stream()
                 .filter(teamMember -> teamMember.getInviteStatus() == CONFIRMED)
-                .filter(member -> !stagers.stream().map(Stager::teamMemberId).toList().contains(member.getId()))
+                .filter(member -> !stagers.stream().map(Stager::getTeamMemberId).toList().contains(member.getId()))
                 .collect(Collectors.toList());
     }
 
@@ -133,7 +132,7 @@ public class TeamMemberService {
             invitedUser = userService.getByEmail(email);
 
             if (invitedUser == null) {
-                sendGridService.sendInviteToTeamEmail(email, team.name());
+                sendGridService.sendInviteToTeamEmail(email, team.getName());
                 return null;
             }
 
@@ -178,7 +177,7 @@ public class TeamMemberService {
     }
 
     public MemberRole getRole(Team team, String userId) {
-        return teamMemberRepository.getByUserAndTeam(userId, team.id()).getRole();
+        return teamMemberRepository.getByUserAndTeam(userId, team.getId()).getRole();
     }
 
     public void updateTeamMembersIfNeeded(String planId, String teamId) {
@@ -196,20 +195,24 @@ public class TeamMemberService {
     private void updateMembersState(String teamId, int limit, boolean isDowngrade) {
         MemberInviteStatus fromStatus = isDowngrade ? CONFIRMED : INACTIVE;
         MemberInviteStatus toStatus = isDowngrade ? INACTIVE : CONFIRMED;
-        Consumer<TeamMember> notificationFunction = isDowngrade
-                ? this::notifyRemovedUser
-                : this::notifyActivatedUser;
 
         List<TeamMember> teamMembersToUpdate = teamMemberRepository.getAllToUpdate(teamId, limit, fromStatus);
         for (TeamMember teamMember : teamMembersToUpdate) {
-            TeamMember updatedMember = teamMember.toBuilder().inviteStatus(toStatus).build();
-            teamMemberRepository.save(updatedMember);
-            notificationFunction.accept(updatedMember);
+            teamMember.setInviteStatus(toStatus);
+            teamMemberRepository.save(teamMember);
+
+            User user = userService.getById(teamMember.getUserId());
             if (isDowngrade) {
-                deviceService.getAllLoggedDevices(teamMember.getUserId()).forEach(device -> {
-                    log.info("Sending team changed event to device {}", device);
-                    socketIOService.sendSocketEvent(teamMember.getUserId(), device.getDeviceId(), SocketEventType.TEAM_CHANGED, null);
-                });
+                if (user.getCurrentTeamId().equals(teamId)) {
+                    user.setCurrentTeamId(teamRepository.getStarterTeam(user.getId()).getId());
+                    deviceService.getAllLoggedDevices(teamMember.getUserId()).forEach(device -> {
+                        log.info("Sending team changed event to device {}", device);
+                        socketIOService.sendSocketEvent(teamMember.getUserId(), device.getDeviceId(), SocketEventType.TEAM_CHANGED, null);
+                    });
+                }
+                notifyRemovedUser(teamMember);
+            } else {
+                notifyActivatedUser(teamMember);
             }
         }
     }
@@ -218,46 +221,53 @@ public class TeamMemberService {
     private void notifyLeader(TeamMember teamMember) {
         if (teamMember.getInviteStatus() == CONFIRMED && teamMember.getRole() != MemberRole.LEADER) {
             Team team = teamRepository.findById(teamMember.getTeamId()).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
-            String description = String.format("%s accepted your invitation to join %s", teamMember.getName(), team.name());
-            notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_ACCEPTED, team.leaderId(), description, null, NotificationParams.builder().teamMemberId(teamMember.getId()).userId(teamMember.getUserId()).build());
+            String description = String.format("%s accepted your invitation to join %s", teamMember.getName(), team.getName());
+            notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_ACCEPTED, team.getLeaderId(), description, null, team.getId(),
+                    NotificationParams.builder().teamMemberId(teamMember.getId()).userId(teamMember.getUserId()).build());
         }
 
         if (teamMember.getInviteStatus() == DECLINED && teamMember.getRole() != MemberRole.LEADER) {
             Team team = teamRepository.findById(teamMember.getTeamId()).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
             delete(teamMember.getId());
-            String description = String.format("%s declined your invitation to join %s", teamMember.getName(), team.name());
-            notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_DECLINED, team.leaderId(), description, null, NotificationParams.builder().teamMemberId(teamMember.getId()).userId(teamMember.getUserId()).build());
+            String description = String.format("%s declined your invitation to join %s", teamMember.getName(), team.getName());
+            notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_DECLINED, team.getLeaderId(), description, null, team.getId(),
+                    NotificationParams.builder().teamMemberId(teamMember.getId()).userId(teamMember.getUserId()).build());
         }
     }
 
     private void notifyInvitedUser(Team team, String invitedBy, User invitedUser, String teamMemberId) {
         User invitedByUser = userService.getById(invitedBy);
-        String description = String.format("%s invited you to join %s team", invitedByUser.getName(), team.name());
-        NotificationParams params = NotificationParams.builder().teamMemberId(teamMemberId).teamId(team.id()).build();
+        String description = String.format("%s invited you to join %s", invitedByUser.getName(), team.getName());
+        List<String> usersWithPhoto = userService.getUserIdsWithPhotoFromTeam(team.getId());
+        Integer teamMembersCount = countByTeamId(team.getId());
+        NotificationParams params = NotificationParams.builder().teamMemberId(teamMemberId).usersWithPhoto(usersWithPhoto).participantsCount(teamMembersCount).build();
         notificationService.deleteNotification(NotificationType.TEAM_INVITATION_REQUEST, params);
-        notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_REQUEST, invitedUser.getId(), description, team.name(), params);
+        notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_REQUEST, invitedUser.getId(), description, team.getName(), team.getId(), params);
     }
 
     private void notifyRemovedUser(TeamMember teamMember) {
         Team team = teamRepository.findById(teamMember.getTeamId()).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
-        String description = String.format("You have been removed from %s team", team.name());
-        notificationService.sendNotificationToUser(NotificationType.TEAM_MEMBER_REMOVED, teamMember.getUserId(), description, null, NotificationParams.builder().build());
+        String description = String.format("You have been removed from %s", team.getName());
+        notificationService.sendNotificationToUser(NotificationType.TEAM_MEMBER_REMOVED, teamMember.getUserId(), description, null, team.getId(),
+                NotificationParams.builder().build());
     }
 
     private void notifyActivatedUser(TeamMember teamMember) {
         Team team = teamRepository.findById(teamMember.getTeamId()).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
-        String description = String.format("You have been added to %s team", team.name());
-        notificationService.sendNotificationToUser(NotificationType.TEAM_MEMBER_ADDED, teamMember.getUserId(), description, null, NotificationParams.builder().build());
+        String description = String.format("You have been added to %s", team.getName());
+        notificationService.sendNotificationToUser(NotificationType.TEAM_MEMBER_ADDED, teamMember.getUserId(), description, null, team.getId(),
+                NotificationParams.builder().build());
     }
 
     private void notifyTeamMemberWithNewRole(TeamMember teamMember) {
         Team team = teamRepository.findById(teamMember.getTeamId()).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
         String description;
         if (teamMember.getRole() == MemberRole.EDITOR) {
-            description = String.format("You have been upgraded with Editor rights in %s team", team.name());
+            description = String.format("You have been upgraded with Editor rights in %s", team.getName());
         } else {
-            description = String.format("You have been downgraded from editor position in %s team", team.name());
+            description = String.format("You have been downgraded from editor position in %s", team.getName());
         }
-        notificationService.sendNotificationToUser(NotificationType.ROLE_CHANGED, teamMember.getUserId(), description, null, NotificationParams.builder().build());
+        notificationService.sendNotificationToUser(NotificationType.ROLE_CHANGED, teamMember.getUserId(), description, null, team.getId(),
+                NotificationParams.builder().build());
     }
 }

@@ -38,11 +38,11 @@ public class SubscriptionService {
     public void handleInitialPurchase(RevenueCatWebhookEvent event, User user) {
         Team team = validateTeamLeader(user);
 
-        Subscription existingSubscription = findActiveSubscriptionByTeam(team.id());
+        Subscription existingSubscription = findActiveSubscriptionByTeam(team.getId());
         if (existingSubscription != null) {
             existingSubscription.setStatus(SubscriptionStatus.INACTIVE);
             subscriptionRepository.save(existingSubscription);
-            log.info("Deactivated existing subscription for team {}", team.id());
+            log.info("Deactivated existing subscription for team {}", team.getId());
         }
 
         String productId = event.getProductId();
@@ -61,7 +61,7 @@ public class SubscriptionService {
 
         Subscription newSubscription = Subscription.builder()
                 .userId(user.getId())
-                .teamId(team.id())
+                .teamId(team.getId())
                 .planId(plan.getId())
                 .purchaseDate(new Date(event.getPurchasedAtMs()))
                 .expiryDate(new Date(event.getExpirationAtMs()))
@@ -69,16 +69,16 @@ public class SubscriptionService {
                 .build();
 
         saveAndNotifyAllLogged(newSubscription, user.getId());
-        log.info("Created new subscription for team {} with plan {}", team.id(), plan.getName());
+        log.info("Created new subscription for team {} with plan {}", team.getId(), plan.getName());
     }
 
 
     public void handleSubscriptionRenewal(RevenueCatWebhookEvent event, User user) {
         Team team = validateTeamLeader(user);
 
-        Subscription existingSubscription = findActiveSubscriptionByTeam(team.id());
+        Subscription existingSubscription = findActiveSubscriptionByTeam(team.getId());
         if (existingSubscription == null) {
-            log.warn("No active subscription found for team {}, cannot process renewal", team.id());
+            log.warn("No active subscription found for team {}, cannot process renewal", team.getId());
             return;
         }
 
@@ -94,21 +94,21 @@ public class SubscriptionService {
         if (!Objects.equals(existingPlan.getByPlatformProductId(event.getStore()), event.getProductId())) {
             existingSubscription.setPlanId(newPlan.getId());
             existingSubscription.setPurchaseDate(new Date(event.getPurchasedAtMs()));
-            teamMemberService.updateTeamMembersIfNeeded(newPlan.getId(), team.id());
+            teamMemberService.updateTeamMembersIfNeeded(newPlan.getId(), team.getId());
         }
 
         existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
 
         saveAndNotifyAllLogged(existingSubscription, user.getId());
-        log.info("Renewed subscription for team {} with plan {}. New expiry date: {}", team.id(), newPlan.getName(), existingSubscription.getExpiryDate());
+        log.info("Renewed subscription for team {} with plan {}. New expiry date: {}", team.getId(), newPlan.getName(), existingSubscription.getExpiryDate());
     }
 
     public void handleSubscriptionProductChanged(RevenueCatWebhookEvent event, User user) {
         Team team = validateTeamLeader(user);
 
-        Subscription existingSubscription = findActiveSubscriptionByTeam(team.id());
+        Subscription existingSubscription = findActiveSubscriptionByTeam(team.getId());
         if (existingSubscription == null) {
-            log.warn("No active subscription found for team {}, cannot process product change", team.id());
+            log.warn("No active subscription found for team {}, cannot process product change", team.getId());
             return;
         }
 
@@ -125,7 +125,7 @@ public class SubscriptionService {
         }
 
         if (!newPlan.getId().equals(existingSubscription.getPlanId())) {
-            teamMemberService.updateTeamMembersIfNeeded(newPlan.getId(), team.id());
+            teamMemberService.updateTeamMembersIfNeeded(newPlan.getId(), team.getId());
         }
 
         existingSubscription.setPlanId(newPlan.getId());
@@ -133,45 +133,45 @@ public class SubscriptionService {
         existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
 
         saveAndNotifyAllLogged(existingSubscription, user.getId());
-        log.info("Updated subscription for team {} to new plan {}", team.id(), newPlan.getName());
+        log.info("Updated subscription for team {} to new plan {}", team.getId(), newPlan.getName());
     }
 
     public void handleSubscriptionCancellation(RevenueCatWebhookEvent event, User user) {
         Team team = validateTeamLeader(user);
 
-        Subscription existingSubscription = findActiveSubscriptionByTeam(team.id());
+        Subscription existingSubscription = findActiveSubscriptionByTeam(team.getId());
         if (existingSubscription == null) {
-            log.warn("No active subscription found for team {}, cannot process cancellation", team.id());
+            log.warn("No active subscription found for team {}, cannot process cancellation", team.getId());
             return;
         }
 
         existingSubscription.setCancellationDate(new Date(event.getEventTimestampMs()));
 
         saveAndNotifyAllLogged(existingSubscription, user.getId());
-        log.info("Cancelled subscription for team {}. Subscription will expire on {}", team.id(), existingSubscription.getExpiryDate());
+        log.info("Cancelled subscription for team {}. Subscription will expire on {}", team.getId(), existingSubscription.getExpiryDate());
     }
 
     public void handleSubscriptionExpiration(RevenueCatWebhookEvent event, User user) {
         Team team = validateTeamLeader(user);
 
-        Subscription existingSubscription = findActiveSubscriptionByTeam(team.id());
+        Subscription existingSubscription = findActiveSubscriptionByTeam(team.getId());
         if (existingSubscription != null) {
             existingSubscription.setStatus(SubscriptionStatus.EXPIRED);
             existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
             subscriptionRepository.save(existingSubscription);
-            log.info("Deactivated expired subscription for team {}", team.id());
+            log.info("Deactivated expired subscription for team {}", team.getId());
         } else {
-            log.warn("No active subscription found for team {}, but proceeding to assign free plan", team.id());
+            log.warn("No active subscription found for team {}, but proceeding to assign free plan", team.getId());
         }
 
         Plan freePlan = planRepository.getStarterPlan();
         if (freePlan == null) {
-            log.error("Starter plan not found, cannot assign free plan to team {}", team.id());
+            log.error("Starter plan not found, cannot assign free plan to team {}", team.getId());
             return;
         }
 
         Subscription freeSubscription = Subscription.builder()
-                .teamId(team.id())
+                .teamId(team.getId())
                 .userId(user.getId())
                 .purchaseDate(new Date(event.getEventTimestampMs()))
                 .expiryDate(null)
@@ -179,9 +179,9 @@ public class SubscriptionService {
                 .status(SubscriptionStatus.ACTIVE)
                 .build();
 
-        teamMemberService.updateTeamMembersIfNeeded(freePlan.getId(), team.id());
+        teamMemberService.updateTeamMembersIfNeeded(freePlan.getId(), team.getId());
         saveAndNotifyAllLogged(freeSubscription, user.getId());
-        log.info("Assigned Starter plan to team {}", team.id());
+        log.info("Assigned Starter plan to team {}", team.getId());
     }
 
     public void handleTransfer(RevenueCatWebhookEvent event, User user) {
@@ -195,7 +195,7 @@ public class SubscriptionService {
 
         User originalUser = userRepository.findByIdOrTeamId(transferredFrom[0]);
         if (originalUser != null) {
-            Subscription originalSubscription = findActiveSubscriptionByTeam(teamRepository.findByLeader(originalUser).id());
+            Subscription originalSubscription = findActiveSubscriptionByTeam(teamRepository.findByLeader(originalUser).getId());
             if (originalSubscription != null) {
                 log.error("Cannot transfer - Original user still has active subscription");
                 throw BadRequestException.transferFailed();
@@ -217,31 +217,35 @@ public class SubscriptionService {
 
         Subscription newSubscription = Subscription.builder()
                 .userId(user.getId())
-                .teamId(team.id())
+                .teamId(team.getId())
                 .planId(plan.getId())
                 .purchaseDate(new Date(event.getPurchasedAtMs()))
                 .expiryDate(new Date(event.getExpirationAtMs()))
                 .status(SubscriptionStatus.ACTIVE)
                 .build();
 
-        teamMemberService.updateTeamMembersIfNeeded(plan.getId(), team.id());
+        teamMemberService.updateTeamMembersIfNeeded(plan.getId(), team.getId());
         saveAndNotifyAllLogged(newSubscription, user.getId());
-        log.info("Created new subscription for team {} with transferred plan {}", team.id(), plan.getName());
+        log.info("Created new subscription for team {} with transferred plan {}", team.getId(), plan.getName());
     }
 
     public void handleUncancellation(RevenueCatWebhookEvent event, User user) {
         Team team = validateTeamLeader(user);
 
-        Subscription existingSubscription = subscriptionRepository.findActiveByTeam(team.id());
+        Subscription existingSubscription = subscriptionRepository.findActiveByTeam(team.getId());
         if (existingSubscription == null) {
-            log.warn("No subscription found for team {} with RevenueCat ID {}, cannot process uncancellation", team.id(), event.getId());
+            log.warn("No subscription found for team {} with RevenueCat ID {}, cannot process uncancellation", team.getId(), event.getId());
             return;
         }
 
         existingSubscription.setExpiryDate(new Date(event.getExpirationAtMs()));
         existingSubscription.setCancellationDate(null);
         saveAndNotifyAllLogged(existingSubscription, user.getId());
-        log.info("Uncancelled subscription for team {}. Subscription is now active until {}", team.id(), existingSubscription.getExpiryDate());
+        log.info("Uncancelled subscription for team {}. Subscription is now active until {}", team.getId(), existingSubscription.getExpiryDate());
+    }
+
+    public void handleNonRenewingPurchase(RevenueCatWebhookEvent event, User user) {
+
     }
 
     public void createStarterSubscription(String teamId, String userId) {
