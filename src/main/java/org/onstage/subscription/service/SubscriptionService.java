@@ -26,6 +26,10 @@ import java.util.Objects;
 @Slf4j
 @RequiredArgsConstructor
 public class SubscriptionService {
+
+    private final String SOLO_PLAN_ID = "670ff1b5e5844c1f35fd6536";
+    private final String PRO_PLAN_ID = "6714237379e75220aa3293dc";
+    private final String ULTIMATE_PLAN_ID = "6719f7827c7e4df7a01a8ea9";
     private final SubscriptionRepository subscriptionRepository;
     private final PlanRepository planRepository;
     private final TeamRepository teamRepository;
@@ -35,7 +39,7 @@ public class SubscriptionService {
     private final UserRepository userRepository;
 
 
-    public void handleInitialPurchase(RevenueCatWebhookEvent event, User user) {
+    public void purchaseSubscription(RevenueCatWebhookEvent event, User user) {
         Team team = validateTeamLeader(user);
 
         Subscription existingSubscription = findActiveSubscriptionByTeam(team.getId());
@@ -52,10 +56,18 @@ public class SubscriptionService {
             return;
         }
 
-        Plan plan = planRepository.getByPlatformProductId(productId);
+        if (event.getPeriodType().equals("PROMOTIONAL")) {
+            handlePromotionalSubscription(event, team, user);
+        } else {
+            handleRegularSubscription(event, team, user);
+        }
+    }
 
+    private void handlePromotionalSubscription(RevenueCatWebhookEvent event, Team team, User user) {
+        String entitlementType = event.getEntitlementId();
+        Plan plan = getPlanForPromotion(entitlementType);
         if (plan == null) {
-            log.warn("No plan found for product ID {}", productId);
+            log.warn("No plan found for promotional entitlement: {}", entitlementType);
             return;
         }
 
@@ -69,7 +81,40 @@ public class SubscriptionService {
                 .build();
 
         saveAndNotifyAllLogged(newSubscription, user.getId());
-        log.info("Created new subscription for team {} with plan {}", team.getId(), plan.getName());
+        teamMemberService.updateTeamMembersIfNeeded(plan.getId(), team.getId());
+        log.info("Created new promotional subscription for team {} with plan {}", team.getId(), plan.getName());
+    }
+
+    private void handleRegularSubscription(RevenueCatWebhookEvent event, Team team, User user) {
+        Plan plan = planRepository.getByPlatformProductId(event.getProductId());
+        if (plan == null) {
+            log.warn("No plan found for product ID {}", event.getProductId());
+            return;
+        }
+
+        Subscription newSubscription = Subscription.builder()
+                .userId(user.getId())
+                .teamId(team.getId())
+                .planId(plan.getId())
+                .purchaseDate(new Date(event.getPurchasedAtMs()))
+                .expiryDate(new Date(event.getExpirationAtMs()))
+                .status(SubscriptionStatus.ACTIVE)
+                .build();
+
+        saveAndNotifyAllLogged(newSubscription, user.getId());
+        log.info("Created new regular subscription for team {} with plan {}", team.getId(), plan.getName());
+    }
+
+    private Plan getPlanForPromotion(String entitlementType) {
+        return switch (entitlementType.toLowerCase()) {
+            case "solo" ->
+                    planRepository.getById(SOLO_PLAN_ID).orElseThrow(() -> BadRequestException.resourceNotFound("plan"));
+            case "pro" ->
+                    planRepository.getById(PRO_PLAN_ID).orElseThrow(() -> BadRequestException.resourceNotFound("plan"));
+            case "ultimate" ->
+                    planRepository.getById(ULTIMATE_PLAN_ID).orElseThrow(() -> BadRequestException.resourceNotFound("plan"));
+            default -> planRepository.getStarterPlan();
+        };
     }
 
 
@@ -242,10 +287,6 @@ public class SubscriptionService {
         existingSubscription.setCancellationDate(null);
         saveAndNotifyAllLogged(existingSubscription, user.getId());
         log.info("Uncancelled subscription for team {}. Subscription is now active until {}", team.getId(), existingSubscription.getExpiryDate());
-    }
-
-    public void handleNonRenewingPurchase(RevenueCatWebhookEvent event, User user) {
-
     }
 
     public void createStarterSubscription(String teamId, String userId) {

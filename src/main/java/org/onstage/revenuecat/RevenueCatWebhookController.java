@@ -47,7 +47,7 @@ public class RevenueCatWebhookController {
                 break;
             case INITIAL_PURCHASE:
                 log.info("Handling initial purchase event with request: {}", event);
-                subscriptionService.handleInitialPurchase(event, user);
+                subscriptionService.purchaseSubscription(event, user);
                 break;
             case RENEWAL:
                 log.info("Handling renewal event with request: {}", event);
@@ -77,7 +77,7 @@ public class RevenueCatWebhookController {
                 subscriptionService.handleTransfer(event, user);
             case NON_RENEWING_PURCHASE:
                 log.info("Handling non-renewing purchase event with request: {}", event);
-                subscriptionService.handleNonRenewingPurchase(event, user);
+                subscriptionService.purchaseSubscription(event, user);
                 break;
 
             default:
