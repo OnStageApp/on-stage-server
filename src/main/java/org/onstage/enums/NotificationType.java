@@ -14,5 +14,6 @@ public enum NotificationType {
     EVENT_DELETED,
     REMINDER,
     NEW_REHEARSAL,
-    ROLE_CHANGED
+    ROLE_CHANGED,
+    STAGER_REMOVED
 }
