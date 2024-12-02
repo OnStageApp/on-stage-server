@@ -43,6 +43,7 @@ public class EventRepository {
         ));
 
         operations.add(Aggregation.lookup("stagers", "_id", "eventId", "stagers"));
+        operations.add(Aggregation.unwind("stagers"));
         operations.add(Aggregation.match(
                 Criteria.where("stagers.userId").is(userId)
                         .and("stagers.participationStatus").is(ParticipationStatus.CONFIRMED)
@@ -56,7 +57,6 @@ public class EventRepository {
         return results.getUniqueMappedResult();
     }
     public PaginatedEventResponse getPaginatedEvents(TeamMember teamMember, String teamId, EventSearchType eventSearchType, String searchValue, int offset, int limit) {
-
         Aggregation aggregation = createEventAggregation(teamMember, teamId, eventSearchType, searchValue, offset, limit);
         AggregationResults<Event> aggregationResults = mongoTemplate.aggregate(aggregation, "events", Event.class);
 
@@ -86,6 +86,7 @@ public class EventRepository {
         }
 
         operations.add(Aggregation.lookup("stagers", "_id", "eventId", "stagers"));
+        operations.add(Aggregation.unwind("stagers"));
         operations.add(Aggregation.match(Criteria.where("stagers.teamMemberId").is(teamMember.getId())
                 .and("stagers.participationStatus").is(ParticipationStatus.CONFIRMED)));
 
