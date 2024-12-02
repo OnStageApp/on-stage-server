@@ -10,14 +10,20 @@ public enum PositionEnum {
     leadVoice(0, "leadVoice"),
     altoVoice(1, "altoVoice"),
     tenorVoice(2, "tenorVoice"),
-    piano(3, "piano"),
-    bass(4, "bass"),
-    drums(5, "drums"),
-    acGuitar(6, "acGuitar"),
-    elGuitar(7, "guitar"),
-    synth(8, "synth"),
-    violin(9, "violin"),
-    other(10, "other");
+    sopranoVoice(3, "sopranoVoice"),
+    backingVoice(4, "backingVoice"),
+    piano(5, "piano"),
+    bassGuitar(6, "bassGuitar"),
+    drums(7, "drums"),
+    acGuitar(8, "acGuitar"),
+    elGuitar(9, "guitar"),
+    synth(10, "synth"),
+    violin(11, "violin"),
+    cello(12, "cello"),
+    other(13, "other"),
+    keyboard(14, "keyboard");
+
+
 
     private final static Map<Integer, PositionEnum> map = Arrays.stream(PositionEnum.values())
             .collect(Collectors.toMap(obj -> obj.index, obj -> obj));
