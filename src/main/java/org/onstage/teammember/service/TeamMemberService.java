@@ -74,9 +74,13 @@ public class TeamMemberService {
 
         User user = userService.getById(teamMember.getUserId());
         String soloTeamId = teamRepository.getStarterTeam(user.getId()).getId();
-        if (!user.getCurrentTeamId().equals(soloTeamId)) {
+        if (!user.getCurrentTeamId().equals(soloTeamId) && teamMember.getInviteStatus() == CONFIRMED) {
             user.setCurrentTeamId(teamRepository.getStarterTeam(user.getId()).getId());
             userService.save(user);
+            deviceService.getAllLoggedDevices(teamMember.getUserId()).forEach(device -> {
+                log.info("Sending team changed event to device {}", device);
+                socketIOService.sendSocketEvent(teamMember.getUserId(), device.getDeviceId(), SocketEventType.TEAM_CHANGED, null);
+            });
         }
         stagerService.removeAllByTeamMemberId(teamMemberId);
 
