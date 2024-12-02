@@ -67,7 +67,12 @@ public class StagerService {
 
     public String remove(String stagerId) {
         log.info("Removing stager with id {}", stagerId);
+        Stager stager = getById(stagerId);
+        Event event = eventRepository.findById(stager.getEventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
         stagerRepository.removeStager(stagerId);
+        String description = String.format("You have been removed from %s", event.getName());
+        notificationService.sendNotificationToUser(NotificationType.STAGER_REMOVED, stager.getUserId(), description, null, event.getTeamId(),
+                NotificationParams.builder().teamId(event.getTeamId()).build());
         return stagerId;
     }
 
