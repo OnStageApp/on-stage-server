@@ -68,10 +68,10 @@ public class NotificationRepository {
         return repo.findById(id);
     }
 
-    public void deleteNotificationByTeamMemberId(NotificationType notificationType, String teamId) {
+    public void deleteNotificationByTeamId(NotificationType notificationType, String teamId) {
         Query query = new Query()
                 .addCriteria(Criteria.where(Notification.Fields.type).is(notificationType))
-                .addCriteria(Criteria.where("params." + NotificationParams.Fields.teamMemberId).is(teamId));
+                .addCriteria(Criteria.where("params." + NotificationParams.Fields.teamId).is(teamId));
 
         mongoTemplate.remove(query, Notification.class);
     }
