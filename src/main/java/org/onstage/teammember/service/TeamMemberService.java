@@ -241,7 +241,7 @@ public class TeamMemberService {
         List<String> usersWithPhoto = userService.getUserIdsWithPhotoFromTeam(team.getId());
         Integer teamMembersCount = countByTeamId(team.getId());
         NotificationParams params = NotificationParams.builder().teamMemberId(teamMemberId).usersWithPhoto(usersWithPhoto).participantsCount(teamMembersCount).build();
-        notificationService.deleteNotification(NotificationType.TEAM_INVITATION_REQUEST, params);
+        notificationService.deleteNotificationByTeamMemberId(NotificationType.TEAM_INVITATION_REQUEST, teamMemberId);
         notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_REQUEST, invitedUser.getId(), description, team.getName(), team.getId(), params);
     }
 

@@ -68,10 +68,18 @@ public class NotificationRepository {
         return repo.findById(id);
     }
 
-    public void deleteNotification(NotificationType notificationType, NotificationParams params) {
+    public void deleteNotificationByTeamMemberId(NotificationType notificationType, String teamId) {
         Query query = new Query()
                 .addCriteria(Criteria.where(Notification.Fields.type).is(notificationType))
-                .addCriteria(Criteria.where(Notification.Fields.params).is(params));
+                .addCriteria(Criteria.where("params." + NotificationParams.Fields.teamMemberId).is(teamId));
+
+        mongoTemplate.remove(query, Notification.class);
+    }
+
+    public void deleteNotificationByEventId(NotificationType notificationType, String eventId) {
+        Query query = new Query()
+                .addCriteria(Criteria.where(Notification.Fields.type).is(notificationType))
+                .addCriteria(Criteria.where("params." + NotificationParams.Fields.eventId).is(eventId));
 
         mongoTemplate.remove(query, Notification.class);
     }
