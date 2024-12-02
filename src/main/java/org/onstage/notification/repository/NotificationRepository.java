@@ -29,7 +29,7 @@ public class NotificationRepository {
         Criteria criteria = new Criteria();
         ofNullable(userId).ifPresent(currentUserId -> criteria.and(Notification.Fields.userToNotify).is(currentUserId));
         criteria.orOperator(
-                Criteria.where(NotificationParams.Fields.teamId).is(currentTeamId),
+                Criteria.where("params." + NotificationParams.Fields.teamId).is(currentTeamId),
                 Criteria.where(Notification.Fields.type).in(BASE_NOTIFICATIONS)
         );
 
