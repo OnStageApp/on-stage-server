@@ -94,4 +94,15 @@ public class TeamMemberRepository {
                 .and(TeamMember.Fields.role).ne(MemberRole.LEADER);
         return mongoTemplate.find(query(criteria).with(Sort.by(Sort.Direction.ASC, BaseEntity.Fields.createdAt)).limit(limit), TeamMember.class);
     }
+
+    public List<TeamMember> getAllConfirmedByTeam(String teamId, String currentUserId, boolean includeCurrentUser) {
+        Criteria criteria = Criteria.where(TeamMember.Fields.teamId).is(teamId)
+                .and(TeamMember.Fields.inviteStatus).is(MemberInviteStatus.CONFIRMED);
+
+        if (!includeCurrentUser) {
+            criteria = criteria.and(TeamMember.Fields.userId).ne(currentUserId);
+        }
+
+        return mongoTemplate.find(Query.query(criteria), TeamMember.class);
+    }
 }

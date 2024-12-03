@@ -36,7 +36,6 @@ public class StagerRepository {
         return stagerRepo.save(Stager.builder()
                 .eventId(eventId)
                 .teamMemberId(teamMember.getId())
-                .name(teamMember.getName())
                 .userId(teamMember.getUserId())
                 .participationStatus(Objects.equals(teamMember.getUserId(), eventCreatedByUser) ? CONFIRMED : PENDING).build());
     }

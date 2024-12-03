@@ -24,7 +24,6 @@ import static org.onstage.enums.MemberInviteStatus.CONFIRMED;
 public class TeamService {
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
-    private final UserService userService;
     private final SubscriptionService subscriptionService;
 
     public Team getById(String id) {
@@ -33,12 +32,10 @@ public class TeamService {
 
     public Team create(Team team) {
         Team savedTeam = teamRepository.save(team);
-        User user = userService.getById(savedTeam.getLeaderId());
         log.info("Team {} has been created", savedTeam.getId());
         teamMemberRepository.save(TeamMember.builder()
                 .teamId(savedTeam.getId())
                 .userId(savedTeam.getLeaderId())
-                .name(user.getName() != null ? user.getName() : user.getEmail())
                 .role(MemberRole.LEADER)
                 .inviteStatus(CONFIRMED).build());
         subscriptionService.createStarterSubscription(savedTeam.getId(), savedTeam.getLeaderId());
