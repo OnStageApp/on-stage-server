@@ -78,7 +78,7 @@ public class TeamMemberController {
     }
 
     @GetMapping("/uninvited")
-    public ResponseEntity<List<GetTeamMembersResponse>> getAllUninvitedMembers(@RequestParam final String eventId, @RequestParam(defaultValue = "false") boolean includeCurrentUser) {
+    public ResponseEntity<List<GetTeamMembersResponse>> getAllUninvitedMembers(@RequestParam(required = false) final String eventId, @RequestParam(defaultValue = "false") boolean includeCurrentUser) {
         String userId = userSecurityContext.getUserId();
         String teamId = userSecurityContext.getCurrentTeamId();
         return ResponseEntity.ok(teamMemberMapper.toGetTeamMembersResponse(teamMemberService.getAllUninvitedMembers(eventId, userId, teamId, includeCurrentUser)));
