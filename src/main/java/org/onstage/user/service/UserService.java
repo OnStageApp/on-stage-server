@@ -5,7 +5,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
 import org.onstage.amazon.AmazonS3Service;
 import org.onstage.device.service.DeviceService;
 import org.onstage.exceptions.BadRequestException;
@@ -13,7 +12,6 @@ import org.onstage.socketio.SocketEventType;
 import org.onstage.socketio.service.SocketIOService;
 import org.onstage.stager.repository.StagerRepository;
 import org.onstage.team.repository.TeamRepository;
-import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
 import org.onstage.user.client.UpdateUserRequest;
 import org.onstage.user.model.User;
@@ -62,12 +60,6 @@ public class UserService {
     public User update(String existingUserId, UpdateUserRequest request) {
         log.info("Updating user {} with request {}", existingUserId, request);
         User existingUser = userRepository.getById(existingUserId);
-        if (!Strings.isEmpty(request.name())) {
-            List<TeamMember> teamMembers = teamMemberRepository.getAllByUserId(existingUser.getId());
-            for (TeamMember teamMember : teamMembers) {
-                teamMemberRepository.save(teamMember.toBuilder().name(request.name()).build());
-            }
-        }
         existingUser.setName(request.name() == null ? existingUser.getName() : request.name());
         existingUser.setRole(request.role() == null ? existingUser.getRole() : request.role());
         existingUser.setPosition(request.position() == null ? existingUser.getPosition() : request.position());

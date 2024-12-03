@@ -18,7 +18,6 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 public class TeamMember extends BaseEntity {
     @MongoId
     private String id;
-    private String name;
     private String userId;
     private String teamId;
     private MemberRole role;

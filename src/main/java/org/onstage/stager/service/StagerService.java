@@ -16,6 +16,7 @@ import org.onstage.team.model.Team;
 import org.onstage.team.repository.TeamRepository;
 import org.onstage.teammember.model.TeamMember;
 import org.onstage.teammember.repository.TeamMemberRepository;
+import org.onstage.user.model.User;
 import org.onstage.user.service.UserService;
 import org.springframework.stereotype.Service;
 
@@ -119,18 +120,17 @@ public class StagerService {
     }
 
     private void notifyEventEditor(Stager stager) {
+        Event event = eventRepository.findById(stager.getEventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
+        User user = userService.getById(stager.getUserId());
         if (stager.getParticipationStatus() == ParticipationStatus.DECLINED) {
             eventItemService.removeLeadVocalFromEvent(stager.getId(), stager.getEventId());
-
-            Event event = eventRepository.findById(stager.getEventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
-            String description = String.format("%s declined your invitation to the event %s", stager.getName(), event.getName());
+            String description = String.format("%s declined your invitation to the event %s", user.getName(), event.getName());
             notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_DECLINED, event.getCreatedByUser(), description, null, event.getTeamId(),
                     NotificationParams.builder().eventId(event.getId()).userId(stager.getUserId()).build());
         }
 
         if (stager.getParticipationStatus() == ParticipationStatus.CONFIRMED) {
-            Event event = eventRepository.findById(stager.getEventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
-            String description = String.format("%s accepted your invitation to the event %s", stager.getName(), event.getName());
+            String description = String.format("%s accepted your invitation to the event %s", user.getName(), event.getName());
             notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_ACCEPTED, event.getCreatedByUser(), description, null, event.getTeamId(),
                     NotificationParams.builder().eventId(event.getId()).userId(stager.getUserId()).build());
         }

@@ -22,6 +22,5 @@ public class Stager extends BaseEntity {
     String eventId;
     String teamMemberId;
     String userId;
-    String name;
     ParticipationStatus participationStatus;
 }

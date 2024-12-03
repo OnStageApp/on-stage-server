@@ -58,8 +58,7 @@ public class TeamMemberService {
             log.info("Team member {} already exists", existingTeamMember.getId());
             return existingTeamMember;
         }
-        User user = userService.getById(teamMember.getUserId());
-        TeamMember savedTeamMember = teamMemberRepository.save(teamMember.toBuilder().name(user.getName()).build());
+        TeamMember savedTeamMember = teamMemberRepository.save(teamMember);
         log.info("Team member {} has been saved", savedTeamMember.getId());
         return savedTeamMember;
     }
@@ -147,7 +146,6 @@ public class TeamMemberService {
                                 .teamId(teamId)
                                 .userId(invitedUser.getId())
                                 .role(memberRole)
-                                .name(invitedUser.getName())
                                 .inviteStatus(PENDING)
                                 .build()
                 );
@@ -223,9 +221,10 @@ public class TeamMemberService {
 
 
     private void notifyLeader(TeamMember teamMember) {
+        User user = userService.getById(teamMember.getUserId());
         if (teamMember.getInviteStatus() == CONFIRMED && teamMember.getRole() != MemberRole.LEADER) {
             Team team = teamRepository.findById(teamMember.getTeamId()).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
-            String description = String.format("%s accepted your invitation to join %s", teamMember.getName(), team.getName());
+            String description = String.format("%s accepted your invitation to join %s", user.getName(), team.getName());
             notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_ACCEPTED, team.getLeaderId(), description, null, team.getId(),
                     NotificationParams.builder().teamMemberId(teamMember.getId()).userId(teamMember.getUserId()).build());
         }
@@ -233,7 +232,7 @@ public class TeamMemberService {
         if (teamMember.getInviteStatus() == DECLINED && teamMember.getRole() != MemberRole.LEADER) {
             Team team = teamRepository.findById(teamMember.getTeamId()).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
             delete(teamMember.getId());
-            String description = String.format("%s declined your invitation to join %s", teamMember.getName(), team.getName());
+            String description = String.format("%s declined your invitation to join %s", user.getName(), team.getName());
             notificationService.sendNotificationToUser(NotificationType.TEAM_INVITATION_DECLINED, team.getLeaderId(), description, null, team.getId(),
                     NotificationParams.builder().teamMemberId(teamMember.getId()).userId(teamMember.getUserId()).build());
         }
