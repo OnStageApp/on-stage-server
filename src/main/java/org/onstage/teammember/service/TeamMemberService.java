@@ -117,11 +117,13 @@ public class TeamMemberService {
     }
 
     public List<TeamMember> getAllUninvitedMembers(String eventId, String userId, String teamId, boolean includeCurrentUser) {
-        final List<Stager> stagers = stagerService.getAllByEventId(eventId);
-        final List<TeamMember> teamMembers = teamMemberRepository.getAllByTeam(teamId, userId, includeCurrentUser);
+        final List<TeamMember> teamMembers = teamMemberRepository.getAllConfirmedByTeam(teamId, userId, includeCurrentUser);
+        if(Strings.isEmpty(eventId)) {
+            return teamMembers;
+        }
 
+        final List<Stager> stagers = stagerService.getAllByEventId(eventId);
         return teamMembers.stream()
-                .filter(teamMember -> teamMember.getInviteStatus() == CONFIRMED)
                 .filter(member -> !stagers.stream().map(Stager::getTeamMemberId).toList().contains(member.getId()))
                 .collect(Collectors.toList());
     }
