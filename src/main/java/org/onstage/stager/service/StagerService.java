@@ -106,6 +106,7 @@ public class StagerService {
 
     public void notifyStager(Event event, Stager stager) {
         if (event.getEventStatus() == PUBLISHED && stager.getParticipationStatus() != ParticipationStatus.CONFIRMED) {
+            log.info("Notifying stager {} about event {}", stager.getId(), event.getId());
             Team team = teamRepository.findById(event.getTeamId()).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
             String description = String.format("You have been invited to %s event. Team %s", event.getName(), team.getName());
             String title = event.getName();
@@ -113,7 +114,7 @@ public class StagerService {
 
             List<String> usersWithPhoto = userService.getUserIdsWithPhotoFromEvent(event.getId());
             NotificationParams params = NotificationParams.builder().stagerId(stager.getId()).eventId(event.getId()).date(event.getDateTime()).usersWithPhoto(usersWithPhoto).participantsCount(stagerCount).build();
-            notificationService.deleteNotificationByEventId(NotificationType.EVENT_INVITATION_REQUEST, event.getId());
+            notificationService.deleteNotificationByEventId(NotificationType.EVENT_INVITATION_REQUEST, event.getId(), stager.getUserId());
             notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_REQUEST, stager.getUserId(), description, title, team.getId(), params);
 
         }
@@ -123,6 +124,7 @@ public class StagerService {
         Event event = eventRepository.findById(stager.getEventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
         User user = userService.getById(stager.getUserId());
         if (stager.getParticipationStatus() == ParticipationStatus.DECLINED) {
+            log.info("Notifying event editor about stager {} declining the invitation to event {}", stager.getId(), event.getId());
             eventItemService.removeLeadVocalFromEvent(stager.getId(), stager.getEventId());
             String description = String.format("%s declined your invitation to the event %s", user.getName(), event.getName());
             notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_DECLINED, event.getCreatedByUser(), description, null, event.getTeamId(),
@@ -130,6 +132,7 @@ public class StagerService {
         }
 
         if (stager.getParticipationStatus() == ParticipationStatus.CONFIRMED) {
+            log.info("Notifying event editor about stager {} accepting the invitation to event {}", stager.getId(), event.getId());
             String description = String.format("%s accepted your invitation to the event %s", user.getName(), event.getName());
             notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_ACCEPTED, event.getCreatedByUser(), description, null, event.getTeamId(),
                     NotificationParams.builder().eventId(event.getId()).userId(stager.getUserId()).build());

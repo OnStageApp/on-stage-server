@@ -79,11 +79,11 @@ public class NotificationService {
         return notificationRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("notification"));
     }
 
-    public void deleteNotificationByTeamId(NotificationType notificationType, String teamId) {
-        notificationRepository.deleteNotificationByTeamId(notificationType, teamId);
+    public void deleteNotificationByTeamId(NotificationType notificationType, String teamId, String userId) {
+        notificationRepository.deleteNotificationByTeamId(notificationType, teamId, userId);
     }
 
-    public void deleteNotificationByEventId(NotificationType notificationType, String eventId) {
-        notificationRepository.deleteNotificationByEventId(notificationType, eventId);
+    public void deleteNotificationByEventId(NotificationType notificationType, String eventId, String userId) {
+        notificationRepository.deleteNotificationByEventId(notificationType, eventId, userId);
     }
 }
