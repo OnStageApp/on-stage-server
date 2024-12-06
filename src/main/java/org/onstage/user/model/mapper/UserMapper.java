@@ -1,13 +1,18 @@
 package org.onstage.user.model.mapper;
 
+import lombok.RequiredArgsConstructor;
 import org.onstage.user.client.UserDTO;
+import org.onstage.user.client.UserProfileInfoDTO;
 import org.onstage.user.model.User;
+import org.onstage.user.service.UserService;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component()
+@Component
+@RequiredArgsConstructor
 public class UserMapper {
+    private final UserService userService;
     public UserDTO toDto(User entity) {
         return UserDTO.builder()
                 .id(entity.getId())
@@ -36,7 +41,12 @@ public class UserMapper {
         return entities.stream().map(this::toDto).toList();
     }
 
-    public List<User> toEntityList(List<UserDTO> requests) {
-        return requests.stream().map(this::toEntity).toList();
+    public UserProfileInfoDTO toProfileInfoDTO(User entity) {
+        return UserProfileInfoDTO.builder()
+                .name(entity.getName())
+                .email(entity.getEmail())
+                .position(entity.getPosition())
+                .photoUrl(userService.getPresignedUrl(entity.getId(), false))
+                .build();
     }
 }
