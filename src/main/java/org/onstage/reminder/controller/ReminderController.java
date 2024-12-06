@@ -30,7 +30,7 @@ public class ReminderController {
 
     @PostMapping
     public ResponseEntity<List<Reminder>> create(@RequestBody final ReminderListRequest request) {
-//        planService.checkPermission(PermissionType.REMINDERS, userSecurityContext.getCurrentTeamId());
+        planService.checkPermission(PermissionType.REMINDERS, userSecurityContext.getCurrentTeamId());
         return ResponseEntity.ok((reminderService.createReminders(request.daysBefore(), request.eventId())));
     }
 
