@@ -2,6 +2,7 @@ package org.onstage.artist.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.onstage.artist.client.GetArtistFilter;
 import org.onstage.artist.model.Artist;
 import org.onstage.artist.repository.ArtistRepository;
 import org.onstage.exceptions.BadRequestException;
@@ -20,8 +21,8 @@ public class ArtistService {
         return artistRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("artist"));
     }
 
-    public List<Artist> getAll() {
-        return artistRepository.getAll();
+    public List<Artist> getAll(GetArtistFilter filter) {
+        return artistRepository.getAll(filter);
     }
 
     public Artist save(Artist artist) {

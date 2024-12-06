@@ -1,6 +1,8 @@
 package org.onstage.artist.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
+import org.onstage.artist.client.GetArtistFilter;
 import org.onstage.artist.model.Artist;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -21,8 +23,12 @@ public class ArtistRepository {
         return artistRepo.findById(id);
     }
 
-    public List<Artist> getAll() {
-        return artistRepo.findAll();
+    public List<Artist> getAll(GetArtistFilter filter) {
+        Criteria criteria = new Criteria();
+        if (Strings.isNotEmpty(filter.search())) {
+            criteria.and("name").regex(filter.search(), "i");
+        }
+        return mongoTemplate.find(query(criteria), Artist.class);
     }
 
     public Artist save(Artist artist) {

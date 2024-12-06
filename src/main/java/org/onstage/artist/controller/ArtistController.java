@@ -2,6 +2,7 @@ package org.onstage.artist.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.artist.client.ArtistDTO;
+import org.onstage.artist.client.GetArtistFilter;
 import org.onstage.artist.model.Artist;
 import org.onstage.artist.model.mapper.ArtistMapper;
 import org.onstage.artist.service.ArtistService;
@@ -24,8 +25,8 @@ public class ArtistController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ArtistDTO>> getAll() {
-        return ResponseEntity.ok(artistMapper.toDtoList(artistService.getAll()));
+    public ResponseEntity<List<ArtistDTO>> getAll(@RequestBody GetArtistFilter filter) {
+        return ResponseEntity.ok(artistMapper.toDtoList(artistService.getAll(filter)));
     }
 
     @PostMapping()
