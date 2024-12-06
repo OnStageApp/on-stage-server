@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.onstage.common.beans.UserSecurityContext;
 import org.onstage.user.client.UpdateUserRequest;
 import org.onstage.user.client.UserDTO;
+import org.onstage.user.client.UserProfileInfoDTO;
 import org.onstage.user.model.mapper.UserMapper;
 import org.onstage.user.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -85,5 +86,10 @@ public class UserController {
         String userId = userSecurityContext.getUserId();
         userService.setCurrentTeam(teamId, userId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/profile-info")
+    public ResponseEntity<UserProfileInfoDTO> getProfileInfo(@PathVariable(name = "id") String id) {
+        return ResponseEntity.ok(userMapper.toProfileInfoDTO(userService.getById(id)));
     }
 }
