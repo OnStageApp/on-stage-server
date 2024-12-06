@@ -16,13 +16,12 @@ public enum PositionEnum {
     bassGuitar(6, "bassGuitar"),
     drums(7, "drums"),
     acGuitar(8, "acGuitar"),
-    elGuitar(9, "guitar"),
+    elGuitar(9, "elGuitar"),
     synth(10, "synth"),
     violin(11, "violin"),
     cello(12, "cello"),
     other(13, "other"),
     keyboard(14, "keyboard");
-
 
 
     private final static Map<Integer, PositionEnum> map = Arrays.stream(PositionEnum.values())
