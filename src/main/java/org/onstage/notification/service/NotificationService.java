@@ -2,7 +2,6 @@ package org.onstage.notification.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.onstage.common.beans.UserSecurityContext;
 import org.onstage.device.service.DeviceService;
 import org.onstage.enums.NotificationActionStatus;
 import org.onstage.enums.NotificationStatus;
@@ -33,7 +32,6 @@ public class NotificationService {
     private final DeviceService deviceService;
     private final PushNotificationService pushNotificationService;
     private final UserSettingsService userSettingsService;
-    private final UserSecurityContext userSecurityContext;
 
     public PaginatedNotifications getNotificationsForUser(String userId, String currentTeamId, int offset, int limit) {
         return notificationRepository.findNotifications(userId, currentTeamId, offset, limit);
@@ -52,15 +50,13 @@ public class NotificationService {
                 .build();
         notificationRepository.save(notification);
 
-        if (params.getTeamId().equals(userSecurityContext.getCurrentTeamId())) {
-            deviceService.getAllLoggedDevices(userToNotify).forEach(device -> {
-                socketIOService.sendSocketEvent(notification.getUserToNotify(), device.getDeviceId(), NOTIFICATION, null);
-                UserSettings userSettings = userSettingsService.getUserSettings(notification.getUserToNotify());
-                if (userSettings != null && userSettings.getIsNotificationsEnabled()) {
-                    pushNotificationService.sendPushNotification(title, description, device.getPushToken());
-                }
-            });
-        }
+        deviceService.getAllLoggedDevices(userToNotify).forEach(device -> {
+            socketIOService.sendSocketEvent(notification.getUserToNotify(), device.getDeviceId(), NOTIFICATION, null);
+            UserSettings userSettings = userSettingsService.getUserSettings(notification.getUserToNotify());
+            if (userSettings != null && userSettings.getIsNotificationsEnabled()) {
+                pushNotificationService.sendPushNotification(title, description, device.getPushToken());
+            }
+        });
         log.info("New notification {} has been sent to user {}", type, notification.getUserToNotify());
     }
 

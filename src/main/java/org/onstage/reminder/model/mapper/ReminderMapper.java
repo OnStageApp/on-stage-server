@@ -10,9 +10,9 @@ import java.util.List;
 public class ReminderMapper {
     public ReminderDTO toDto(Reminder entity) {
         return ReminderDTO.builder()
-                .daysBefore(entity.daysBefore())
-                .eventId(entity.eventId())
-                .isSent(entity.isSent() != null ? entity.isSent() : false)
+                .daysBefore(entity.getDaysBefore())
+                .eventId(entity.getEventId())
+                .isSent(entity.getIsSent() != null ? entity.getIsSent() : false)
                 .build();
     }
 

@@ -4,7 +4,6 @@ package org.onstage.common.scheduler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.enums.NotificationType;
-import org.onstage.enums.PermissionType;
 import org.onstage.event.model.Event;
 import org.onstage.event.service.EventService;
 import org.onstage.notification.model.NotificationParams;
@@ -46,16 +45,16 @@ public class SendRemindersScheduler {
         List<Reminder> remindersToSend = reminderRepository.findRemindersToSend(now);
 
         for (Reminder reminder : remindersToSend) {
-            List<Stager> stagers = stagerService.getAllByEventId(reminder.eventId());
-            Event event = eventService.getById(reminder.eventId());
-            planService.checkPermission(PermissionType.REMINDERS, event.getTeamId());
+            List<Stager> stagers = stagerService.getAllByEventId(reminder.getEventId());
+            Event event = eventService.getById(reminder.getEventId());
+//            planService.checkPermission(PermissionType.REMINDERS, event.getTeamId());
 
-            String description = String.format("%d days left until %s", reminder.daysBefore(), event.getName());
+            String description = String.format("%d days left until %s", reminder.getDaysBefore(), event.getName());
             String title = "Reminder";
 
-            log.info("Sending reminder {}", reminder.id());
-            stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.REMINDER, stager.getUserId(), description, title, event.getTeamId(), NotificationParams.builder().eventId(event.getId()).build()));
-            reminder.toBuilder().isSent(true);
+            log.info("Sending reminder {}", reminder.getId());
+            stagers.forEach(stager -> notificationService.sendNotificationToUser(NotificationType.REMINDER, stager.getUserId(), description, title, event.getTeamId(), NotificationParams.builder().teamId(event.getTeamId()).eventId(event.getId()).build()));
+            reminder.setIsSent(true);
             reminderRepository.save(reminder);
         }
 

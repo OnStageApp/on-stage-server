@@ -36,7 +36,8 @@ public class ReminderRepository {
     public List<Reminder> findRemindersToSend(LocalDateTime now) {
         LocalDateTime nextDay = now.plusHours(24);
 
-        Criteria criteria = Criteria.where(Reminder.Fields.sendingTime).gte(now).lt(nextDay);
+        Criteria criteria = Criteria.where(Reminder.Fields.sendingTime).gte(now).lt(nextDay)
+                .and(Reminder.Fields.isSent).is(false);
         Query query = new Query(criteria);
         return mongoTemplate.find(query, Reminder.class);
     }
@@ -45,7 +46,7 @@ public class ReminderRepository {
     public List<Reminder> findRemindersToDelete() {
         LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
 
-        Criteria matchCriteria = Criteria.where("isSent").is(true);
+        Criteria matchCriteria = Criteria.where(Reminder.Fields.isSent).is(true);
 
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.match(matchCriteria),
