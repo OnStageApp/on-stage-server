@@ -4,6 +4,7 @@ package org.onstage.common.scheduler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.enums.NotificationType;
+import org.onstage.enums.PermissionType;
 import org.onstage.event.model.Event;
 import org.onstage.event.service.EventService;
 import org.onstage.notification.model.NotificationParams;
@@ -47,7 +48,7 @@ public class SendRemindersScheduler {
         for (Reminder reminder : remindersToSend) {
             List<Stager> stagers = stagerService.getAllByEventId(reminder.getEventId());
             Event event = eventService.getById(reminder.getEventId());
-//            planService.checkPermission(PermissionType.REMINDERS, event.getTeamId());
+            planService.checkPermission(PermissionType.REMINDERS, event.getTeamId());
 
             String description = String.format("%d days left until %s", reminder.getDaysBefore(), event.getName());
             String title = "Reminder";
