@@ -21,8 +21,6 @@ import java.util.List;
 public class ReminderService {
     private final ReminderRepository reminderRepository;
     private final EventRepository eventRepository;
-    private final NotificationService notificationService;
-    private final StagerService stagerService;
 
     private static final String REMINDER_TEXT_TEMPLATE = "%d days left until  %s";
 
@@ -33,16 +31,16 @@ public class ReminderService {
     public Reminder save(Reminder reminder, Event event) {
         LocalDateTime sendingTime = event
                 .getDateTime()
-                .minusDays(reminder.daysBefore())
+                .minusDays(reminder.getDaysBefore())
                 .with(LocalTime.of(5, 0));
         reminder = reminder.toBuilder()
                 .sendingTime(sendingTime)
-                .text(String.format(REMINDER_TEXT_TEMPLATE, reminder.daysBefore(), event.getName()))
+                .text(String.format(REMINDER_TEXT_TEMPLATE, reminder.getDaysBefore(), event.getName()))
                 .isSent(false)
                 .build();
 
         Reminder savedReminder = reminderRepository.save(reminder);
-        log.info("Reminder {} has been saved", savedReminder.id());
+        log.info("Reminder {} has been saved", savedReminder.getId());
         return savedReminder;
     }
 

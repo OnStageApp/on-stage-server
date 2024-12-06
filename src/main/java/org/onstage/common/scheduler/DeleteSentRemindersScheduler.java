@@ -30,8 +30,8 @@ public class DeleteSentRemindersScheduler {
         List<Reminder> remindersToDelete = reminderRepository.findRemindersToDelete();
 
         for (Reminder reminder : remindersToDelete) {
-            log.info("Deleting reminder {}", reminder.id());
-            reminderRepository.delete(reminder.id());
+            log.info("Deleting reminder {}", reminder.getId());
+            reminderRepository.delete(reminder.getId());
         }
 
     }
