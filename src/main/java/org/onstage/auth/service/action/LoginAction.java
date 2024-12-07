@@ -58,6 +58,7 @@ public class LoginAction implements Action<LoginRequest, TokenDTO> {
                 .id(uid)
                 .name(name)
                 .email(decodedToken.getEmail())
+                .username(decodedToken.getEmail())
                 .build());
         Team team = teamService.create(Team.builder().name(name.concat("'s Team")).leaderId(user.getId()).build());
         return userRepository.save(user.toBuilder().currentTeamId(team.getId()).build());

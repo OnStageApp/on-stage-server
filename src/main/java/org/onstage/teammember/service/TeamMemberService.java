@@ -118,7 +118,7 @@ public class TeamMemberService {
 
     public List<TeamMember> getAllUninvitedMembers(String eventId, String userId, String teamId, boolean includeCurrentUser) {
         final List<TeamMember> teamMembers = teamMemberRepository.getAllConfirmedByTeam(teamId, userId, includeCurrentUser);
-        if(Strings.isEmpty(eventId)) {
+        if (Strings.isEmpty(eventId)) {
             return teamMembers;
         }
 
@@ -128,17 +128,19 @@ public class TeamMemberService {
                 .collect(Collectors.toList());
     }
 
-    public TeamMember inviteMember(String email, MemberRole memberRole, String teamMemberInvited, String teamId, String invitedBy) {
+    public TeamMember inviteMember(String emailOrUsername, MemberRole memberRole, String teamMemberInvited, String teamId, String invitedBy) {
         User invitedUser;
         TeamMember teamMember;
         Team team = teamRepository.findById(teamId).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
 
-        if (Strings.isNotEmpty(email)) {
-            invitedUser = userService.getByEmail(email);
-
+        if (Strings.isNotEmpty(emailOrUsername)) {
+            invitedUser = userService.getByUsername(emailOrUsername);
             if (invitedUser == null) {
-                sendGridService.sendInviteToTeamEmail(email, team.getName());
-                return null;
+                invitedUser = userService.getByEmail(emailOrUsername);
+                if (invitedUser == null) {
+                    sendGridService.sendInviteToTeamEmail(emailOrUsername, team.getName());
+                    return null;
+                }
             }
 
             teamMember = teamMemberRepository.getByUserAndTeam(invitedUser.getId(), teamId);

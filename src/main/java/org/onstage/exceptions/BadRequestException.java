@@ -69,4 +69,8 @@ public class BadRequestException extends BaseException {
     public static BadRequestException transferFailed() {
         return new BadRequestException(14, "SUBSCRIPTION_TRANSFER_FAILED", "Subscription transfer failed");
     }
+
+    public static BadRequestException duplicateUsername(String username) {
+        return new BadRequestException(15, "DUPLICATE_USERNAME", "Username '" + username + "' already exists");
+    }
 }

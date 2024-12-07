@@ -3,9 +3,11 @@ package org.onstage.user.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.common.beans.UserSecurityContext;
+import org.onstage.exceptions.BadRequestException;
 import org.onstage.user.client.UpdateUserRequest;
 import org.onstage.user.client.UserDTO;
 import org.onstage.user.client.UserProfileInfoDTO;
+import org.onstage.user.model.User;
 import org.onstage.user.model.mapper.UserMapper;
 import org.onstage.user.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -78,6 +80,10 @@ public class UserController {
 
     @PutMapping
     public ResponseEntity<UserDTO> update(@RequestBody UpdateUserRequest request) {
+        User byUsername = userService.getByUsername(request.username());
+        if(byUsername != null && !byUsername.getId().equals(userSecurityContext.getUserId())) {
+            throw BadRequestException.duplicateUsername(request.username());
+        }
         return ResponseEntity.ok(userMapper.toDto(userService.update(userSecurityContext.getUserId(), request)));
     }
 

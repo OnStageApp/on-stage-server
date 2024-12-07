@@ -7,6 +7,7 @@ import org.onstage.user.model.UserRole;
 @Builder(toBuilder = true)
 public record UpdateUserRequest(
         String name,
+        String username,
         UserRole role,
         String revenueCatId,
         PositionEnum position
