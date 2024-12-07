@@ -14,6 +14,7 @@ import org.onstage.team.service.TeamService;
 import org.onstage.user.model.User;
 import org.onstage.user.repository.UserRepository;
 import org.onstage.user.service.UserService;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -54,13 +55,18 @@ public class LoginAction implements Action<LoginRequest, TokenDTO> {
         } else {
             name = decodedToken.getName();
         }
-        User user = userService.create(User.builder()
-                .id(uid)
-                .name(name)
-                .email(decodedToken.getEmail())
-                .build());
-        Team team = teamService.create(Team.builder().name(name.concat("'s Team")).leaderId(user.getId()).build());
-        return userRepository.save(user.toBuilder().currentTeamId(team.getId()).build());
+        try {
+            User user = userService.create(User.builder()
+                    .id(uid)
+                    .name(name)
+                    .email(decodedToken.getEmail())
+                    .username(decodedToken.getEmail())
+                    .build());
+            Team team = teamService.create(Team.builder().name(name.concat("'s Team")).leaderId(user.getId()).build());
+            return userRepository.save(user.toBuilder().currentTeamId(team.getId()).build());
+        } catch (DuplicateKeyException e) {
+            throw BadRequestException.duplicateUsername(decodedToken.getEmail());
+        }
 
     }
 }

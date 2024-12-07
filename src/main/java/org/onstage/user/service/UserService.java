@@ -61,6 +61,7 @@ public class UserService {
         log.info("Updating user {} with request {}", existingUserId, request);
         User existingUser = userRepository.getById(existingUserId);
         existingUser.setName(request.name() == null ? existingUser.getName() : request.name());
+        existingUser.setUsername(request.username() == null ? existingUser.getUsername() : request.username());
         existingUser.setRole(request.role() == null ? existingUser.getRole() : request.role());
         existingUser.setPosition(request.position() == null ? existingUser.getPosition() : request.position());
         return userRepository.save(existingUser);
@@ -123,5 +124,9 @@ public class UserService {
             log.info("Sending team changed event to device {}", device);
             socketIOService.sendSocketEvent(userId, device.getDeviceId(), SocketEventType.TEAM_CHANGED, null);
         });
+    }
+
+    public User getByUsername(String username) {
+        return userRepository.getByUsername(username);
     }
 }

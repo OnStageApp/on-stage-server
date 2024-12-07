@@ -17,6 +17,7 @@ public class UserMapper {
         return UserDTO.builder()
                 .id(entity.getId())
                 .name(entity.getName())
+                .username(entity.getUsername())
                 .email(entity.getEmail())
                 .imageTimestamp(entity.getImageTimestamp())
                 .role(entity.getRole())
@@ -29,6 +30,7 @@ public class UserMapper {
         return User.builder()
                 .id(request.id())
                 .name(request.name())
+                .username(request.username())
                 .email(request.email())
                 .imageTimestamp(request.imageTimestamp())
                 .role(request.role())
@@ -44,6 +46,7 @@ public class UserMapper {
     public UserProfileInfoDTO toProfileInfoDTO(User entity) {
         return UserProfileInfoDTO.builder()
                 .name(entity.getName())
+                .username(entity.getUsername())
                 .email(entity.getEmail())
                 .position(entity.getPosition())
                 .photoUrl(userService.getPresignedUrl(entity.getId(), false))

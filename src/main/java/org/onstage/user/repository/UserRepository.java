@@ -106,4 +106,10 @@ public class UserRepository {
                 .map(doc -> doc.getString("_id"))
                 .collect(Collectors.toList());
     }
+
+    public User getByUsername(String username) {
+        Criteria criteria = Criteria.where(User.Fields.username).is(username);
+        Query query = new Query(criteria);
+        return mongoTemplate.findOne(query, User.class);
+    }
 }
