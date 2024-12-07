@@ -25,7 +25,7 @@ public class ArtistController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ArtistDTO>> getAll(@RequestBody GetArtistFilter filter) {
+    public ResponseEntity<List<ArtistDTO>> getAll(@RequestBody(required = false) GetArtistFilter filter) {
         return ResponseEntity.ok(artistMapper.toDtoList(artistService.getAll(filter)));
     }
 
