@@ -128,21 +128,28 @@ public class TeamMemberService {
                 .collect(Collectors.toList());
     }
 
-    public TeamMember inviteMember(String email, String username, MemberRole memberRole, String teamMemberInvited, String teamId, String invitedBy) {
-        Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> BadRequestException.resourceNotFound("team"));
+    public TeamMember inviteMember(String emailOrUsername, MemberRole memberRole, String teamMemberInvited, String teamId, String invitedBy) {
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
 
-        User invitedUser = findInvitedUser(email, username, teamMemberInvited);
-        if (invitedUser == null && Strings.isNotEmpty(email)) {
-//            sendGridService.sendInviteToTeamEmail(email, team.getName());
-            throw BadRequestException.resourceNotFound("user");
+        User invitedUser;
+        TeamMember teamMember;
+
+        if (Strings.isNotEmpty(emailOrUsername)) {
+            invitedUser = findOrInviteUserByEmailOrUsername(emailOrUsername, team);
+            teamMember = ensureTeamMemberForUser(invitedUser, teamId, memberRole);
+        } else if (Strings.isNotEmpty(teamMemberInvited)) {
+            teamMember = getById(teamMemberInvited);
+            if (teamMember.getInviteStatus() == CONFIRMED) {
+                throw BadRequestException.teamMemberAlreadyExists();
+            }
+            invitedUser = userService.getById(teamMember.getUserId());
+        } else {
+            throw BadRequestException.invalidRequest();
         }
 
         if (invitedUser == null) {
             throw BadRequestException.resourceNotFound("user");
         }
-
-        TeamMember teamMember = ensureTeamMember(teamId, invitedUser, memberRole, teamMemberInvited);
 
         notifyInvitedUser(team, invitedBy, invitedUser, teamMember.getId());
         return teamMember;
@@ -258,30 +265,29 @@ public class TeamMemberService {
                 NotificationParams.builder().build());
     }
 
-    private User findInvitedUser(String email, String username, String teamMemberInvited) {
-        if (Strings.isNotEmpty(username)) {
-            return userService.getByUsername(username);
-        } else if (Strings.isNotEmpty(email)) {
-            return userService.getByEmail(email);
-        } else if (Strings.isNotEmpty(teamMemberInvited)) {
-            TeamMember existingTeamMember = getById(teamMemberInvited);
-            if (existingTeamMember.getInviteStatus() == CONFIRMED) {
-                throw BadRequestException.teamMemberAlreadyExists();
-            }
-            return userService.getById(existingTeamMember.getUserId());
-        } else {
-            throw BadRequestException.invalidRequest();
+
+    private User findOrInviteUserByEmailOrUsername(String emailOrUsername, Team team) {
+        User invitedUser = userService.getByUsername(emailOrUsername);
+        if (invitedUser == null) {
+            invitedUser = userService.getByEmail(emailOrUsername);
         }
+
+        if (invitedUser == null) {
+//            sendGridService.sendInviteToTeamEmail(emailOrUsername, team.getName());
+            throw BadRequestException.resourceNotFound("user");
+        }
+
+        return invitedUser;
     }
 
-    private TeamMember ensureTeamMember(String teamId, User invitedUser, MemberRole memberRole, String teamMemberInvited) {
-        if (Strings.isNotEmpty(teamMemberInvited)) {
-            return getById(teamMemberInvited);
+    private TeamMember ensureTeamMemberForUser(User invitedUser, String teamId, MemberRole memberRole) {
+        if (invitedUser == null) {
+            return null;
         }
 
         TeamMember teamMember = teamMemberRepository.getByUserAndTeam(invitedUser.getId(), teamId);
         if (teamMember == null) {
-            teamMember = teamMemberRepository.save(
+            return teamMemberRepository.save(
                     TeamMember.builder()
                             .teamId(teamId)
                             .userId(invitedUser.getId())
@@ -295,4 +301,5 @@ public class TeamMemberService {
 
         return teamMember;
     }
+
 }
