@@ -25,7 +25,7 @@ public class ArtistRepository {
 
     public List<Artist> getAll(GetArtistFilter filter) {
         Criteria criteria = new Criteria();
-        if (Strings.isNotEmpty(filter.search())) {
+        if (filter != null && Strings.isNotEmpty(filter.search())) {
             criteria.and("name").regex(filter.search(), "i");
         }
         return mongoTemplate.find(query(criteria), Artist.class);
