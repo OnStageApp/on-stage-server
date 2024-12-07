@@ -128,47 +128,21 @@ public class TeamMemberService {
                 .collect(Collectors.toList());
     }
 
-    public TeamMember inviteMember(String emailOrUsername, MemberRole memberRole, String teamMemberInvited, String teamId, String invitedBy) {
-        User invitedUser;
-        TeamMember teamMember;
-        Team team = teamRepository.findById(teamId).orElseThrow(() -> BadRequestException.resourceNotFound("team"));
+    public TeamMember inviteMember(String email, String username, MemberRole memberRole, String teamMemberInvited, String teamId, String invitedBy) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> BadRequestException.resourceNotFound("team"));
 
-        if (Strings.isNotEmpty(emailOrUsername)) {
-            invitedUser = userService.getByUsername(emailOrUsername);
-            if (invitedUser == null) {
-                invitedUser = userService.getByEmail(emailOrUsername);
-                if (invitedUser == null) {
-                    sendGridService.sendInviteToTeamEmail(emailOrUsername, team.getName());
-                    return null;
-                }
-            }
-
-            teamMember = teamMemberRepository.getByUserAndTeam(invitedUser.getId(), teamId);
-            if (teamMember == null) {
-                teamMember = teamMemberRepository.save(
-                        TeamMember.builder()
-                                .teamId(teamId)
-                                .userId(invitedUser.getId())
-                                .role(memberRole)
-                                .inviteStatus(PENDING)
-                                .build()
-                );
-            } else if (teamMember.getInviteStatus() == CONFIRMED) {
-                throw BadRequestException.teamMemberAlreadyExists();
-            }
-        } else if (Strings.isNotEmpty(teamMemberInvited)) {
-            teamMember = getById(teamMemberInvited);
-            if (teamMember.getInviteStatus() == CONFIRMED) {
-                throw BadRequestException.teamMemberAlreadyExists();
-            }
-            invitedUser = userService.getById(teamMember.getUserId());
-        } else {
-            throw BadRequestException.invalidRequest();
+        User invitedUser = findInvitedUser(email, username, teamMemberInvited);
+        if (invitedUser == null && Strings.isNotEmpty(email)) {
+//            sendGridService.sendInviteToTeamEmail(email, team.getName());
+            throw BadRequestException.resourceNotFound("user");
         }
 
         if (invitedUser == null) {
             throw BadRequestException.resourceNotFound("user");
         }
+
+        TeamMember teamMember = ensureTeamMember(teamId, invitedUser, memberRole, teamMemberInvited);
 
         notifyInvitedUser(team, invitedBy, invitedUser, teamMember.getId());
         return teamMember;
@@ -282,5 +256,43 @@ public class TeamMemberService {
         }
         notificationService.sendNotificationToUser(NotificationType.ROLE_CHANGED, teamMember.getUserId(), description, null, team.getId(),
                 NotificationParams.builder().build());
+    }
+
+    private User findInvitedUser(String email, String username, String teamMemberInvited) {
+        if (Strings.isNotEmpty(username)) {
+            return userService.getByUsername(username);
+        } else if (Strings.isNotEmpty(email)) {
+            return userService.getByEmail(email);
+        } else if (Strings.isNotEmpty(teamMemberInvited)) {
+            TeamMember existingTeamMember = getById(teamMemberInvited);
+            if (existingTeamMember.getInviteStatus() == CONFIRMED) {
+                throw BadRequestException.teamMemberAlreadyExists();
+            }
+            return userService.getById(existingTeamMember.getUserId());
+        } else {
+            throw BadRequestException.invalidRequest();
+        }
+    }
+
+    private TeamMember ensureTeamMember(String teamId, User invitedUser, MemberRole memberRole, String teamMemberInvited) {
+        if (Strings.isNotEmpty(teamMemberInvited)) {
+            return getById(teamMemberInvited);
+        }
+
+        TeamMember teamMember = teamMemberRepository.getByUserAndTeam(invitedUser.getId(), teamId);
+        if (teamMember == null) {
+            teamMember = teamMemberRepository.save(
+                    TeamMember.builder()
+                            .teamId(teamId)
+                            .userId(invitedUser.getId())
+                            .role(memberRole)
+                            .inviteStatus(PENDING)
+                            .build()
+            );
+        } else if (teamMember.getInviteStatus() == CONFIRMED) {
+            throw BadRequestException.teamMemberAlreadyExists();
+        }
+
+        return teamMember;
     }
 }

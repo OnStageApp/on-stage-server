@@ -89,7 +89,7 @@ public class TeamMemberController {
         String teamId = userSecurityContext.getCurrentTeamId();
         String invitedBy = userSecurityContext.getUserId();
         planService.checkPermission(PermissionType.ADD_TEAM_MEMBERS, teamId);
-        TeamMember invitedTeamMember = teamMemberService.inviteMember(request.emailOrUsername(), request.newMemberRole(), request.teamMemberInvited(), teamId, invitedBy);
+        TeamMember invitedTeamMember = teamMemberService.inviteMember(request.email(), request.username(), request.newMemberRole(), request.teamMemberInvited(), teamId, invitedBy);
         return ResponseEntity.ok(invitedTeamMember == null ? null : teamMemberMapper.toDto(invitedTeamMember));
     }
 }
