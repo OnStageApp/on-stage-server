@@ -73,4 +73,8 @@ public class BadRequestException extends BaseException {
     public static BadRequestException duplicateUsername(String username) {
         return new BadRequestException(15, "DUPLICATE_USERNAME", "Username '" + username + "' already exists");
     }
+
+    public static BadRequestException duplicateEmail(String email) {
+        return new BadRequestException(15, "DUPLICATE_USERNAME", "Email '" + email + "' already exists");
+    }
 }
