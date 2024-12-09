@@ -54,6 +54,12 @@ public class SongController {
         return ResponseEntity.ok(songMapper.toDTO(songService.createSong(songMapper.fromCreateRequest(songRequest, teamId))));
     }
 
+    @PostMapping("/all")
+    public ResponseEntity<Void> createAll(@RequestBody List<CreateOrUpdateSongRequest> songs) {
+        songs.forEach(songRequest -> songService.createSong(songMapper.fromCreateRequest(songRequest, null)));
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<SongDTO> update(@PathVariable String id, @RequestBody CreateOrUpdateSongRequest request) {
         return ResponseEntity.ok(songMapper.toDTO(songService.updateSong(id, songMapper.fromCreateRequest(request, userSecurityContext.getCurrentTeamId()))));
