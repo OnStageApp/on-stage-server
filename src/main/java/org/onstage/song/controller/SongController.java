@@ -32,7 +32,7 @@ public class SongController {
     public ResponseEntity<SongDTO> getById(@PathVariable String id, @RequestParam(required = false) Boolean isCustom) {
         String teamId = userSecurityContext.getCurrentTeamId();
         Song song = songService.getById(id);
-        if (isCustom) {
+        if (isCustom != null && isCustom) {
             SongConfig config = songConfigService.getBySongAndTeam(id, teamId);
             if (config != null && config.isCustom()) {
                 return ResponseEntity.ok(songMapper.toSongCustom(song, config));
