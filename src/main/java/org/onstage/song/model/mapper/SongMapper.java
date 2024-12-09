@@ -36,6 +36,7 @@ public class SongMapper {
                 .structure(song.getStructure())
                 .rawSections(song.getRawSections())
                 .originalKey(song.getOriginalKey())
+                .key(song.getOriginalKey())
                 .teamId(song.getTeamId())
                 .theme(song.getTheme())
                 .genre(song.getGenre())
