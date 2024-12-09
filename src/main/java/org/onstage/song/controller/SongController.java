@@ -32,6 +32,7 @@ public class SongController {
     public ResponseEntity<SongDTO> getById(@PathVariable String id, @RequestParam(required = false) Boolean isCustom) {
         String teamId = userSecurityContext.getCurrentTeamId();
         Song song = songService.getById(id);
+        // if isCustom is not sent or is true, check if the song has a custom configuration
         if (isCustom == null || isCustom) {
             SongConfig config = songConfigService.getBySongAndTeam(id, teamId);
             if (config != null && config.isCustom()) {
