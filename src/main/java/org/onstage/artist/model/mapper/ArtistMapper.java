@@ -12,14 +12,12 @@ public class ArtistMapper {
         return ArtistDTO.builder()
                 .id(entity.getId())
                 .name(entity.getName())
-                .imageUrl(null)
                 .build();
     }
 
     public Artist toEntity(ArtistDTO request) {
         return Artist.builder()
                 .name(request.name())
-                .imageUrl(null)
                 .build();
     }
 

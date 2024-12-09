@@ -11,6 +11,8 @@ import org.onstage.song.client.SongOverview;
 import org.onstage.song.model.Song;
 import org.onstage.song.model.mapper.SongMapper;
 import org.onstage.song.service.SongService;
+import org.onstage.songconfig.model.SongConfig;
+import org.onstage.songconfig.service.SongConfigService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,11 +26,19 @@ public class SongController {
     private final SongMapper songMapper;
     private final UserSecurityContext userSecurityContext;
     private final PlanService planService;
+    private final SongConfigService songConfigService;
 
     @GetMapping("/{id}")
     public ResponseEntity<SongDTO> getById(@PathVariable String id, @RequestParam(required = false) Boolean isCustom) {
         String teamId = userSecurityContext.getCurrentTeamId();
-        return ResponseEntity.ok(songService.getSongCustom(id, teamId, isCustom));
+        Song song = songService.getById(id);
+        if (isCustom) {
+            SongConfig config = songConfigService.getBySongAndTeam(id, teamId);
+            if (config != null && config.isCustom()) {
+                return ResponseEntity.ok(songMapper.toSongCustom(song, config));
+            }
+        }
+        return ResponseEntity.ok(songMapper.toDTO(song));
     }
 
     @GetMapping
@@ -41,12 +51,12 @@ public class SongController {
     public ResponseEntity<SongDTO> create(@RequestBody CreateOrUpdateSongRequest songRequest) {
         String teamId = userSecurityContext.getCurrentTeamId();
         planService.checkPermission(PermissionType.ADD_SONG, teamId);
-        return ResponseEntity.ok(songService.createSong(songMapper.fromCreateRequest(songRequest, teamId)));
+        return ResponseEntity.ok(songMapper.toDTO(songService.createSong(songMapper.fromCreateRequest(songRequest, teamId))));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<SongDTO> update(@PathVariable String id, @RequestBody CreateOrUpdateSongRequest request) {
-        return ResponseEntity.ok(songService.updateSong(id, songMapper.fromCreateRequest(request, userSecurityContext.getCurrentTeamId())));
+        return ResponseEntity.ok(songMapper.toDTO(songService.updateSong(id, songMapper.fromCreateRequest(request, userSecurityContext.getCurrentTeamId()))));
     }
 
     @PostMapping("/favorites/{songId}")

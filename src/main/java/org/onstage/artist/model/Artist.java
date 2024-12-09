@@ -17,5 +17,4 @@ public class Artist {
     @MongoId
     String id;
     String name;
-    String imageUrl;
 }
