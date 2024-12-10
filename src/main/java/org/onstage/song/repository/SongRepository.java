@@ -1,7 +1,7 @@
 package org.onstage.song.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.onstage.song.client.SongDTO;
+import org.onstage.song.client.PaginatedSongsResponse;
 import org.onstage.song.client.SongFilter;
 import org.onstage.song.client.SongOverview;
 import org.onstage.song.model.Song;
@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -27,16 +28,6 @@ public class SongRepository {
         return songRepo.findById(id);
     }
 
-    public SongDTO findProjectionById(String id) {
-        Criteria criteria = Criteria.where(Song.Fields.id).is(id);
-
-        Map<String, String> projectionFields = getProjectionFieldsForSongDTO();
-
-        Aggregation aggregation = buildAggregation(criteria, projectionFields, null);
-
-        return mongoTemplate.aggregate(aggregation, Song.class, SongDTO.class).getUniqueMappedResult();
-    }
-
     public Optional<SongOverview> findOverviewById(String id) {
         Criteria criteria = Criteria.where(Song.Fields.id).is(id);
 
@@ -48,53 +39,55 @@ public class SongRepository {
         return Optional.ofNullable(result);
     }
 
-    public List<SongOverview> getAll(SongFilter songFilter, String teamId) {
+    public PaginatedSongsResponse getAll(SongFilter songFilter, String teamId, int limit, int offset) {
         Criteria criteria = new Criteria();
-
-        List<Criteria> preLookupCriteriaList = new ArrayList<>();
+        List<Criteria> criteriaList = new ArrayList<>();
 
         if (songFilter.search() != null && !songFilter.search().isEmpty()) {
-            preLookupCriteriaList.add(Criteria.where(Song.Fields.title).regex(songFilter.search(), "i"));
+            criteriaList.add(Criteria.where(Song.Fields.title).regex(songFilter.search(), "i"));
         }
 
         if (songFilter.tempoRange() != null) {
-            if(songFilter.tempoRange().min() != null) {
-                preLookupCriteriaList.add(Criteria.where(Song.Fields.tempo).gte(songFilter.tempoRange().min()));
+            if (songFilter.tempoRange().min() != null) {
+                criteriaList.add(Criteria.where(Song.Fields.tempo).gte(songFilter.tempoRange().min()));
             }
-            if(songFilter.tempoRange().max() != null) {
-                preLookupCriteriaList.add(Criteria.where(Song.Fields.tempo).lte(songFilter.tempoRange().max()));
+            if (songFilter.tempoRange().max() != null) {
+                criteriaList.add(Criteria.where(Song.Fields.tempo).lte(songFilter.tempoRange().max()));
             }
         }
 
         if (songFilter.genre() != null) {
-            preLookupCriteriaList.add(Criteria.where(Song.Fields.genre).is(songFilter.genre()));
+            criteriaList.add(Criteria.where(Song.Fields.genre).is(songFilter.genre()));
         }
 
         if (songFilter.theme() != null) {
-            preLookupCriteriaList.add(Criteria.where(Song.Fields.theme).is(songFilter.theme()));
+            criteriaList.add(Criteria.where(Song.Fields.theme).is(songFilter.theme()));
         }
 
         Criteria teamCriteria = getTeamCriteria(teamId, songFilter.includeOnlyTeamSongs());
         if (teamCriteria != null) {
-            preLookupCriteriaList.add(teamCriteria);
+            criteriaList.add(teamCriteria);
         }
 
-        if (!preLookupCriteriaList.isEmpty()) {
-            criteria.andOperator(preLookupCriteriaList.toArray(new Criteria[0]));
+        if (!criteriaList.isEmpty()) {
+            criteria.andOperator(criteriaList.toArray(new Criteria[0]));
         }
 
-        Criteria postLookupCriteria = null;
-        if (songFilter.artistId() != null && !songFilter.artistId().isEmpty()) {
-            postLookupCriteria = Criteria.where("artist._id").is(songFilter.artistId());
-        }
+        Query query = new Query(criteria);
+        query.with(Sort.by(Sort.Order.asc(Song.Fields.title)));
+        query.skip(offset);
+        query.limit(limit);
 
-        Map<String, String> projectionFields = getProjectionFieldsForSongOverview();
+        List<Song> results = mongoTemplate.find(query, Song.class);
 
-        Sort sort = Sort.by(Sort.Order.asc(Song.Fields.title), Sort.Order.asc("artist.name"));
+        long totalCount = mongoTemplate.count(new Query(criteria), Song.class);
 
-        Aggregation aggregation = buildAggregation(criteria, projectionFields, sort, postLookupCriteria);
+        boolean hasMore = offset + limit < totalCount;
 
-        return mongoTemplate.aggregate(aggregation, Song.class, SongOverview.class).getMappedResults();
+        return PaginatedSongsResponse.builder()
+                .songs(results)
+                .hasMore(hasMore)
+                .build();
     }
 
     public Song save(Song song) {

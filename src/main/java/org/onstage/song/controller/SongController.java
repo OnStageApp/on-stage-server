@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.onstage.common.beans.UserSecurityContext;
 import org.onstage.enums.PermissionType;
 import org.onstage.plan.service.PlanService;
-import org.onstage.song.client.CreateOrUpdateSongRequest;
-import org.onstage.song.client.SongDTO;
-import org.onstage.song.client.SongFilter;
-import org.onstage.song.client.SongOverview;
+import org.onstage.song.client.*;
 import org.onstage.song.model.Song;
 import org.onstage.song.model.mapper.SongMapper;
 import org.onstage.song.service.SongService;
@@ -42,10 +39,19 @@ public class SongController {
         return ResponseEntity.ok(songMapper.toDTO(song));
     }
 
+    @Deprecated
     @GetMapping
     public ResponseEntity<List<SongOverview>> getAll(@RequestBody SongFilter songFilter) {
         String teamId = userSecurityContext.getCurrentTeamId();
-        return ResponseEntity.ok(songService.getAll(songFilter, teamId));
+        return ResponseEntity.ok(songMapper.toOverviewList(songService.getAll(songFilter, teamId, 1000, 0).songs()));
+    }
+
+    @GetMapping("/paginated")
+    public ResponseEntity<GetAllSongsResponse> getAll(@RequestBody SongFilter songFilter,
+                                                      @RequestParam(defaultValue = "25") int limit,
+                                                      @RequestParam(defaultValue = "0") int offset) {
+        String teamId = userSecurityContext.getCurrentTeamId();
+        return ResponseEntity.ok(songMapper.toGetAllSongs(songService.getAll(songFilter, teamId, limit, offset)));
     }
 
     @PostMapping

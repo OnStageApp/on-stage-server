@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.favoritesong.model.FavoriteSong;
 import org.onstage.favoritesong.repository.FavoriteSongRepository;
+import org.onstage.song.client.PaginatedSongsResponse;
 import org.onstage.song.client.SongFilter;
 import org.onstage.song.client.SongOverview;
 import org.onstage.song.model.Song;
@@ -31,8 +32,8 @@ public class SongService {
                 .orElseThrow(() -> BadRequestException.resourceNotFound("song"));
     }
 
-    public List<SongOverview> getAll(SongFilter songFilter, String teamId) {
-        return songRepository.getAll(songFilter, teamId);
+    public PaginatedSongsResponse getAll(SongFilter songFilter, String teamId, int limit, int offset) {
+        return songRepository.getAll(songFilter, teamId, limit, offset);
     }
 
     public Song createSong(Song song) {
