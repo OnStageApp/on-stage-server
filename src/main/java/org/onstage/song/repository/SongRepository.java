@@ -165,4 +165,9 @@ public class SongRepository {
         projectionFields.put("genre", "genre");
         return projectionFields;
     }
+
+    public Integer getSongsCount(String teamId) {
+        Criteria criteria = getTeamCriteria(teamId, false);
+        return (int) mongoTemplate.count(new Query(criteria), Song.class);
+    }
 }

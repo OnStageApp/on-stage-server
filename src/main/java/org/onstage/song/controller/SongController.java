@@ -54,6 +54,13 @@ public class SongController {
         return ResponseEntity.ok(songMapper.toGetAllSongs(songService.getAll(songFilter, teamId, limit, offset)));
     }
 
+    @GetMapping("/count")
+    public ResponseEntity<Integer> getSongsCount() {
+String teamId = userSecurityContext.getCurrentTeamId();
+        return ResponseEntity.ok(songService.getSongsCount(teamId));
+
+    }
+
     @PostMapping
     public ResponseEntity<SongDTO> create(@RequestBody CreateOrUpdateSongRequest songRequest) {
         String teamId = userSecurityContext.getCurrentTeamId();

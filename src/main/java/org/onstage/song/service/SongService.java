@@ -79,4 +79,8 @@ public class SongService {
         favoriteSongRepository.removeFavoriteSong(songId, userId);
         log.info("Song {} removed from favorites for user {}", songId, userId);
     }
+
+    public Integer getSongsCount(String teamId) {
+        return songRepository.getSongsCount(teamId);
+    }
 }
