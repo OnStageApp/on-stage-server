@@ -8,11 +8,9 @@ import org.onstage.common.base.BaseEntity;
 import org.onstage.enums.GenreEnum;
 import org.onstage.enums.StructureItemEnum;
 import org.onstage.enums.ThemeEnum;
-import org.onstage.song.client.TempoRange;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Document("songs")
@@ -30,6 +28,7 @@ public class Song extends BaseEntity {
     String artistId;
     String teamId;
     ThemeEnum theme;
+    @Deprecated
     GenreEnum genre;
     Integer tempo;
 }

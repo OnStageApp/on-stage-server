@@ -5,19 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.favoritesong.model.FavoriteSong;
 import org.onstage.favoritesong.repository.FavoriteSongRepository;
-import org.onstage.song.client.SongDTO;
+import org.onstage.song.client.PaginatedSongsResponse;
 import org.onstage.song.client.SongFilter;
 import org.onstage.song.client.SongOverview;
 import org.onstage.song.model.Song;
 import org.onstage.song.repository.SongRepository;
-import org.onstage.songconfig.model.SongConfig;
-import org.onstage.songconfig.service.SongConfigService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.onstage.exceptions.BadRequestException.resourceNotFound;
 
 @Service
 @Slf4j
@@ -26,29 +22,9 @@ public class SongService {
 
     private final SongRepository songRepository;
     private final FavoriteSongRepository favoriteSongRepository;
-    private final SongConfigService songConfigService;
 
-    public SongDTO getSongCustom(String id, String teamId, Boolean isCustom) {
-        SongDTO songDTO = songRepository.findProjectionById(id);
-        if (songDTO == null) {
-            throw resourceNotFound("song");
-        }
-
-        var key = songDTO.originalKey();
-        var structure = songDTO.structure();
-
-        if (songDTO.teamId() == null && (isCustom == null || isCustom)) {
-            SongConfig config = songConfigService.getBySongAndTeam(id, teamId);
-            if (config != null && config.isCustom()) {
-                key = config.key() != null ? config.key() : key;
-                structure = config.structure() != null ? config.structure() : structure;
-            }
-        }
-
-        return songDTO.toBuilder()
-                .key(key)
-                .structure(structure)
-                .build();
+    public Song getById(String id) {
+        return songRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("song"));
     }
 
     public SongOverview getOverviewSong(String id) {
@@ -56,17 +32,17 @@ public class SongService {
                 .orElseThrow(() -> BadRequestException.resourceNotFound("song"));
     }
 
-    public List<SongOverview> getAll(SongFilter songFilter, String teamId) {
-        return songRepository.getAll(songFilter, teamId);
+    public PaginatedSongsResponse getAll(SongFilter songFilter, String teamId, int limit, int offset) {
+        return songRepository.getAll(songFilter, teamId, limit, offset);
     }
 
-    public SongDTO createSong(Song song) {
+    public Song createSong(Song song) {
         Song savedSong = songRepository.save(song);
         log.info("Song {} has been created", savedSong.getId());
-        return getSongCustom(savedSong.getId(), null, null);
+        return savedSong;
     }
 
-    public SongDTO updateSong(String id, Song request) {
+    public Song updateSong(String id, Song request) {
         Song existingSong = songRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("song"));
         existingSong.setTitle(request.getTitle() == null ? existingSong.getTitle() : request.getTitle());
         existingSong.setStructure(request.getStructure() == null ? existingSong.getStructure() : request.getStructure());
@@ -77,9 +53,8 @@ public class SongService {
         existingSong.setTheme(request.getTheme() == null ? existingSong.getTheme() : request.getTheme());
         existingSong.setGenre(request.getGenre() == null ? existingSong.getGenre() : request.getGenre());
 
-        songRepository.save(existingSong);
         log.info("Song {} has been updated", id);
-        return getSongCustom(id, existingSong.getTeamId(), null);
+        return songRepository.save(existingSong);
     }
 
     public void addFavoriteSong(String songId, String userId) {
@@ -103,5 +78,9 @@ public class SongService {
     public void removeFavoriteSong(String songId, String userId) {
         favoriteSongRepository.removeFavoriteSong(songId, userId);
         log.info("Song {} removed from favorites for user {}", songId, userId);
+    }
+
+    public Integer getSongsCount(String teamId) {
+        return songRepository.getSongsCount(teamId);
     }
 }

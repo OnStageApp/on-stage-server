@@ -34,7 +34,6 @@ public class ArtistService {
     public Artist update(Artist existingArtist, Artist request) {
         log.info("Updating artist {} with request {}", existingArtist.getId(), request);
         existingArtist.setName(request.getName() == null ? existingArtist.getName() : request.getName());
-        existingArtist.setImageUrl(request.getImageUrl() == null ? existingArtist.getImageUrl() : request.getImageUrl());
         return save(existingArtist);
     }
 }
