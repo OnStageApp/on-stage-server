@@ -47,19 +47,6 @@ public class StagerRepository {
         return stagerRepo.save(stager);
     }
 
-    public Stager getByEventAndTeamMember(String eventId, String teamMemberId) {
-        Criteria criteria = Criteria.where(Stager.Fields.eventId).is(eventId)
-                .and(Stager.Fields.teamMemberId).is(teamMemberId);
-        Query query = new Query(criteria);
-        return mongoTemplate.findOne(query, Stager.class);
-    }
-
-    public void deleteAllByEventId(String eventId) {
-        Criteria criteria = Criteria.where(Stager.Fields.eventId).is(eventId);
-        Query query = new Query(criteria);
-        mongoTemplate.remove(query, Stager.class);
-    }
-
     public Integer countByEventId(String eventId) {
         Criteria criteria = Criteria.where(Stager.Fields.eventId).is(eventId)
                 .and(Stager.Fields.participationStatus).is(CONFIRMED);

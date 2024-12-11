@@ -61,8 +61,13 @@ public class ArtistService {
 
     public void delete(String id) {
         log.info("Updating songs with artist id {} to Unknown artist", id);
+        Artist artistToDelete = getById(id);
+        Artist unknownArtist = getByName(UNKNOWN_ARTIST);
+        if (artistToDelete.getId().equals(unknownArtist.getId())) {
+            return;
+        }
         songRepository.getByArtistId(id).forEach(song -> {
-            song.setArtistId(getByName(UNKNOWN_ARTIST).getId());
+            song.setArtistId(unknownArtist.getId());
             songRepository.save(song);
         });
         artistRepository.deleteById(id);
