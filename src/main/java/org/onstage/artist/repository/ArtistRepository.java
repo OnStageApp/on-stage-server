@@ -44,4 +44,8 @@ public class ArtistRepository {
         Criteria criteria = Criteria.where(Artist.Fields.name).is(artistId);
         return mongoTemplate.findOne(query(criteria), Artist.class);
     }
+
+    public void deleteById(String id) {
+        artistRepo.deleteById(id);
+    }
 }

@@ -27,6 +27,7 @@ public class ArtistService {
 
     public Artist getByIdOrUpdateSong(String id, Song song) {
         return artistRepository.findById(id).orElseGet(() -> {
+            log.info("Artist {} not found, creating Unknown artist", id);
             Artist artist = getByName(UNKNOWN_ARTIST);
             song.setArtistId(artist.getId());
             songRepository.save(song);
@@ -56,5 +57,15 @@ public class ArtistService {
             artist = artistRepository.findByName("Unknown");
         }
         return artist;
+    }
+
+    public void delete(String id) {
+        log.info("Updating songs with artist id {} to Unknown artist", id);
+        songRepository.getByArtistId(id).forEach(song -> {
+            song.setArtistId(getByName(UNKNOWN_ARTIST).getId());
+            songRepository.save(song);
+        });
+        artistRepository.deleteById(id);
+        log.info("Artist {} has been deleted", id);
     }
 }

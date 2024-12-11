@@ -50,6 +50,7 @@ public class EventItemService {
                 SongOverview song = songService.getOverviewSong(eventItem.getSongId());
                 SongConfig config = songConfigService.getBySongAndTeam(song.id(), teamId);
                 if (config != null && config.isCustom()) {
+                    log.info("Song {} has custom config for team {}", song.id(), teamId);
                     song = song.toBuilder()
                             .key(config.key() == null ? song.key() : config.key())
                             .build();
@@ -77,10 +78,11 @@ public class EventItemService {
         log.info("EventItem {} has been saved", savedEventItem.getEventId());
         SongOverview song = null;
         if (eventItem.getSongId() != null) {
+            log.info("Retrieving song {} for event item {}", savedEventItem.getSongId(), savedEventItem.getId());
             song = songService.getOverviewSong(savedEventItem.getSongId());
         }
         return EventItemDTO.builder()
-                .id(savedEventItem.getSongId())
+                .id(savedEventItem.getId())
                 .name(savedEventItem.getName())
                 .index(savedEventItem.getIndex())
                 .eventType(savedEventItem.getEventType())
@@ -90,6 +92,7 @@ public class EventItemService {
     }
 
     public EventItemDTO update(String id, EventItem request) {
+        log.info("Updating event item {} with request {}", id, request);
         EventItem existingEventItem = eventItemRepository.getById(id)
                 .orElseThrow(() -> BadRequestException.resourceNotFound("eventItem"));
         existingEventItem.setName(request.getName() == null ? existingEventItem.getName() : request.getName());
@@ -101,6 +104,7 @@ public class EventItemService {
         EventItem existingEventItem = eventItemRepository.getById(eventItemId)
                 .orElseThrow(() -> BadRequestException.resourceNotFound("eventItem"));
 
+        log.info("Updating lead vocals for event item {}", eventItemId);
         List<String> initialLeadVocalIds = existingEventItem.getLeadVocalIds() == null ? List.of() : existingEventItem.getLeadVocalIds();
         existingEventItem.setLeadVocalIds(stagerIds.stream().distinct().toList());
         eventItemRepository.save(existingEventItem.toBuilder().leadVocalIds(stagerIds.stream().distinct().toList()).build());
@@ -109,6 +113,7 @@ public class EventItemService {
     }
 
     public List<EventItemDTO> updateEventItemList(List<EventItem> eventItems, String eventId) {
+        log.info("Updating event items for event {}", eventId);
         eventItemRepository.deleteAllByEventId(eventId);
         if (eventItems.isEmpty()) {
             return List.of();
@@ -116,18 +121,8 @@ public class EventItemService {
         return eventItems.stream().map(this::save).toList();
     }
 
-    public void removeLeadVocalFromEvent(String stagerId, String eventId) {
-        EventItem eventItem = eventItemRepository.getByLeadVocalId(stagerId, eventId);
-        if (eventItem == null) {
-            return;
-        }
-        List<String> leadVocalIds = eventItem.getLeadVocalIds();
-        leadVocalIds.remove(stagerId);
-        eventItem.setLeadVocalIds(leadVocalIds);
-        eventItemRepository.save(eventItem);
-    }
-
-    public void deleteLEadVocalFromEventItem(String eventItemId, String stagerId, String requestedByUser) {
+    public void deleteLeadVocalFromEventItem(String eventItemId, String stagerId, String requestedByUser) {
+        log.info("Removing lead vocal {} from event item {}", stagerId, eventItemId);
         EventItem eventItem = eventItemRepository.getById(eventItemId).orElseThrow(() -> BadRequestException.resourceNotFound("eventItem"));
         List<String> leadVocalIds = eventItem.getLeadVocalIds();
         leadVocalIds.remove(stagerId);
@@ -177,5 +172,16 @@ public class EventItemService {
             notificationService.sendNotificationToUser(NotificationType.LEAD_VOICE_REMOVED, stager.getUserId(), description, title, event.getTeamId(),
                     NotificationParams.builder().eventId(event.getId()).eventItemId(eventItem.getId()).userId(requestedByUser).build());
         }
+    }
+
+    public void removeLeadVocalsByStagerId(String stagerId) {
+        log.info("Removing lead vocals for stager {}", stagerId);
+        List<EventItem> eventItems = eventItemRepository.getByLeadVocalId(stagerId);
+        eventItems.forEach(eventItem -> {
+            List<String> leadVocalIds = eventItem.getLeadVocalIds();
+            leadVocalIds.remove(stagerId);
+            eventItem.setLeadVocalIds(leadVocalIds);
+            eventItemRepository.save(eventItem);
+        });
     }
 }

@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.artist.model.Artist;
 import org.onstage.artist.service.ArtistService;
+import org.onstage.eventitem.repository.EventItemRepository;
+import org.onstage.eventitem.service.EventItemService;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.favoritesong.model.FavoriteSong;
 import org.onstage.favoritesong.repository.FavoriteSongRepository;
@@ -12,6 +14,7 @@ import org.onstage.song.client.SongFilter;
 import org.onstage.song.client.SongOverview;
 import org.onstage.song.model.Song;
 import org.onstage.song.repository.SongRepository;
+import org.onstage.songconfig.service.SongConfigService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,6 +28,8 @@ public class SongService {
     private final SongRepository songRepository;
     private final FavoriteSongRepository favoriteSongRepository;
     private final ArtistService artistService;
+    private final EventItemRepository eventItemRepository;
+    private final SongConfigService songConfigService;
 
     public Song getById(String id) {
         return songRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("song"));
@@ -61,8 +66,6 @@ public class SongService {
         existingSong.setOriginalKey(request.getOriginalKey() == null ? existingSong.getOriginalKey() : request.getOriginalKey());
         existingSong.setArtistId(request.getArtistId() == null ? existingSong.getArtistId() : request.getArtistId());
         existingSong.setTheme(request.getTheme() == null ? existingSong.getTheme() : request.getTheme());
-        existingSong.setGenre(request.getGenre() == null ? existingSong.getGenre() : request.getGenre());
-
         log.info("Song {} has been updated", id);
         return songRepository.save(existingSong);
     }
@@ -92,5 +95,13 @@ public class SongService {
 
     public Integer getSongsCount(String teamId) {
         return songRepository.getSongsCount(teamId);
+    }
+
+    public void delete(String id) {
+        eventItemRepository.deleteBySongId(id);
+        favoriteSongRepository.deleteBySongId(id);
+        songConfigService.deleteBySongId(id);
+        songRepository.deleteById(id);
+        log.info("Song {} has been deleted", id);
     }
 }

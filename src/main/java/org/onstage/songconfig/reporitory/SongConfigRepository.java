@@ -36,4 +36,10 @@ public class SongConfigRepository {
     public void delete(SongConfig existingConfig) {
         songConfigRepo.delete(existingConfig);
     }
+
+    public void deleteBySongId(String songId) {
+        Criteria criteria = Criteria.where(SongConfig.Fields.songId).is(songId);
+        Query query = new Query(criteria);
+        mongoTemplate.remove(query, SongConfig.class);
+    }
 }

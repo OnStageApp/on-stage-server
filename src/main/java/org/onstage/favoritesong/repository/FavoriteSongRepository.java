@@ -38,4 +38,9 @@ public class FavoriteSongRepository {
         Query query = new Query(Criteria.where(FavoriteSong.Fields.songId).is(songId).and(FavoriteSong.Fields.userId).is(userId));
         return mongoTemplate.findOne(query, FavoriteSong.class);
     }
+
+    public void deleteBySongId(String songId) {
+        Query query = new Query(Criteria.where(FavoriteSong.Fields.songId).is(songId));
+        mongoTemplate.remove(query, FavoriteSong.class);
+    }
 }

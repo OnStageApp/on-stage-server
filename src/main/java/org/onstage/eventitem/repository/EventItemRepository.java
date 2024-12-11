@@ -36,16 +36,15 @@ public class EventItemRepository {
         mongoTemplate.remove(query, EventItem.class);
     }
 
-    public EventItem getByLeadVocalId(String stagerId, String eventId) {
-        Criteria criteria = Criteria.where(EventItem.Fields.leadVocalIds).is(stagerId)
-                .and(EventItem.Fields.eventId).is(eventId);
-        Query query = new Query(criteria);
-        return mongoTemplate.findOne(query, EventItem.class);
-    }
-
-    public List<EventItem> getAllByLeadVocalId(String teamMemberId) {
-        Criteria criteria = Criteria.where(EventItem.Fields.leadVocalIds).is(teamMemberId);
+    public List<EventItem> getByLeadVocalId(String stagerId) {
+        Criteria criteria = Criteria.where(stagerId).in(EventItem.Fields.leadVocalIds);
         Query query = new Query(criteria);
         return mongoTemplate.find(query, EventItem.class);
+    }
+
+    public void deleteBySongId(String songId) {
+        Criteria criteria = Criteria.where(EventItem.Fields.songId).is(songId);
+        Query query = new Query(criteria);
+        mongoTemplate.remove(query, EventItem.class);
     }
 }

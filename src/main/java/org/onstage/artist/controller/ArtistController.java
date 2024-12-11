@@ -39,4 +39,10 @@ public class ArtistController {
         Artist artist = artistService.getById(id);
         return ResponseEntity.ok(artistMapper.toDto(artistService.update(artist, artistMapper.toEntity(request))));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        artistService.delete(id);
+        return ResponseEntity.ok().build();
+    }
 }

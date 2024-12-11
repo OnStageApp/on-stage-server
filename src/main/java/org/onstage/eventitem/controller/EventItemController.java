@@ -5,7 +5,6 @@ import org.onstage.common.beans.UserSecurityContext;
 import org.onstage.eventitem.client.EventItemDTO;
 import org.onstage.eventitem.client.UpdateEventItemListRequest;
 import org.onstage.eventitem.mapper.EventItemMapper;
-import org.onstage.eventitem.model.EventItem;
 import org.onstage.eventitem.service.EventItemService;
 import org.onstage.stager.client.StagerDTO;
 import org.onstage.stager.model.mapper.StagerMapper;
@@ -55,7 +54,7 @@ public class EventItemController {
     @DeleteMapping("/{id}/lead-vocals/{stagerId}")
     public ResponseEntity<Void> removeVocalLead(@PathVariable String id, @PathVariable String stagerId) {
         String requestedByUser = userSecurityContext.getUserId();
-        eventItemService.deleteLEadVocalFromEventItem(id, stagerId, requestedByUser);
+        eventItemService.deleteLeadVocalFromEventItem(id, stagerId, requestedByUser);
         return ResponseEntity.ok().build();
     }
 

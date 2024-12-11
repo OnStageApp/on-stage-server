@@ -41,10 +41,6 @@ public class StagerService {
         return stagerRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("stager"));
     }
 
-    public Stager getByEventAndTeamMember(String eventId, String teamMemberId) {
-        return stagerRepository.getByEventAndTeamMember(eventId, teamMemberId);
-    }
-
     public List<Stager> getAllByEventId(String eventId) {
         return stagerRepository.getAllByEventId(eventId);
     }
@@ -60,7 +56,7 @@ public class StagerService {
     public Stager create(Event event, String teamMemberId) {
         log.info("Creating stager for event {} and team member {}", event.getId(), teamMemberId);
         TeamMember teamMember = teamMemberRepository.findById(teamMemberId).orElseThrow(() -> BadRequestException.resourceNotFound("teamMember"));
-        Stager stager = stagerRepository.createStager(event.getId(), teamMember, event.getCreatedByUser());
+        Stager stager = stagerRepository.createStager(event, teamMember, event.getCreatedByUser());
 
         notifyStager(event, stager);
         return stager;
@@ -70,25 +66,35 @@ public class StagerService {
         log.info("Removing stager with id {}", stagerId);
         Stager stager = getById(stagerId);
         Event event = eventRepository.findById(stager.getEventId()).orElseThrow(() -> BadRequestException.resourceNotFound("event"));
-        stagerRepository.removeStager(stagerId);
-        String description = String.format("You have been removed from %s", event.getName());
-        notificationService.sendNotificationToUser(NotificationType.STAGER_REMOVED, stager.getUserId(), description, null, event.getTeamId(),
-                NotificationParams.builder().teamId(event.getTeamId()).build());
+        stagerRepository.deleteById(stagerId);
+
+        notifyRemovedStager(event, stager);
         return stagerId;
     }
 
     public Stager update(String id, Stager request) {
+        log.info("Updating stager with id {} with request {}", id, request);
         Stager existingStager = getById(id);
         existingStager.setParticipationStatus(request.getParticipationStatus() == null ? existingStager.getParticipationStatus() : request.getParticipationStatus());
         stagerRepository.save(existingStager);
 
+        if (request.getParticipationStatus() == ParticipationStatus.DECLINED) {
+            eventItemService.removeLeadVocalsByStagerId(id);
+        }
         notifyEventEditor(existingStager);
         return existingStager;
     }
 
     public void deleteAllByEventId(String eventId) {
         log.info("Deleting all stagers for event {}", eventId);
-        stagerRepository.deleteAllByEventId(eventId);
+        List<Stager> stagersToDelete = getAllByEventId(eventId);
+        stagersToDelete.forEach(stager -> delete(stager.getId()));
+    }
+
+    public void delete(String id) {
+        log.info("Deleting stager with id {}", id);
+        eventItemService.removeLeadVocalsByStagerId(id);
+        stagerRepository.deleteById(id);
     }
 
     public Integer countByEventId(String eventId) {
@@ -98,10 +104,7 @@ public class StagerService {
     public void removeAllByTeamMemberId(String teamMemberId) {
         log.info("Removing all stagers for team member {}", teamMemberId);
         List<Stager> stagers = stagerRepository.getAllByTeamMemberId(teamMemberId);
-        stagers.forEach(stager -> {
-            eventItemService.removeLeadVocalFromEvent(stager.getId(), stager.getEventId());
-            stagerRepository.removeStager(stager.getId());
-        });
+        stagers.forEach(stager -> delete(stager.getId()));
     }
 
     public void notifyStager(Event event, Stager stager) {
@@ -125,7 +128,6 @@ public class StagerService {
         User user = userService.getById(stager.getUserId());
         if (stager.getParticipationStatus() == ParticipationStatus.DECLINED) {
             log.info("Notifying event editor about stager {} declining the invitation to event {}", stager.getId(), event.getId());
-            eventItemService.removeLeadVocalFromEvent(stager.getId(), stager.getEventId());
             String description = String.format("%s declined your invitation to the event %s", user.getName(), event.getName());
             notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_DECLINED, event.getCreatedByUser(), description, null, event.getTeamId(),
                     NotificationParams.builder().eventId(event.getId()).userId(stager.getUserId()).build());
@@ -137,5 +139,11 @@ public class StagerService {
             notificationService.sendNotificationToUser(NotificationType.EVENT_INVITATION_ACCEPTED, event.getCreatedByUser(), description, null, event.getTeamId(),
                     NotificationParams.builder().eventId(event.getId()).userId(stager.getUserId()).build());
         }
+    }
+
+    private void notifyRemovedStager(Event event, Stager stager) {
+        String description = String.format("You have been removed from %s", event.getName());
+        notificationService.sendNotificationToUser(NotificationType.STAGER_REMOVED, stager.getUserId(), description, null, event.getTeamId(),
+                NotificationParams.builder().teamId(event.getTeamId()).build());
     }
 }
