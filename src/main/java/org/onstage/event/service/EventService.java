@@ -65,6 +65,7 @@ public class EventService {
         stagerService.deleteAllByEventId(event.getId());
         rehearsalService.deleteAllByEventId(event.getId());
         reminderService.deleteAllByEventId(event.getId());
+        eventItemRepository.deleteAllByEventId(event.getId());
         return eventRepository.delete(event.getId());
     }
 
@@ -92,6 +93,7 @@ public class EventService {
     }
 
     public Event duplicate(Event event, LocalDateTime dateTime, String name, String requestedByUser) {
+        log.info("Duplicating event {} with name {} and date {}", event.getId(), name, dateTime);
         Event duplicatedEvent = Event.builder()
                 .name(name)
                 .location(event.getLocation())
@@ -110,6 +112,7 @@ public class EventService {
 
         List<EventItem> eventItems = eventItemRepository.getAll(event.getId());
         for (EventItem eventItem : eventItems) {
+            log.info("Duplicating event item {} for event {}", eventItem.getId(), duplicatedEvent.getId());
             eventItemRepository.save(EventItem.builder()
                     .eventId(duplicatedEvent.getId())
                     .eventType(eventItem.getEventType())

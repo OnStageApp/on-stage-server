@@ -69,6 +69,7 @@ public class UserService {
 
 
     public void setCurrentTeam(String teamId, String userId) {
+        log.info("Setting current team {} for user {}", teamId, userId);
         User user = getById(userId);
         userRepository.save(user.toBuilder().currentTeamId(teamId).build());
         notifyTeamChanged(userId);
@@ -106,6 +107,7 @@ public class UserService {
     }
 
     public void delete(String userId) {
+        log.info("Deleting user {}", userId);
         try {
             stagerRepository.deleteAllByUserId(userId);
             teamMemberRepository.deleteAllByUserId(userId);

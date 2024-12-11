@@ -82,6 +82,12 @@ String teamId = userSecurityContext.getCurrentTeamId();
         return ResponseEntity.ok(songMapper.toDTO(songService.updateSong(id, songMapper.fromCreateRequest(request, userSecurityContext.getCurrentTeamId()))));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        songService.delete(id);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/favorites/{songId}")
     public ResponseEntity<Void> addFavoriteSong(@PathVariable String songId) {
         String userId = userSecurityContext.getUserId();

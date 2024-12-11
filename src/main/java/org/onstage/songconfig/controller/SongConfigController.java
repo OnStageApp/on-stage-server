@@ -35,4 +35,10 @@ public class SongConfigController {
         return ResponseEntity.ok(songConfigMapper.toDto(songConfig));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSongConfig(@PathVariable String id) {
+        songConfigService.deleteBySongId(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

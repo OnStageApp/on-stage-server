@@ -170,4 +170,14 @@ public class SongRepository {
         Criteria criteria = getTeamCriteria(teamId, false);
         return (int) mongoTemplate.count(new Query(criteria), Song.class);
     }
+
+    public void deleteById(String id) {
+        songRepo.deleteById(id);
+    }
+
+    public List<Song> getByArtistId(String artistId) {
+        Criteria criteria = Criteria.where(Song.Fields.artistId).is(artistId);
+        Query query = new Query(criteria);
+        return mongoTemplate.find(query, Song.class);
+    }
 }

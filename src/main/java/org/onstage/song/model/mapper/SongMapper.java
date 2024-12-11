@@ -26,7 +26,6 @@ public class SongMapper {
                 .artistId(song.artistId())
                 .teamId(teamId)
                 .theme(song.theme())
-                .genre(song.genre())
                 .tempo(song.tempo())
                 .build();
     }
@@ -41,7 +40,6 @@ public class SongMapper {
                 .key(song.getOriginalKey())
                 .teamId(song.getTeamId())
                 .theme(song.getTheme())
-                .genre(song.getGenre())
                 .tempo(song.getTempo())
                 .artist(artistMapper.toDto(artistService.getById(song.getArtistId())))
                 .build();
@@ -57,7 +55,6 @@ public class SongMapper {
                 .key(config.key() == null ? song.getOriginalKey() : config.key())
                 .teamId(song.getTeamId())
                 .theme(song.getTheme())
-                .genre(song.getGenre())
                 .tempo(song.getTempo())
                 .artist(artistMapper.toDto(artistService.getById(song.getArtistId())))
                 .build();

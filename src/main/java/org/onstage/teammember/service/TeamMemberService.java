@@ -38,7 +38,6 @@ public class TeamMemberService {
     private final UserService userService;
     private final StagerService stagerService;
     private final TeamRepository teamRepository;
-    private final SendGridService sendGridService;
     private final NotificationService notificationService;
     private final PlanService planService;
     private final DeviceService deviceService;
@@ -88,6 +87,7 @@ public class TeamMemberService {
     }
 
     public String removeTeamMember(TeamMember teamMember) {
+        log.info("Removing team member {}", teamMember.getId());
         String teamMemberId = teamMember.getId();
         delete(teamMemberId);
         notifyRemovedUser(teamMember);
@@ -133,6 +133,7 @@ public class TeamMemberService {
 
         User invitedUser;
         TeamMember teamMember;
+
 
         if (Strings.isNotEmpty(emailOrUsername)) {
             invitedUser = findOrInviteUserByEmailOrUsername(emailOrUsername, team);
@@ -267,8 +268,10 @@ public class TeamMemberService {
 
 
     private User findOrInviteUserByEmailOrUsername(String emailOrUsername, Team team) {
+        log.info("Inviting user {} to team {}", emailOrUsername, team.getName());
         User invitedUser = userService.getByUsername(emailOrUsername);
         if (invitedUser == null) {
+            log.info("User {} not found by username, trying to find by email", emailOrUsername);
             invitedUser = userService.getByEmail(emailOrUsername);
         }
 
@@ -287,6 +290,7 @@ public class TeamMemberService {
 
         TeamMember teamMember = teamMemberRepository.getByUserAndTeam(invitedUser.getId(), teamId);
         if (teamMember == null) {
+            log.info("Creating team member for user {} in team {} with status PENDING", invitedUser.getId(), teamId);
             return teamMemberRepository.save(
                     TeamMember.builder()
                             .teamId(teamId)

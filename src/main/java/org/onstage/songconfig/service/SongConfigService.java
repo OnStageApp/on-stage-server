@@ -38,4 +38,9 @@ public class SongConfigService {
     public boolean isCustomBySongAndTeam(String songId, String teamId) {
         return songConfigRepository.isCustomBySongAndTeam(songId, teamId);
     }
+
+    public void deleteBySongId(String songId) {
+        log.info("Deleting song config for song {}", songId);
+        songConfigRepository.deleteBySongId(songId);
+    }
 }
