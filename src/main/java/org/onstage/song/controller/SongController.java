@@ -1,6 +1,7 @@
 package org.onstage.song.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.onstage.common.beans.UserSecurityContext;
 import org.onstage.enums.PermissionType;
 import org.onstage.plan.service.PlanService;
@@ -18,6 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/songs")
 @RequiredArgsConstructor
+@Slf4j
 public class SongController {
     private final SongService songService;
     private final SongMapper songMapper;
@@ -64,13 +66,14 @@ String teamId = userSecurityContext.getCurrentTeamId();
     @PostMapping
     public ResponseEntity<SongDTO> create(@RequestBody CreateOrUpdateSongRequest songRequest) {
         String teamId = userSecurityContext.getCurrentTeamId();
+        String currentUserId = userSecurityContext.getUserId();
         planService.checkPermission(PermissionType.ADD_SONG, teamId);
-        return ResponseEntity.ok(songMapper.toDTO(songService.createSong(songMapper.fromCreateRequest(songRequest, teamId))));
+        return ResponseEntity.ok(songMapper.toDTO(songService.createSong(songMapper.fromCreateRequest(songRequest, teamId), currentUserId)));
     }
 
     @PostMapping("/all")
     public ResponseEntity<Void> createAll(@RequestBody List<CreateOrUpdateSongRequest> songs) {
-        songs.forEach(songRequest -> songService.createSong(songMapper.fromCreateRequest(songRequest, null)));
+        songs.forEach(songRequest -> songService.createSongForList(songMapper.fromCreateRequest(songRequest, null)));
         return ResponseEntity.ok().build();
     }
 

@@ -2,6 +2,8 @@ package org.onstage.song.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.onstage.artist.model.Artist;
+import org.onstage.artist.service.ArtistService;
 import org.onstage.exceptions.BadRequestException;
 import org.onstage.favoritesong.model.FavoriteSong;
 import org.onstage.favoritesong.repository.FavoriteSongRepository;
@@ -22,6 +24,7 @@ public class SongService {
 
     private final SongRepository songRepository;
     private final FavoriteSongRepository favoriteSongRepository;
+    private final ArtistService artistService;
 
     public Song getById(String id) {
         return songRepository.findById(id).orElseThrow(() -> BadRequestException.resourceNotFound("song"));
@@ -36,10 +39,17 @@ public class SongService {
         return songRepository.getAll(songFilter, teamId, limit, offset);
     }
 
-    public Song createSong(Song song) {
+    public Song createSong(Song song, String userId) {
+        Song savedSong = songRepository.save(song);
+        log.info("Song {} has been created by {}", savedSong.getId(), userId);
+        return savedSong;
+    }
+
+    public void createSongForList(Song song) {
+        Artist artist = artistService.getByName(song.getArtistId());
+        song.setArtistId(artist.getId());
         Song savedSong = songRepository.save(song);
         log.info("Song {} has been created", savedSong.getId());
-        return savedSong;
     }
 
     public Song updateSong(String id, Song request) {
