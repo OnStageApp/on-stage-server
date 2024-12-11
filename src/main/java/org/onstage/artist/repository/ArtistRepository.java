@@ -39,4 +39,9 @@ public class ArtistRepository {
         Criteria criteria = Criteria.where("id").is(id);
         return mongoTemplate.findOne(query(criteria), Artist.class);
     }
+
+    public Artist findByName(String artistId) {
+        Criteria criteria = Criteria.where(Artist.Fields.name).is(artistId);
+        return mongoTemplate.findOne(query(criteria), Artist.class);
+    }
 }

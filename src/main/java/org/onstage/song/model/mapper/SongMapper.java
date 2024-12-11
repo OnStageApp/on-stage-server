@@ -67,7 +67,7 @@ public class SongMapper {
         return SongOverview.builder()
                 .id(song.getId())
                 .title(song.getTitle())
-                .artist(artistMapper.toDto(artistService.getById(song.getArtistId())))
+                .artist(artistMapper.toDto(artistService.getByIdOrUpdateSong(song.getArtistId(), song)))
                 .key(song.getOriginalKey())
                 .tempo(song.getTempo())
                 .teamId(song.getTeamId())
