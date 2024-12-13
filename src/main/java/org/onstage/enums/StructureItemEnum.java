@@ -27,7 +27,10 @@ public enum StructureItemEnum {
     B2(17, "B2"),
     B3(18, "B3"),
     E(19, "E"),
-    none(20, "none");
+    INTR(20, "INTR"),
+    T(21, "T"),
+    PC(22, "PC"),
+    none(21, "none");
 
     private final static Map<Integer, StructureItemEnum> map = Arrays.stream(StructureItemEnum.values())
             .collect(Collectors.toMap(obj -> obj.index, obj -> obj));

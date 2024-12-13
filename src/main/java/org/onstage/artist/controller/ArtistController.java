@@ -2,6 +2,7 @@ package org.onstage.artist.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.onstage.artist.client.ArtistDTO;
+import org.onstage.artist.client.GetAllArtistsResponse;
 import org.onstage.artist.client.GetArtistFilter;
 import org.onstage.artist.model.Artist;
 import org.onstage.artist.model.mapper.ArtistMapper;
@@ -25,8 +26,16 @@ public class ArtistController {
     }
 
     @GetMapping
+    @Deprecated
     public ResponseEntity<List<ArtistDTO>> getAll(@RequestBody(required = false) GetArtistFilter filter) {
         return ResponseEntity.ok(artistMapper.toDtoList(artistService.getAll(filter)));
+    }
+
+    @GetMapping("/paginated")
+    public ResponseEntity<GetAllArtistsResponse> getAll(@RequestBody(required = false) GetArtistFilter filter,
+                                                        @RequestParam(defaultValue = "25") int limit,
+                                                        @RequestParam(defaultValue = "0") int offset) {
+        return ResponseEntity.ok(artistMapper.toGetAllArtists(artistService.getAll(filter, limit, offset)));
     }
 
     @PostMapping()

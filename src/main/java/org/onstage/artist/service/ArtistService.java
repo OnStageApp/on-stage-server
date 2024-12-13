@@ -3,6 +3,7 @@ package org.onstage.artist.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.onstage.artist.client.GetArtistFilter;
+import org.onstage.artist.client.PaginatedArtistResponse;
 import org.onstage.artist.model.Artist;
 import org.onstage.artist.repository.ArtistRepository;
 import org.onstage.exceptions.BadRequestException;
@@ -37,6 +38,10 @@ public class ArtistService {
 
     public List<Artist> getAll(GetArtistFilter filter) {
         return artistRepository.getAll(filter);
+    }
+
+    public PaginatedArtistResponse getAll(GetArtistFilter filter, int limit, int offset) {
+        return artistRepository.getAll(filter, limit, offset);
     }
 
     public Artist save(Artist artist) {
