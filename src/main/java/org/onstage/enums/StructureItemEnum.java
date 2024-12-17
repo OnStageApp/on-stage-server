@@ -30,7 +30,7 @@ public enum StructureItemEnum {
     INTR(20, "INTR"),
     T(21, "T"),
     PC(22, "PC"),
-    none(21, "none");
+    none(23, "none");
 
     private final static Map<Integer, StructureItemEnum> map = Arrays.stream(StructureItemEnum.values())
             .collect(Collectors.toMap(obj -> obj.index, obj -> obj));
